@@ -1,3 +1,4 @@
+// core/authentication/token.service.ts
 import { Injectable, OnDestroy } from '@angular/core';
 import { LocalStorageService } from '@shared';
 import { BehaviorSubject, Observable, Subject, Subscription, timer } from 'rxjs';
@@ -28,7 +29,6 @@ export class TokenService implements OnDestroy {
     if (!this._token) {
       this._token = this.factory.create(this.store.get(this.key));
     }
-
     return this._token;
   }
 
@@ -38,13 +38,11 @@ export class TokenService implements OnDestroy {
 
   refresh(): Observable<BaseToken | undefined> {
     this.buildRefresh();
-
     return this.refresh$.pipe(share());
   }
 
   set(token?: Token): TokenService {
     this.save(token);
-
     return this;
   }
 
@@ -57,7 +55,17 @@ export class TokenService implements OnDestroy {
   }
 
   getBearerToken(): string {
-    return this.token?.getBearerToken() ?? '';
+    const token = this.token;
+    console.log('🔍 TokenService.token:', token);
+
+    if (!token) {
+      console.log('❌ No token found');
+      return '';
+    }
+
+    const bearerToken = token.getBearerToken();
+    console.log('🔍 Bearer token from service:', bearerToken);
+    return bearerToken;
   }
 
   getRefreshToken(): string | void {
@@ -68,23 +76,8 @@ export class TokenService implements OnDestroy {
     this.clearRefresh();
   }
 
-  private save(token?: Token): void {
-    this._token = undefined;
-
-    if (!token) {
-      this.store.remove(this.key);
-    } else {
-      const value = Object.assign({ access_token: '', token_type: 'Bearer' }, token, {
-        exp: token.expires_in ? currentTimestamp() + token.expires_in : null,
-      });
-      this.store.set(this.key, filterObject(value));
-    }
-
-    this.change$.next(this.token);
-    this.buildRefresh();
-  }
-
-  private buildRefresh() {
+  // ✅ MÉTHODE PRIVÉE AJOUTÉE
+  private buildRefresh(): void {
     this.clearRefresh();
 
     if (this.token?.needRefresh()) {
@@ -94,9 +87,43 @@ export class TokenService implements OnDestroy {
     }
   }
 
-  private clearRefresh() {
+  // ✅ MÉTHODE PRIVÉE AJOUTÉE
+  private clearRefresh(): void {
     if (this.timer$ && !this.timer$.closed) {
       this.timer$.unsubscribe();
     }
+  }
+
+  // ✅ MÉTHODE PRIVÉE AJOUTÉE
+  private save(token?: Token): void {
+    this._token = undefined;
+
+    if (!token) {
+      this.store.remove(this.key);
+    } else {
+      // ✅ CORRECTION : Utiliser access_token uniquement
+      const tokenData = {
+        access_token: token.access_token || token.token,
+        token_type: token.token_type || 'Bearer',
+        refresh_token: token.refresh_token,
+        expires_in: token.expires_in,
+      };
+
+      // Calculer l'expiration si disponible
+      const exp = token.expires_in ? currentTimestamp() + token.expires_in : null;
+
+      // Fusionner avec les données existantes
+      const value = {
+        ...tokenData,
+        ...token,
+        exp,
+      };
+
+      // Filtrer et sauvegarder
+      this.store.set(this.key, filterObject(value as Record<string, unknown>));
+    }
+
+    this.change$.next(this.token);
+    this.buildRefresh();
   }
 }

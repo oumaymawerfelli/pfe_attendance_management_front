@@ -4,6 +4,8 @@
 
 export const environment = {
   production: false,
+  // Leave empty when using ng serve: proxy.config.js forwards /auth and /me to Spring (localhost:8080).
+  // Or set e.g. 'http://localhost:8080' to call Spring directly (requires CORS on backend).
   baseUrl: '',
   useHash: false,
 };

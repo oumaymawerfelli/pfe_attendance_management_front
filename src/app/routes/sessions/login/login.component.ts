@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '@core/authentication';
 
@@ -12,17 +13,19 @@ import { AuthService } from '@core/authentication';
 })
 export class LoginComponent {
   isSubmitting = false;
+  hidePassword = true;
 
   loginForm = this.fb.nonNullable.group({
-    username: ['ng-matero', [Validators.required]],
-    password: ['ng-matero', [Validators.required]],
+    username: ['', [Validators.required]], // Can be username OR email
+    password: ['', [Validators.required]],
     rememberMe: [false],
   });
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private auth: AuthService
+    private auth: AuthService,
+    private snackBar: MatSnackBar
   ) {}
 
   get username() {
@@ -38,27 +41,58 @@ export class LoginComponent {
   }
 
   login() {
+    if (this.loginForm.invalid) {
+      this.markFormGroupTouched(this.loginForm);
+      return;
+    }
+
     this.isSubmitting = true;
 
+    const email = this.username.value.trim();
+    const password = this.password.value.trim();
+
     this.auth
-      .login(this.username.value, this.password.value, this.rememberMe.value)
-      .pipe(filter(authenticated => authenticated))
+      .login(email, password, this.rememberMe.value)
+      .pipe(filter((authenticated: any) => authenticated))
       .subscribe({
-        next: () => {
-          this.router.navigateByUrl('/');
+        next: (response: any) => {
+          console.log('✅ Login successful:', response);
+
+          // 🔍 VÉRIFICATION DU TOKEN APRÈS LOGIN
+          setTimeout(() => {
+            const token = localStorage.getItem('ng-matero-token');
+            console.log('🔍 Token in localStorage:', token);
+
+            if (token) {
+              try {
+                const tokenObj = JSON.parse(token);
+                console.log('🔍 Token object:', tokenObj);
+                console.log('🔍 Access token:', tokenObj.access_token);
+              } catch (e) {
+                console.error('❌ Error parsing token:', e);
+              }
+            } else {
+              console.error('❌ No token found in localStorage!');
+            }
+          }, 100);
+
+          this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
+          this.router.navigateByUrl('/dashboard');
         },
         error: (errorRes: HttpErrorResponse) => {
-          if (errorRes.status === 422) {
-            const form = this.loginForm;
-            const errors = errorRes.error.errors;
-            Object.keys(errors).forEach(key => {
-              form.get(key === 'email' ? 'username' : key)?.setErrors({
-                remote: errors[key][0],
-              });
-            });
-          }
+          console.error('❌ Login error:', errorRes);
           this.isSubmitting = false;
+          const errorMessage = errorRes.error?.message || 'Login failed';
+          this.snackBar.open(errorMessage, 'Close', { duration: 5000 });
         },
       });
+  }
+  private markFormGroupTouched(formGroup: any) {
+    Object.values(formGroup.controls).forEach((control: any) => {
+      control.markAsTouched();
+      if (control.controls) {
+        this.markFormGroupTouched(control);
+      }
+    });
   }
 }

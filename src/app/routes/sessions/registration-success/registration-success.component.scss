@@ -1,0 +1,92 @@
+// registration-success.component.scss
+.success-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 16px;
+}
+
+.success-card {
+  width: 100%;
+  max-width: 500px;
+  padding: 24px;
+
+  .success-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    mat-icon {
+      width: 40px;
+      height: 40px;
+      font-size: 40px;
+    }
+  }
+
+  .email-info {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    margin: 24px 0;
+    background-color: #e8f5e9;
+    border-radius: 4px;
+
+    .email-address {
+      font-weight: 500;
+      color: #2e7d32;
+    }
+  }
+
+  .info-card {
+    margin-bottom: 24px;
+    background-color: #f5f5f5;
+
+    .info-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 8px 0;
+
+      mat-icon {
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+      }
+
+      span {
+        color: rgba(0, 0, 0, .87);
+      }
+    }
+  }
+
+  .warning-message {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 12px;
+    background-color: #fff3e0;
+    border-radius: 4px;
+
+    span {
+      font-size: 14px;
+      color: #e65100;
+    }
+  }
+
+  mat-card-actions {
+    display: flex;
+    gap: 12px;
+    padding: 16px 8px !important;
+
+    button {
+      flex: 1;
+
+      mat-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+}

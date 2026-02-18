@@ -1,53 +1,92 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
-import { AuthService, User } from '@core/authentication';
+import { UserService } from '@core/services/user.service';
+import { User } from '@core/authentication/interface';
 
 @Component({
   selector: 'app-user-panel',
   template: `
-    <div class="matero-user-panel">
-      <img class="matero-user-panel-avatar" [src]="user.avatar" alt="avatar" width="64" />
-      <h4 class="matero-user-panel-name">{{ user.name }}</h4>
-      <h5 class="matero-user-panel-email">{{ user.email }}</h5>
-      <div class="matero-user-panel-icons">
-        <button
-          mat-icon-button
-          routerLink="/profile/overview"
-          matTooltip="{{ 'profile' | translate }}"
-        >
-          <mat-icon>account_circle</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          routerLink="/profile/settings"
-          matTooltip="{{ 'edit_profile' | translate }}"
-        >
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button (click)="logout()" matTooltip="{{ 'logout' | translate }}">
-          <mat-icon>exit_to_app</mat-icon>
-        </button>
+    <div class="user-panel" *ngIf="user$ | async as user" (click)="goToProfile()">
+      <div class="user-panel__avatar">
+        <img [src]="'./assets/images/def-avatar.avif'" alt="Avatar" />
+      </div>
+      <div class="user-panel__info">
+        <h4>{{ user.firstName }} {{ user.lastName }}</h4>
+        <p>{{ user.email }}</p>
+        <span class="badge">{{ formatRole(user.roles?.[0]) }}</span>
       </div>
     </div>
   `,
-  styleUrls: ['./user-panel.component.scss'],
-  encapsulation: ViewEncapsulation.None,
+  styles: [
+    `
+      .user-panel {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        background: #f5f5f5;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .user-panel:hover {
+        background: #e0e0e0;
+      }
+      .user-panel__avatar {
+        margin-right: 12px;
+      }
+      .user-panel__avatar img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .user-panel__info {
+        flex: 1;
+      }
+      .user-panel__info h4 {
+        margin: 0 0 4px;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      .user-panel__info p {
+        margin: 0 0 4px;
+        font-size: 14px;
+        color: #666;
+      }
+      .badge {
+        background: #ff9800;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    `,
+  ],
 })
 export class UserPanelComponent implements OnInit {
-  user!: User;
+  user$!: Observable<User | null>;
 
   constructor(
-    private router: Router,
-    private auth: AuthService
+    private userService: UserService,
+    private router: Router
   ) {}
 
-  ngOnInit(): void {
-    this.auth.user().subscribe(user => (this.user = user));
+  ngOnInit() {
+    this.user$ = this.userService.getUser();
   }
 
-  logout() {
-    this.auth.logout().subscribe(() => {
-      this.router.navigateByUrl('/auth/login');
-    });
+  formatRole(role: string | undefined): string {
+    if (!role) return 'EMPLOYEE';
+    let cleanRole = role.replace('ROLE_', '');
+    cleanRole = cleanRole.replace(/_/g, ' ');
+    return cleanRole;
+  }
+
+  goToProfile(): void {
+    this.router.navigate(['/profile/overview']);
   }
 }

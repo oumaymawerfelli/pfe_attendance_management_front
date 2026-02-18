@@ -1,5 +1,7 @@
+// src/app/theme/theme.module.ts
 import { NgModule } from '@angular/core';
 import { SharedModule } from '@shared/shared.module';
+import { RouterModule } from '@angular/router';
 
 import { AdminLayoutComponent } from './admin-layout/admin-layout.component';
 import { AuthLayoutComponent } from './auth-layout/auth-layout.component';
@@ -18,7 +20,8 @@ import { TopmenuPanelComponent } from './topmenu/topmenu-panel.component';
 import { HeaderComponent } from './header/header.component';
 
 import { BrandingComponent } from './widgets/branding.component';
-import { GithubButtonComponent } from './widgets/github.component';
+// ❌ SUPPRIMER L'IMPORT DE GITHUB
+// import { GithubButtonComponent } from './widgets/github.component';
 import { NotificationComponent } from './widgets/notification.component';
 import { TranslateComponent } from './widgets/translate.component';
 import { UserComponent } from './widgets/user.component';
@@ -40,12 +43,14 @@ import { CustomizerComponent } from './customizer/customizer.component';
     TopmenuPanelComponent,
     HeaderComponent,
     BrandingComponent,
-    GithubButtonComponent,
+    // ❌ SUPPRIMER GITHUB DES DÉCLARATIONS
+    // GithubButtonComponent,
     NotificationComponent,
     TranslateComponent,
     UserComponent,
     CustomizerComponent,
   ],
-  imports: [SharedModule],
+  imports: [SharedModule, RouterModule],
+  exports: [AdminLayoutComponent, AuthLayoutComponent],
 })
 export class ThemeModule {}

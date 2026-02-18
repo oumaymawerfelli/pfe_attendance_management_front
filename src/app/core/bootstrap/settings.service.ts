@@ -4,7 +4,7 @@ import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 import { AppDirectionality, LocalStorageService } from '@shared';
 import { BehaviorSubject } from 'rxjs';
-import { AppSettings, AppTheme, defaults } from '../settings';
+import { AppSettings, AppTheme, defaults } from '../settings/settings';
 
 @Injectable({
   providedIn: 'root',

@@ -1,20 +1,32 @@
 export interface User {
-  [prop: string]: any;
-
-  id?: number | string | null;
-  name?: string;
+  id?: number;
+  firstName?: string;
+  lastName?: string;
   email?: string;
-  avatar?: string;
-  roles?: any[];
-  permissions?: any[];
+  phone?: string;
+  address?: string;
+  jobTitle?: string;
+  department?: string;
+  service?: string;
+  hireDate?: Date;
+  contractType?: string;
+  baseSalary?: number;
+  active?: boolean;
+  enabled?: boolean;
+  roles?: string[];
+  gender?: string;
+  nationality?: string;
+  maritalStatus?: string;
+  nationalId?: string;
+  birthDate?: Date;
+  [key: string]: any;
 }
 
 export interface Token {
-  [prop: string]: any;
-
   access_token: string;
-  token_type?: string;
-  expires_in?: number;
-  exp?: number;
+  token_type: string;
+  expires_in: number;
   refresh_token?: string;
+  exp?: number;
+  token?: string;
 }

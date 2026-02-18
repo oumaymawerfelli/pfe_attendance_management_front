@@ -16,6 +16,7 @@ export abstract class BaseToken {
     return this.attributes.token_type ?? 'bearer';
   }
 
+  // ✅ CORRIGÉ : utiliser this.attributes.exp
   get exp(): number | void {
     return this.attributes.exp;
   }
@@ -78,7 +79,9 @@ export class JwtToken extends SimpleToken {
 
     const [, payload] = this.access_token.split('.');
     const data = JSON.parse(base64.decode(payload));
-    if (!data.exp) {
+
+    // ✅ CORRIGÉ : utiliser this.attributes.exp
+    if (!data.exp && this.attributes.exp) {
       data.exp = this.attributes.exp;
     }
 

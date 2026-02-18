@@ -1,4 +1,4 @@
-﻿// src/app/core/index.ts
+// src/app/core/index.ts
 
 // Authentication - exporter tout sauf Menu (pour éviter conflit)
 export * from './authentication/register-request';
@@ -25,20 +25,11 @@ export * from './bootstrap/sanctum.service';
 export * from './settings/settings.service';
 export * from './settings/settings';
 
-// Constants - exporter tout (contient BASE_URL et httpInterceptorProviders)
+// Constants
 export * from './constants';
 
-// Interceptors - NE PAS exporter tout car conflit
-// Exporter uniquement les intercepteurs individuels
-export {
-  BaseUrlInterceptor,
-  DefaultInterceptor,
-  ErrorInterceptor,
-  LoggingInterceptor,
-  NoopInterceptor,
-  SettingsInterceptor,
-  TokenInterceptor,
-} from './interceptors';
+// Interceptors
+export * from './interceptors';
 
 // Module guard
 export * from './module-import-guard';

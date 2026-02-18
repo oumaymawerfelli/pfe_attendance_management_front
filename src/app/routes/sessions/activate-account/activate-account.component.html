@@ -1,0 +1,189 @@
+<div class="activate-container">
+  <mat-card class="activate-card">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <mat-spinner diameter="60"></mat-spinner>
+      <h2>Validating your activation link...</h2>
+      <p>Please wait while we verify your token</p>
+    </div>
+
+    <!-- Invalid Token State -->
+    <div *ngIf="!isLoading && !isValidToken" class="error-state">
+      <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
+      <h2>Invalid or Expired Link</h2>
+      <p>The activation link you clicked is invalid or has expired.</p>
+      
+      <div class="error-actions">
+        <button mat-raised-button color="primary" routerLink="/auth/register">
+          <mat-icon>app_registration</mat-icon>
+          Register Again
+        </button>
+        <button mat-button routerLink="/auth/login">
+          <mat-icon>login</mat-icon>
+          Back to Login
+        </button>
+      </div>
+    </div>
+
+    <!-- Valid Token - Activation Form -->
+    <div *ngIf="!isLoading && isValidToken" class="form-state">
+      <mat-card-header>
+        <div mat-card-avatar class="header-icon">
+          <mat-icon color="primary">verified_user</mat-icon>
+        </div>
+        <mat-card-title>Activate Your Account</mat-card-title>
+        <mat-card-subtitle>
+          Welcome {{ firstName }} {{ lastName }}! Please set up your account
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- User Info Summary -->
+        <mat-card class="info-card" appearance="outlined">
+          <mat-card-content>
+            <div class="info-row">
+              <mat-icon color="primary">email</mat-icon>
+              <span>{{ email }}</span>
+            </div>
+            <div class="info-row">
+              <mat-icon color="primary">person</mat-icon>
+              <span>{{ firstName }} {{ lastName }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Activation Form -->
+        <form [formGroup]="activationForm" (ngSubmit)="onSubmit()" *ngIf="activationForm">
+          <!-- Username Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <input 
+              matInput 
+              formControlName="username" 
+              placeholder="Choose a username"
+              autocomplete="off">
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-icon 
+              matSuffix 
+              *ngIf="activationForm.get('username')?.valid && activationForm.get('username')?.touched" 
+              color="primary">check_circle</mat-icon>
+            
+            <mat-error *ngIf="activationForm.get('username')?.hasError('required')">
+              Username is required
+            </mat-error>
+            <mat-error *ngIf="activationForm.get('username')?.hasError('minlength')">
+              Username must be at least 3 characters (currently {{ activationForm.get('username')?.value?.length }})
+            </mat-error>
+            <mat-error *ngIf="activationForm.get('username')?.hasError('maxlength')">
+              Username cannot exceed 50 characters
+            </mat-error>
+            
+            <mat-hint>Choose a unique username (min. 3 characters)</mat-hint>
+          </mat-form-field>
+
+          <!-- Password Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input 
+              matInput 
+              [type]="hidePassword ? 'password' : 'text'" 
+              formControlName="password"
+              placeholder="Create a strong password">
+            <mat-icon matPrefix>lock</mat-icon>
+            <button 
+              type="button"
+              mat-icon-button 
+              matSuffix 
+              (click)="hidePassword = !hidePassword"
+              [attr.aria-label]="'Hide password'">
+              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            
+            <mat-error *ngIf="activationForm.get('password')?.hasError('required')">
+              Password is required
+            </mat-error>
+            <mat-error *ngIf="activationForm.get('password')?.hasError('minlength')">
+              Password must be at least 8 characters (currently {{ activationForm.get('password')?.value?.length }})
+            </mat-error>
+            <mat-error *ngIf="activationForm.get('password')?.hasError('pattern')">
+              Password must contain at least one letter, one number, and one special character (@$!%*#?&)
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Password Strength Indicator -->
+          <div class="password-strength" *ngIf="activationForm.get('password')?.value">
+            <div class="strength-text">
+              <span>Password strength:</span>
+              <span [ngClass]="getPasswordStrengthClass()">{{ getPasswordStrength() }}</span>
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="getPasswordStrengthValue()"
+              [color]="getPasswordStrengthColor()">
+            </mat-progress-bar>
+          </div>
+
+          <!-- Confirm Password Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Confirm Password</mat-label>
+            <input 
+              matInput 
+              [type]="hideConfirmPassword ? 'password' : 'text'" 
+              formControlName="confirmPassword"
+              placeholder="Re-enter your password">
+            <mat-icon matPrefix>lock</mat-icon>
+            <button 
+              type="button"
+              mat-icon-button 
+              matSuffix 
+              (click)="hideConfirmPassword = !hideConfirmPassword"
+              [attr.aria-label]="'Hide password'">
+              <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            <mat-icon 
+              matSuffix 
+              *ngIf="activationForm.get('confirmPassword')?.valid && activationForm.get('confirmPassword')?.touched && !activationForm.hasError('passwordMismatch')" 
+              color="primary">check_circle</mat-icon>
+            
+            <mat-error *ngIf="activationForm.get('confirmPassword')?.hasError('required')">
+              Please confirm your password
+            </mat-error>
+            <mat-error *ngIf="activationForm.hasError('passwordMismatch')">
+              ⚠️ Passwords do not match
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              type="submit" 
+              [disabled]="activationForm.invalid"
+              class="submit-button">
+              <mat-icon>check_circle</mat-icon>
+              Activate Account
+            </button>
+
+            <button 
+              mat-button 
+              type="button" 
+              routerLink="/auth/login">
+              <mat-icon>arrow_back</mat-icon>
+              Back to Login
+            </button>
+          </div>
+        </form>
+
+        <!-- Resend Link -->
+        <div class="resend-section">
+          <p>Didn't receive the email? 
+            <a href="#" (click)="$event.preventDefault(); resendActivation()">
+              Click here to resend
+            </a>
+          </p>
+        </div>
+      </mat-card-content>
+    </div>
+  </mat-card>
+</div>

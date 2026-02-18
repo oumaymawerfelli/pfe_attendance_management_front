@@ -4,15 +4,14 @@ import { Component } from '@angular/core';
   selector: 'app-branding',
   template: `
     <a class="d-inline-block text-nowrap r-full text-reset" href="/">
-      <img src="./assets/images/matero.png" class="brand-logo align-middle m-2 r-full" alt="logo" />
-      <span class="align-middle f-s-16 f-w-500 m-x-8 hide-small">MATERO</span>
+      <img src="./assets/images/logo1.webp" class="brand-logo align-middle m-2 r-full" alt="logo" />
     </a>
   `,
   styles: [
     `
       .brand-logo {
-        width: 30px;
-        height: 30px;
+        width: 150px;
+        height: 150px;
       }
 
       a {

@@ -1,0 +1,220 @@
+.activate-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  @media (width <= 600px) {
+    padding: 16px;
+  }
+}
+
+.activate-card {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .1);
+
+  .loading-state,
+  .error-state,
+  .form-state {
+    padding: 32px;
+    text-align: center;
+  }
+
+  .loading-state {
+    mat-spinner {
+      margin: 0 auto 24px;
+    }
+
+    h2 {
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    p {
+      color: #666;
+    }
+  }
+
+  .error-state {
+    .error-icon {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      font-size: 64px;
+    }
+
+    h2 {
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    p {
+      margin-bottom: 24px;
+      color: #666;
+    }
+
+    .error-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+
+      button {
+        min-width: 140px;
+      }
+    }
+  }
+
+  .form-state {
+    text-align: left;
+
+    .header-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      mat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 32px;
+      }
+    }
+
+    mat-card-header {
+      margin-bottom: 20px;
+    }
+  }
+}
+
+.info-card {
+  margin-bottom: 24px;
+  background-color: #f8f9fa;
+  
+  .info-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 0;
+    
+    &:not(:last-child) {
+      border-bottom: 1px solid rgba(0, 0, 0, .08);
+    }
+    
+    mat-icon {
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
+      color: #3f51b5;
+    }
+    
+    span {
+      font-size: 14px;
+      color: #333;
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.password-strength {
+  margin: -8px 0 16px;
+  
+  .strength-text {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #666;
+    
+    .strength-weak {
+      color: #f44336;
+    }
+    
+    .strength-medium {
+      color: #ff9800;
+    }
+    
+    .strength-strong {
+      color: #4caf50;
+    }
+    
+    .strength-very-strong {
+      color: #2196f3;
+    }
+  }
+  
+  mat-progress-bar {
+    height: 4px;
+    border-radius: 2px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  
+  .submit-button {
+    height: 48px;
+    font-size: 16px;
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+    
+    &:disabled {
+      opacity: .6;
+    }
+  }
+}
+
+.resend-section {
+  padding-top: 16px;
+  margin-top: 24px;
+  text-align: center;
+  border-top: 1px solid rgba(0, 0, 0, .08);
+  
+  p {
+    font-size: 14px;
+    color: #666;
+    
+    a {
+      font-weight: 500;
+      color: #3f51b5;
+      text-decoration: none;
+      cursor: pointer;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Global snackbar styles (add to your global styles.scss)
+:host ::ng-deep {
+  .error-snackbar {
+    color: white;
+    background: #f44336;
+    
+    .mat-simple-snackbar-action {
+      color: white;
+    }
+  }
+
+  .success-snackbar {
+    color: white;
+    background: #4caf50;
+    
+    .mat-simple-snackbar-action {
+      color: white;
+    }
+  }
+}

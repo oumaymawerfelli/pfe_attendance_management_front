@@ -1,114 +1,70 @@
+<!-- src/app/routes/profile/overview/overview.component.html -->
 <mat-card>
   <mat-tab-group>
-    <mat-tab label="First">
+    <mat-tab label="Overview">
       <div class="m-16">
-        <img class="d-block w-full" src="assets/images/pixabay/2.jpg" alt="">
-        <h3>Aenean viverra arcu nec pellentesque ultrices. In erat purus, adipiscing nec lacinia at,
-          ornare ac eros.
-        </h3>
-        <p>
-          Nullam at risus metus. Quisque nisl purus, pulvinar ut mauris vel, elementum suscipit
-          eros. Praesent
-          ornare ante massa, egestas pellentesque orci convallis ut. Curabitur consequat convallis
-          est, id luctus
-          mauris lacinia vel. Nullam tristique lobortis mauris, ultricies fermentum lacus bibendum
-          id. Proin non
-          ante tortor. Suspendisse pulvinar ornare tellus nec pulvinar. Nam pellentesque accumsan
-          mi, non
-          pellentesque sem convallis sed. Quisque rutrum erat id auctor gravida.</p>
-        <p>
-          Nullam at risus metus. Quisque nisl purus, pulvinar ut mauris vel, elementum suscipit
-          eros. Praesent
-          ornare ante massa, egestas pellentesque orci convallis ut. Curabitur consequat convallis
-          est, id luctus
-          mauris lacinia vel. Nullam tristique lobortis mauris, ultricies fermentum lacus bibendum
-          id. Proin non
-          ante tortor. Suspendisse pulvinar ornare tellus nec pulvinar. Nam pellentesque accumsan
-          mi, non
-          pellentesque sem convallis sed. Quisque rutrum erat id auctor gravida.</p>
-        <p>
-          Nullam at risus metus. Quisque nisl purus, pulvinar ut mauris vel, elementum suscipit
-          eros. Praesent
-          ornare ante massa, egestas pellentesque orci convallis ut. Curabitur consequat convallis
-          est, id luctus
-          mauris lacinia vel. Nullam tristique lobortis mauris, ultricies fermentum lacus bibendum
-          id. Proin non
-          ante tortor. Suspendisse pulvinar ornare tellus nec pulvinar. Nam pellentesque accumsan
-          mi, non
-          pellentesque sem convallis sed. Quisque rutrum erat id auctor gravida.</p>
+        <h2>About {{ user?.firstName }} {{ user?.lastName }}</h2>
+        
+        <mat-list>
+          <mat-list-item>
+            <mat-icon matListItemIcon>email</mat-icon>
+            <div matListItemTitle>Email</div>
+            <div matListItemLine>{{ user?.email || 'Not provided' }}</div>
+          </mat-list-item>
+          
+          <mat-divider></mat-divider>
+          
+          <mat-list-item>
+            <mat-icon matListItemIcon>phone</mat-icon>
+            <div matListItemTitle>Phone</div>
+            <div matListItemLine>{{ user?.phone || 'Not provided' }}</div>
+          </mat-list-item>
+          
+          <mat-divider></mat-divider>
+          
+          <mat-list-item>
+            <mat-icon matListItemIcon>work</mat-icon>
+            <div matListItemTitle>Job Title</div>
+            <div matListItemLine>{{ user?.jobTitle || 'Not provided' }}</div>
+          </mat-list-item>
+          
+          <mat-divider></mat-divider>
+          
+          <mat-list-item>
+            <mat-icon matListItemIcon>business</mat-icon>
+            <div matListItemTitle>Department</div>
+            <div matListItemLine>{{ user?.department || 'Not provided' }}</div>
+          </mat-list-item>
+          
+          <mat-divider></mat-divider>
+          
+          <mat-list-item>
+            <mat-icon matListItemIcon>location_on</mat-icon>
+            <div matListItemTitle>Address</div>
+            <div matListItemLine>{{ user?.address || 'Not provided' }}</div>
+          </mat-list-item>
+          
+          <mat-divider></mat-divider>
+          
+          <mat-list-item>
+            <mat-icon matListItemIcon>cake</mat-icon>
+            <div matListItemTitle>Birth Date</div>
+            <div matListItemLine>{{ user?.birthDate || 'Not provided' }}</div>
+          </mat-list-item>
+        </mat-list>
       </div>
     </mat-tab>
-    <mat-tab label="Second">
+    
+    <mat-tab label="Activity">
       <div class="m-16">
-        <img class="d-block w-full" src="assets/images/pixabay/8.jpg" alt="">
-        <h3>Vestibulum vitae diam nec odio dapibus placerat. Ut ut lorem justo.</h3>
-        <p>
-          Fusce bibendum augue nec fermentum tempus. Sed laoreet dictum tempus. Aenean ac sem quis
-          nulla malesuada
-          volutpat. Nunc vitae urna pulvinar velit commodo cursus. Nullam eu felis quis diam
-          adipiscing hendrerit
-          vel ac turpis. Nam mattis fringilla euismod. Donec eu ipsum sit amet mauris iaculis
-          aliquet. Quisque sit
-          amet feugiat odio. Cras convallis lorem at libero lobortis, placerat lobortis sapien
-          lacinia. Duis sit
-          amet elit bibendum sapien dignissim bibendum.</p>
-        <p>
-          Fusce bibendum augue nec fermentum tempus. Sed laoreet dictum tempus. Aenean ac sem quis
-          nulla malesuada
-          volutpat. Nunc vitae urna pulvinar velit commodo cursus. Nullam eu felis quis diam
-          adipiscing hendrerit
-          vel ac turpis. Nam mattis fringilla euismod. Donec eu ipsum sit amet mauris iaculis
-          aliquet. Quisque sit
-          amet feugiat odio. Cras convallis lorem at libero lobortis, placerat lobortis sapien
-          lacinia. Duis sit
-          amet elit bibendum sapien dignissim bibendum.</p>
-        <p>
-          Fusce bibendum augue nec fermentum tempus. Sed laoreet dictum tempus. Aenean ac sem quis
-          nulla malesuada
-          volutpat. Nunc vitae urna pulvinar velit commodo cursus. Nullam eu felis quis diam
-          adipiscing hendrerit
-          vel ac turpis. Nam mattis fringilla euismod. Donec eu ipsum sit amet mauris iaculis
-          aliquet. Quisque sit
-          amet feugiat odio. Cras convallis lorem at libero lobortis, placerat lobortis sapien
-          lacinia. Duis sit
-          amet elit bibendum sapien dignissim bibendum.</p>
-
+        <h3>Recent Activity</h3>
+        <p class="text-grey-500">No recent activity</p>
       </div>
     </mat-tab>
-    <mat-tab label="Third">
+    
+    <mat-tab label="Settings">
       <div class="m-16">
-        <img class="d-block w-full" src="assets/images/pixabay/16.jpg" alt="">
-        <h3>Maecenas eget turpis luctus, scelerisque arcu id, iaculis urna. Interdum et malesuada
-          fames ac ante
-          ipsum primis in faucibus.</h3>
-        <p>
-          Morbi placerat est nec pharetra placerat. Ut laoreet nunc accumsan orci aliquam accumsan.
-          Maecenas
-          volutpat dolor vitae sapien ultricies fringilla. Suspendisse vitae orci sed nibh ultrices
-          tristique.
-          Aenean in ante eget urna semper imperdiet. Pellentesque sagittis a nulla at scelerisque.
-          Nam augue nulla,
-          accumsan quis nisi a, facilisis eleifend nulla. Praesent aliquet odio non imperdiet
-          fringilla.</p>
-        <p>
-          Morbi placerat est nec pharetra placerat. Ut laoreet nunc accumsan orci aliquam accumsan.
-          Maecenas
-          volutpat dolor vitae sapien ultricies fringilla. Suspendisse vitae orci sed nibh ultrices
-          tristique.
-          Aenean in ante eget urna semper imperdiet. Pellentesque sagittis a nulla at scelerisque.
-          Nam augue nulla,
-          accumsan quis nisi a, facilisis eleifend nulla. Praesent aliquet odio non imperdiet
-          fringilla.</p>
-        <p>
-          Morbi placerat est nec pharetra placerat. Ut laoreet nunc accumsan orci aliquam accumsan.
-          Maecenas
-          volutpat dolor vitae sapien ultricies fringilla. Suspendisse vitae orci sed nibh ultrices
-          tristique.
-          Aenean in ante eget urna semper imperdiet. Pellentesque sagittis a nulla at scelerisque.
-          Nam augue nulla,
-          accumsan quis nisi a, facilisis eleifend nulla. Praesent aliquet odio non imperdiet
-          fringilla.</p>
-
+        <button mat-raised-button color="warn">Change Password</button>
       </div>
     </mat-tab>
   </mat-tab-group>

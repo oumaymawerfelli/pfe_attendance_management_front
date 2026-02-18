@@ -1,15 +1,23 @@
+// src/app/theme/widgets/user.component.ts
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SettingsService } from '@core';
-import { AuthService, User } from '@core/authentication';
+import { AuthService } from '@core/authentication';
+import { UserService } from '@core/services/user.service';
 import { debounceTime, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user',
   template: `
     <button class="r-full" mat-button [matMenuTriggerFor]="menu">
-      <img matButtonIcon class="avatar r-full" [src]="user.avatar" width="24" alt="avatar" />
-      <span class="m-x-8">{{ user.name }}</span>
+      <img
+        matButtonIcon
+        class="avatar r-full"
+        [src]="'assets/images/def-avatar.avif'"
+        width="24"
+        alt="avatar"
+      />
+      <span class="m-x-8">{{ user?.firstName }} {{ user?.lastName }}</span>
     </button>
 
     <mat-menu #menu="matMenu">
@@ -36,28 +44,29 @@ import { debounceTime, tap } from 'rxjs/operators';
       .avatar {
         width: 24px;
         height: 24px;
+        border-radius: 50%;
       }
     `,
   ],
 })
 export class UserComponent implements OnInit {
-  user!: User;
+  user: any = {};
 
   constructor(
     private router: Router,
     private auth: AuthService,
     private cdr: ChangeDetectorRef,
-    private settings: SettingsService
+    private settings: SettingsService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
-    this.auth
-      .user()
-      .pipe(
-        tap(user => (this.user = user)),
-        debounceTime(10)
-      )
-      .subscribe(() => this.cdr.detectChanges());
+    this.userService.getUser().subscribe(user => {
+      if (user) {
+        this.user = user;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   logout() {

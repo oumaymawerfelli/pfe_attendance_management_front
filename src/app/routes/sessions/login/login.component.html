@@ -1,42 +1,69 @@
 <div class="d-flex w-full h-full">
   <mat-card class="m-auto" style="max-width: 380px;">
     <mat-card-header class="m-b-24">
-      <mat-card-title>{{'login_title' | translate}}!</mat-card-title>
+      <mat-card-title>{{'login_title' | translate}}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
-      <form class="form-field-full" [formGroup]="loginForm">
-        <mat-form-field appearance="outline">
-          <mat-label>{{'username' | translate}}: ng-matero</mat-label>
-          <input matInput placeholder="ng-matero" formControlName="username" required>
-          <mat-error *ngIf="username.invalid">
-            <span *ngIf="username.errors?.required">{{'please_enter' | translate}}
-              <strong>ng-matero</strong>
-            </span>
+      <form class="form-field-full" [formGroup]="loginForm" (ngSubmit)="login()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Username or Email</mat-label>
+          <input 
+            matInput 
+            placeholder="Enter your username or email" 
+            formControlName="username" 
+            required>
+          <mat-icon matPrefix>person</mat-icon>
+          <mat-error *ngIf="username.invalid && username.touched">
+            <span *ngIf="username.errors?.required">Username or email is required</span>
             <span *ngIf="username.errors?.remote">{{ username.errors?.remote }}</span>
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>{{'password' | translate}}: ng-matero</mat-label>
-          <input matInput placeholder="ng-matero" type="password"
-                 formControlName="password" required>
-          <mat-error *ngIf="password.invalid">
-            <span *ngIf="password.errors?.required">{{'please_enter' | translate}}
-              <strong>ng-matero</strong>
-            </span>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input 
+            matInput 
+            [type]="hidePassword ? 'password' : 'text'" 
+            placeholder="Enter your password"
+            formControlName="password" 
+            required>
+          <mat-icon matPrefix>lock</mat-icon>
+          <button 
+            type="button"
+            mat-icon-button 
+            matSuffix 
+            (click)="hidePassword = !hidePassword">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="password.invalid && password.touched">
+            <span *ngIf="password.errors?.required">Password is required</span>
             <span *ngIf="password.errors?.remote">{{ password.errors?.remote }}</span>
           </mat-error>
         </mat-form-field>
 
-        <mat-checkbox formControlName="rememberMe">{{'remember_me' | translate}}
-        </mat-checkbox>
+        <div class="flex items-center justify-between m-y-16">
+          <mat-checkbox formControlName="rememberMe">
+            {{'remember_me' | translate}}
+          </mat-checkbox>
+          <a routerLink="/auth/forgot-password" class="text-sm">
+            Forgot password?
+          </a>
+        </div>
 
-        <button class="w-full m-y-16" mat-raised-button color="primary"
-                [disabled]="!!loginForm.invalid" [loading]="isSubmitting"
-                (click)="login()">{{'login' | translate}}</button>
+        <button 
+          class="w-full" 
+          mat-raised-button 
+          color="primary" 
+          type="submit"
+          [disabled]="loginForm.invalid || isSubmitting" 
+          [loading]="isSubmitting">
+          <mat-icon>login</mat-icon>
+          {{'login' | translate}}
+        </button>
 
-        <div>{{'have_no_account' | translate}}?
+        <div class="text-center m-t-16">
+          {{'have_no_account' | translate}}?
           <a routerLink="/auth/register">{{'create_one_account' | translate}}</a>
         </div>
       </form>

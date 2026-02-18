@@ -1,4 +1,4 @@
-export type AppTheme = 'light' | 'dark' | 'auto';
+﻿export type AppTheme = 'light' | 'dark' | 'auto';
 
 export interface AppSettings {
   navPos: 'side' | 'top';

@@ -5,7 +5,7 @@ import { filterObject, isEmptyObject } from './helpers';
 import { User } from './interface';
 import { LoginService } from './login.service';
 import { TokenService } from './token.service';
-
+import { UserService } from '../services/user.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -21,7 +21,8 @@ export class AuthService {
 
   constructor(
     private loginService: LoginService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private userService: UserService
   ) {}
 
   init() {
@@ -38,7 +39,9 @@ export class AuthService {
 
   login(username: string, password: string, rememberMe = false) {
     return this.loginService.login(username, password, rememberMe).pipe(
-      tap(token => this.tokenService.set(token)),
+      tap(token => {
+        this.tokenService.set(token);
+      }),
       map(() => this.check())
     );
   }
@@ -55,7 +58,11 @@ export class AuthService {
 
   logout() {
     return this.loginService.logout().pipe(
-      tap(() => this.tokenService.clear()),
+      tap(() => {
+        this.tokenService.clear();
+        localStorage.removeItem('currentUser');
+        this.user$.next({});
+      }),
       map(() => !this.check())
     );
   }
@@ -77,6 +84,28 @@ export class AuthService {
       return of(this.user$.getValue());
     }
 
-    return this.loginService.me().pipe(tap(user => this.user$.next(user)));
+    return this.loginService.me().pipe(
+      tap(user => {
+        console.log(' Utilisateur chargé depuis /me:', user);
+        console.log(' Rôles bruts:', user.roles);
+        console.log('Type des rôles:', typeof user.roles);
+        console.log('Est un tableau?', Array.isArray(user.roles));
+        if (Array.isArray(user.roles) && user.roles.length > 0) {
+          console.log(' Premier rôle:', user.roles[0]);
+        }
+        this.user$.next(user);
+        this.userService.setUser(user);
+      }),
+      catchError(error => {
+        console.error(' Erreur chargement utilisateur:', error);
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          this.user$.next(user);
+          return of(user);
+        }
+        return of({}).pipe(tap(user => this.user$.next(user)));
+      })
+    );
   }
 }

@@ -1,0 +1,21 @@
+.register-card {
+  width: 100%;
+  max-width: 640px;
+}
+
+.register-step {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+
+  mat-form-field,
+  mat-slide-toggle {
+    display: block;
+  }
+}
+
+.stepper-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}

@@ -1,4 +1,7 @@
+// src/app/core/authentication/index.ts
+// NE PAS TOUCHER - ce fichier est correct
 export * from './interface';
+export * from './register-request';
 export * from './auth.guard';
 export * from './auth.service';
 export * from './token-factory.service';

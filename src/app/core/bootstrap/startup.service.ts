@@ -1,3 +1,4 @@
+// src/app/core/bootstrap/startup.service.ts
 import { Injectable } from '@angular/core';
 import { AuthService, User } from '@core/authentication';
 import { NgxPermissionsService, NgxRolesService } from 'ngx-permissions';
@@ -15,10 +16,6 @@ export class StartupService {
     private rolesService: NgxRolesService
   ) {}
 
-  /**
-   * Load the application only after get the menu or other essential informations
-   * such as permissions and roles.
-   */
   load() {
     return new Promise<void>((resolve, reject) => {
       this.authService
@@ -26,7 +23,7 @@ export class StartupService {
         .pipe(
           tap(user => this.setPermissions(user)),
           switchMap(() => this.authService.menu()),
-          tap(menu => this.setMenu(menu))
+          tap((menu: any) => this.setMenu(menu)) // ✅ Utiliser any pour éviter le conflit
         )
         .subscribe({
           next: () => resolve(),
@@ -41,13 +38,9 @@ export class StartupService {
   }
 
   private setPermissions(user: User) {
-    // In a real app, you should get permissions and roles from the user information.
     const permissions = ['canAdd', 'canDelete', 'canEdit', 'canRead'];
     this.permissonsService.loadPermissions(permissions);
     this.rolesService.flushRoles();
     this.rolesService.addRoles({ ADMIN: permissions });
-
-    // Tips: Alternatively you can add permissions with role at the same time.
-    // this.rolesService.addRolesWithPermissions({ ADMIN: permissions });
   }
 }

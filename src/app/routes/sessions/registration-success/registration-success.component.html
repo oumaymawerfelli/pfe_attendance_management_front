@@ -1,0 +1,62 @@
+<!-- registration-success.component.html -->
+<div class="success-container">
+  <mat-card class="success-card">
+    <mat-card-header>
+      <div mat-card-avatar class="success-icon">
+        <mat-icon color="primary">mark_email_read</mat-icon>
+      </div>
+      <mat-card-title>{{ 'registration.success_title' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'registration.success_subtitle' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="email-info" *ngIf="email">
+        <mat-icon color="accent">email</mat-icon>
+        <span class="email-address">{{ email }}</span>
+      </div>
+
+      <div class="success-message" *ngIf="message">
+        <p>{{ message }}</p>
+      </div>
+
+      <mat-card class="info-card">
+        <mat-card-content>
+          <div class="info-item">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <span>{{ 'registration.step1' | translate }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <span>{{ 'registration.step2' | translate }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <span>{{ 'registration.step3' | translate }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <div class="warning-message">
+        <mat-icon color="warn">info</mat-icon>
+        <span>{{ 'registration.activation_instructions' | translate }}</span>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button 
+        mat-button 
+        (click)="resendActivationEmail()" 
+        [disabled]="isResending">
+        <mat-icon>refresh</mat-icon>
+        {{ 'resend_activation_email' | translate }}
+      </button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="goToLogin()">
+        <mat-icon>login</mat-icon>
+        {{ 'go_to_login' | translate }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

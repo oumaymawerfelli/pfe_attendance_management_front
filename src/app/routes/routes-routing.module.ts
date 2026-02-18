@@ -11,7 +11,8 @@ import { Error403Component } from './sessions/403.component';
 import { Error404Component } from './sessions/404.component';
 import { Error500Component } from './sessions/500.component';
 import { authGuard } from '@core/authentication';
-
+import { RegistrationSuccessComponent } from './sessions/registration-success/registration-success.component';
+import { ActivateAccountComponent } from './sessions/activate-account/activate-account.component';
 const routes: Routes = [
   {
     path: '',
@@ -44,6 +45,7 @@ const routes: Routes = [
         path: 'tables',
         loadChildren: () => import('./tables/tables.module').then(m => m.TablesModule),
       },
+      // REMOVED FROM HERE - RegistrationSuccessComponent should NOT be under admin layout
       {
         path: 'profile',
         loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule),
@@ -63,11 +65,15 @@ const routes: Routes = [
     path: 'auth',
     component: AuthLayoutComponent,
     children: [
+      { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
+      { path: 'registration-success', component: RegistrationSuccessComponent },
+      { path: 'activate', component: ActivateAccountComponent },
     ],
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: 'register', redirectTo: 'auth/register', pathMatch: 'full' },
+  { path: '**', redirectTo: 'dashboard', pathMatch: 'full' },
 ];
 
 @NgModule({
