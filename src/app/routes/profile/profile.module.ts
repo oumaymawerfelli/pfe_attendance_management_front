@@ -4,12 +4,19 @@ import { ProfileRoutingModule } from './profile-routing.module';
 
 import { ProfileLayoutComponent } from './layout/layout.component';
 import { ProfileOverviewComponent } from './overview/overview.component';
-import { ProfileSettingsComponent } from './settings/settings.component';
+
+import { EditProfileDialogComponent } from './edit-profile-dialog/edit-profile-dialog.component';
+import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
+
+
 
 const COMPONENTS: any[] = [
   ProfileLayoutComponent,
   ProfileOverviewComponent,
-  ProfileSettingsComponent,
+  
+  EditProfileDialogComponent,
+  ConfirmDialogComponent,
+
 ];
 const COMPONENTS_DYNAMIC: any[] = [];
 

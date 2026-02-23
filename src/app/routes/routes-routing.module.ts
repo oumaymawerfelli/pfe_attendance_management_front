@@ -1,3 +1,4 @@
+// src/app/routes/routes-routing.module.ts
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { environment } from '@env/environment';
@@ -13,6 +14,7 @@ import { Error500Component } from './sessions/500.component';
 import { authGuard } from '@core/authentication';
 import { RegistrationSuccessComponent } from './sessions/registration-success/registration-success.component';
 import { ActivateAccountComponent } from './sessions/activate-account/activate-account.component';
+
 const routes: Routes = [
   {
     path: '',
@@ -25,6 +27,12 @@ const routes: Routes = [
       { path: '403', component: Error403Component },
       { path: '404', component: Error404Component },
       { path: '500', component: Error500Component },
+      
+      // Lazy loaded modules
+      {
+        path: 'users',
+        loadChildren: () => import('./users/users.module').then(m => m.UsersModule),
+      },
       {
         path: 'design',
         loadChildren: () => import('./design/design.module').then(m => m.DesignModule),
@@ -45,15 +53,13 @@ const routes: Routes = [
         path: 'tables',
         loadChildren: () => import('./tables/tables.module').then(m => m.TablesModule),
       },
-      // REMOVED FROM HERE - RegistrationSuccessComponent should NOT be under admin layout
       {
         path: 'profile',
         loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule),
       },
       {
         path: 'permissions',
-        loadChildren: () =>
-          import('./permissions/permissions.module').then(m => m.PermissionsModule),
+        loadChildren: () => import('./permissions/permissions.module').then(m => m.PermissionsModule),
       },
       {
         path: 'utilities',
@@ -73,15 +79,15 @@ const routes: Routes = [
     ],
   },
   { path: 'register', redirectTo: 'auth/register', pathMatch: 'full' },
-  { path: '**', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '**', redirectTo: 'dashboard' }, // Must be LAST - wildcard route
 ];
 
 @NgModule({
   imports: [
     RouterModule.forRoot(routes, {
-      useHash: environment.useHash,
+     useHash: true, // Whether to use HashLocationStrategy
     }),
   ],
   exports: [RouterModule],
 })
-export class RoutesRoutingModule {}
+export class RoutesRoutingModule { }

@@ -1,0 +1,69 @@
+<!-- src/app/routes/profile/edit-profile-dialog/edit-profile-dialog.component.html -->
+<h2 mat-dialog-title>
+  <mat-icon style="vertical-align: middle; margin-right: 8px;">edit</mat-icon>
+  Edit Profile
+</h2>
+
+<mat-dialog-content class="form-field-full" style="min-width: 480px; padding-top: 8px;">
+  <form [formGroup]="form">
+    
+    <!-- First Name -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>First Name</mat-label>
+      <input matInput formControlName="firstName">
+      <mat-error>{{ getError('firstName') }}</mat-error>
+    </mat-form-field>
+
+    <!-- Last Name -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Last Name</mat-label>
+      <input matInput formControlName="lastName">
+      <mat-error>{{ getError('lastName') }}</mat-error>
+    </mat-form-field>
+
+    <!-- Phone -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Phone</mat-label>
+      <input matInput formControlName="phone" placeholder="12345678">
+      <mat-icon matSuffix>phone</mat-icon>
+      <mat-hint>8 digits</mat-hint>
+      <mat-error>{{ getError('phone') }}</mat-error>
+    </mat-form-field>
+
+    <!-- Address -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Address</mat-label>
+      <input matInput formControlName="address">
+    </mat-form-field>
+
+    <!-- Marital Status -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Marital Status</mat-label>
+      <mat-select formControlName="maritalStatus">
+        <mat-option value="">-- None --</mat-option>
+        <mat-option *ngFor="let opt of maritalStatusOptions" [value]="opt.value">
+          {{ opt.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Description -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>About Me</mat-label>
+      <textarea matInput formControlName="description" rows="3"
+                placeholder="Tell us a little about yourself..."></textarea>
+      <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/500</mat-hint>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" 
+          (click)="onSave()" 
+          [disabled]="form.invalid || saving">
+    <mat-spinner *ngIf="saving" diameter="18" style="display:inline-block; margin-right:6px;"></mat-spinner>
+    {{ saving ? 'Saving...' : 'Save Changes' }}
+  </button>
+</mat-dialog-actions>

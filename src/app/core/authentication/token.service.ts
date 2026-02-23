@@ -54,19 +54,33 @@ export class TokenService implements OnDestroy {
     return this.token?.valid() ?? false;
   }
 
-  getBearerToken(): string {
-    const token = this.token;
-    console.log('🔍 TokenService.token:', token);
+ getBearerToken(): string {
+  const token = this.token;
+  console.log('🔍 TokenService.token:', token);
 
-    if (!token) {
-      console.log('❌ No token found');
-      return '';
+  if (!token) {
+    console.log('❌ No token found in TokenService');
+    
+    // Try to read from localStorage directly as fallback
+    const rawToken = localStorage.getItem('ng-matero-token');
+    if (rawToken) {
+      try {
+        const parsed = JSON.parse(rawToken);
+        if (parsed.access_token) {
+          console.log('✅ Fallback: extracted token from localStorage');
+          return `Bearer ${parsed.access_token}`;
+        }
+      } catch (e) {
+        console.error('Error parsing token in fallback:', e);
+      }
     }
-
-    const bearerToken = token.getBearerToken();
-    console.log('🔍 Bearer token from service:', bearerToken);
-    return bearerToken;
+    return '';
   }
+
+  const bearerToken = token.getBearerToken();
+  console.log('🔍 Bearer token from service:', bearerToken ? 'Token exists' : 'No token');
+  return bearerToken;
+}
 
   getRefreshToken(): string | void {
     return this.token?.refresh_token;

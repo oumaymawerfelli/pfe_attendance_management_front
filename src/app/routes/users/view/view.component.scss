@@ -1,0 +1,255 @@
+// ============================================================
+// view.component.scss
+// ============================================================
+
+$brand-gradient: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+$brand-a:  #4338ca;
+$brand-b:  #6d28d9;
+$bg:       #f4f3fb;
+$card:     #ffffff;
+$sidebar:  #faf9fe;
+$t1:       #1a1035;
+$t2:       #4b5068;
+$t3:       #9095a8;
+$line:     rgba(88, 80, 200, 0.09);
+$s1:       0 1px 3px rgba(67,56,202,.06), 0 1px 2px rgba(0,0,0,.03);
+$s2:       0 4px 18px rgba(67,56,202,.10), 0 2px 6px rgba(0,0,0,.04);
+$s3:       0 16px 48px rgba(67,56,202,.13), 0 4px 16px rgba(0,0,0,.05);
+$r-s: 8px;  $r-m: 14px;  $r-l: 20px;
+
+@keyframes up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ─────────────────────────────────────────────────────────────
+// PAGE (identical wrapper as users + edit)
+// ─────────────────────────────────────────────────────────────
+.user-view-container {
+  padding: 28px 32px;
+  min-height: 100vh;
+  background: $bg;
+  background-image:
+    radial-gradient(ellipse 55% 35% at 85% 8%,  rgba(99,80,220,.07) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 30% at 12% 92%, rgba(109,40,217,.05) 0%, transparent 65%);
+  font-family: 'Outfit', sans-serif;
+}
+
+// ─────────────────────────────────────────────────────────────
+// LOADING / ERROR
+// ─────────────────────────────────────────────────────────────
+.loading-container {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 420px; gap: 16px; color: $t3; font-size: 13px;
+}
+
+.error-container {
+  text-align: center; padding: 100px 24px;
+  mat-icon { font-size: 60px; width: 60px; height: 60px; color: #ef4444; opacity: .7; margin-bottom: 16px; }
+  h3 { font-size: 21px; font-weight: 700; color: $t1; margin-bottom: 28px; }
+}
+
+// ─────────────────────────────────────────────────────────────
+// PROFILE CARD
+// ─────────────────────────────────────────────────────────────
+.profile-card {
+  background: $card;
+  border-radius: $r-l;
+  box-shadow: $s3;
+  overflow: hidden;
+  animation: up .4s ease both;
+
+  // ── header strip — same gradient, same mesh, same padding as list table-header + edit header ──
+  .profile-header {
+    display: flex; align-items: center;
+    padding: 20px 26px;
+    background: $brand-gradient;
+    position: relative; overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 18% 55%, rgba(255,255,255,.09) 0%, transparent 48%),
+        radial-gradient(circle at 82% 18%, rgba(255,255,255,.06) 0%, transparent 38%);
+      pointer-events: none;
+    }
+
+    .back-btn {
+      color: rgba(255,255,255,.85); z-index: 1;
+      transition: transform .2s;
+      &:hover { transform: translateX(-2px); }
+    }
+
+    h1 {
+      flex: 1; margin: 0 18px; z-index: 1;
+      font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -.02em;
+    }
+
+    // Ghost glass button — same as edit header cancel
+    .header-btn {
+      z-index: 1; height: 36px; padding: 0 18px; border-radius: $r-s;
+      font-size: 12px; font-weight: 700; letter-spacing: .02em;
+      color: rgba(255,255,255,.9);
+      background: rgba(255,255,255,.14); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.28); cursor: pointer;
+      transition: background .2s, box-shadow .2s;
+      &:hover { background: rgba(255,255,255,.24); box-shadow: 0 4px 12px rgba(0,0,0,.14); }
+    }
+  }
+
+  // ── content grid ──
+  .profile-content {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 520px;
+
+    @media (max-width: 768px) { grid-template-columns: 1fr; }
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // LEFT SIDEBAR
+  // ─────────────────────────────────────────────────────────
+  .profile-left {
+    background: $sidebar;
+    padding: 30px 22px;
+    border-right: 1px solid $line;
+
+    // ── avatar ──
+    .avatar-section {
+      text-align: center; margin-bottom: 26px;
+
+      .user-avatar {
+        position: relative; width: 90px; height: 90px; border-radius: 50%;
+        margin: 0 auto 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 30px; font-weight: 800; color: #fff; letter-spacing: -.5px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.16); border: 3px solid rgba(255,255,255,.55);
+
+        &.active   { background: linear-gradient(135deg, #059669, #34d399); }
+        &.pending  { background: linear-gradient(135deg, #d97706, #fbbf24); }
+        &.disabled { background: linear-gradient(135deg, #dc2626, #f87171); }
+        &.locked   { background: linear-gradient(135deg, #64748b, #cbd5e1); }
+
+        // status dot — same dot used in status badges on list
+        .online-dot {
+          position: absolute; bottom: 4px; right: 4px;
+          width: 13px; height: 13px; border-radius: 50%; border: 2.5px solid $card;
+
+          &.active   { background: #22c55e; }
+          &.pending  { background: #eab308; }
+          &.disabled { background: #ef4444; }
+          &.locked   { background: #94a3b8; }
+        }
+      }
+
+      h2 { margin: 0 0 3px; font-size: 17px; font-weight: 800; color: $t1; letter-spacing: -.02em; }
+      .user-job { font-size: 12px; color: $t3; margin: 0 0 14px; }
+    }
+
+    // status badge — same component as in table rows
+    .status-badge {
+      display: inline-flex; align-items: center;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 10px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase;
+
+      .status-dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 7px; }
+
+      &.active   { background: #dcfce7; color: #15803d; .status-dot { background: #22c55e; } }
+      &.pending  { background: #fef9c3; color: #a16207; .status-dot { background: #eab308; } }
+      &.disabled { background: #fee2e2; color: #b91c1c; .status-dot { background: #ef4444; } }
+      &.locked   { background: #f1f5f9; color: #64748b; .status-dot { background: #94a3b8; } }
+    }
+
+    // ── sidebar mini-cards — same card style as edit section dividers ──
+    .sidebar-card {
+      background: $card; border-radius: $r-m; padding: 16px 18px;
+      margin-top: 16px; box-shadow: $s1; border: 1px solid $line;
+
+      .card-label {
+        font-size: 10px; font-weight: 800; color: $t3;
+        text-transform: uppercase; letter-spacing: 1.1px; margin: 0 0 10px;
+      }
+
+      // role chip — same as list role-badge
+      .role-chip {
+        display: inline-block; padding: 4px 11px; border-radius: 6px;
+        font-size: 10px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase;
+        background: linear-gradient(135deg, rgba(67,56,202,.09), rgba(109,40,217,.07));
+        color: $brand-a;
+      }
+    }
+
+    // ── account stats — icon tiles match info rows on the right ──
+    .stat-row {
+      display: flex; align-items: flex-start; gap: 12px; margin-top: 14px;
+
+      &:first-of-type { margin-top: 0; }
+
+      // icon tile — identical to stat cards & info rows
+      .icon-tile {
+        width: 36px; height: 36px; border-radius: $r-s; flex-shrink: 0;
+        background: linear-gradient(135deg, rgba(67,56,202,.09), rgba(109,40,217,.07));
+        display: flex; align-items: center; justify-content: center;
+        mat-icon { font-size: 17px; height: 17px; width: 17px; color: $brand-a; }
+      }
+
+      .stat-label { display: block; font-size: 10px; font-weight: 700; color: $t3; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 2px; }
+      .stat-value { display: block; font-size: 13px; font-weight: 700; color: $t1; }
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // RIGHT DETAIL PANEL
+  // ─────────────────────────────────────────────────────────
+  .profile-right {
+    padding: 30px 34px;
+
+    .info-section { margin-bottom: 34px; &:last-child { margin-bottom: 0; } }
+
+    // section title — same 3-px bar + rule as edit form sections
+    .section-title {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 22px;
+      font-size: 10px; font-weight: 800; color: $t3;
+      text-transform: uppercase; letter-spacing: 1.2px;
+
+      &::before {
+        content: ''; display: block; width: 3px; height: 16px;
+        background: $brand-gradient; border-radius: 2px; flex-shrink: 0;
+      }
+
+      &::after { content: ''; flex: 1; height: 1px; background: $line; }
+    }
+
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      @media (max-width: 480px) { grid-template-columns: 1fr; }
+    }
+
+    // info item — icon tile + two-line label/value; mirrors sidebar stat-row and list cell anatomy
+    .info-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 15px 0; border-bottom: 1px solid rgba(88,80,200,.055);
+      padding-right: 28px;
+
+      &:nth-last-child(-n+2) { border-bottom: none; }
+
+      // same icon tile spec as sidebar and stat cards
+      .icon-tile {
+        width: 36px; height: 36px; border-radius: $r-s; flex-shrink: 0;
+        background: linear-gradient(135deg, rgba(67,56,202,.08), rgba(109,40,217,.06));
+        display: flex; align-items: center; justify-content: center;
+        transition: transform .2s;
+        mat-icon { font-size: 17px; height: 17px; width: 17px; color: $brand-a; }
+      }
+
+      &:hover .icon-tile { transform: scale(1.08); }
+
+      .info-label { display: block; font-size: 10px; font-weight: 700; color: $t3; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 3px; }
+      .info-value {
+        display: block; font-size: 13px; font-weight: 700; color: $t1; word-break: break-word;
+        &.empty { color: $t3; font-weight: 400; font-style: italic; }
+      }
+    }
+  }
+}

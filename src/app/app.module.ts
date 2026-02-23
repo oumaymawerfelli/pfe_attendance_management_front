@@ -17,7 +17,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { environment } from '@env/environment';
 import { BASE_URL, httpInterceptorProviders, appInitializerProviders } from '@core';
-
+import { TokenInterceptor } from '@core/interceptors/token-interceptor';
 import { RegistrationSuccessComponent } from './routes/sessions/registration-success/registration-success.component';
 
 // Required for AOT compilation
@@ -35,6 +35,7 @@ export function TranslateHttpLoaderFactory(http: HttpClient) {
     ThemeModule,
     RoutesModule,
     SharedModule,
+     HttpClientModule,
     FormlyConfigModule.forRoot(),
     NgxPermissionsModule.forRoot(),
     ToastrModule.forRoot(),

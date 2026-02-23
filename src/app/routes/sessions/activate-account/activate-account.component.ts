@@ -1,3 +1,5 @@
+// src/app/routes/sessions/activate-account/activate-account.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -22,6 +24,7 @@ export class ActivateAccountComponent implements OnInit {
   email: string = '';
   firstName: string = '';
   lastName: string = '';
+  errorMessage: string = '';
 
   hidePassword = true;
   hideConfirmPassword = true;
@@ -54,20 +57,48 @@ export class ActivateAccountComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.token = this.route.snapshot.queryParams.token;
+    console.log('🔑 ActivateAccount component loaded!');
+    console.log('🔑 Full URL:', window.location.href);
+    console.log('🔑 Hash:', window.location.hash);
+    console.log('🔑 Search:', window.location.search);
 
-    if (!this.token) {
-      this.showError('No activation token provided');
-      this.router.navigate(['/auth/login']);
-      return;
-    }
+    // Try to get token from query params first
+    this.route.queryParams.subscribe(params => {
+      console.log('🔑 Query params:', params);
+      this.token = params['token'];
+      
+      if (!this.token) {
+        // Try to get from URL path if not in query params
+        const urlParts = window.location.pathname.split('/');
+        const possibleToken = urlParts[urlParts.length - 1];
+        if (possibleToken && possibleToken.length > 50) { // JWT tokens are long
+          this.token = possibleToken;
+          console.log('🔑 Token extracted from path:', this.token);
+        }
+      }
+      
+      console.log('🔑 Final token:', this.token ? this.token.substring(0, 20) + '...' : 'No token');
 
-    this.validateToken();
+      if (!this.token) {
+        this.showError('No activation token provided');
+        setTimeout(() => {
+          this.router.navigate(['/auth/login']);
+        }, 3000);
+        return;
+      }
+
+      // Validate the token
+      this.validateToken();
+    });
   }
 
   validateToken(): void {
+    this.isLoading = true;
+    console.log('🔍 Validating token:', this.token.substring(0, 20) + '...');
+    
     this.loginService.validateActivationToken(this.token).subscribe({
-      next: response => {
+      next: (response: any) => {
+        console.log('✅ Token validation response:', response);
         this.isLoading = false;
 
         if (response.valid) {
@@ -85,13 +116,26 @@ export class ActivateAccountComponent implements OnInit {
           this.showSuccess('Token validated successfully! Please set your credentials.');
         } else {
           this.isValidToken = false;
-          this.showError(response.message || 'Invalid or expired token');
+          this.errorMessage = response.message || 'Invalid or expired token';
+          this.showError(this.errorMessage);
+          
+          // Redirect to login after 5 seconds
+          setTimeout(() => {
+            this.router.navigate(['/auth/login']);
+          }, 5000);
         }
       },
-      error: error => {
+      error: (error) => {
+        console.error('❌ Token validation error:', error);
         this.isLoading = false;
         this.isValidToken = false;
-        this.showError(error.error?.message || 'Failed to validate token');
+        this.errorMessage = error.error?.message || 'Failed to validate token';
+        this.showError(this.errorMessage);
+        
+        // Redirect to login after 5 seconds
+        setTimeout(() => {
+          this.router.navigate(['/auth/login']);
+        }, 5000);
       },
     });
   }
@@ -121,16 +165,11 @@ export class ActivateAccountComponent implements OnInit {
     if (password.match(/[@$!%*#?&]+/)) strength++;
 
     switch (strength) {
-      case 1:
-        return 'Weak';
-      case 2:
-        return 'Medium';
-      case 3:
-        return 'Strong';
-      case 4:
-        return 'Very strong';
-      default:
-        return 'Weak';
+      case 1: return 'Weak';
+      case 2: return 'Medium';
+      case 3: return 'Strong';
+      case 4: return 'Very strong';
+      default: return 'Weak';
     }
   }
 
@@ -166,12 +205,10 @@ export class ActivateAccountComponent implements OnInit {
     const control = this.activationForm.get('password');
 
     if (control?.errors) {
-      if (control.errors.required) errors.push('Password is required');
-      if (control.errors.minlength) errors.push('Password must be at least 8 characters');
-      if (control.errors.pattern)
-        errors.push(
-          'Password must contain at least one letter, one number, and one special character'
-        );
+      if (control.errors['required']) errors.push('Password is required');
+      if (control.errors['minlength']) errors.push('Password must be at least 8 characters');
+      if (control.errors['pattern'])
+        errors.push('Password must contain at least one letter, one number, and one special character');
     }
 
     return errors;
@@ -181,7 +218,6 @@ export class ActivateAccountComponent implements OnInit {
     if (this.activationForm.invalid) {
       this.markFormGroupTouched(this.activationForm);
 
-      // Show specific error messages
       const passwordErrors = this.getPasswordErrors();
       if (passwordErrors.length > 0) {
         this.showError(passwordErrors.join('. '));
@@ -193,15 +229,20 @@ export class ActivateAccountComponent implements OnInit {
     }
 
     const { username, password } = this.activationForm.value;
+    this.isLoading = true;
 
     this.loginService.activateAccount(this.token, password, username).subscribe({
-      next: response => {
+      next: (response) => {
+        console.log('✅ Account activated:', response);
+        this.isLoading = false;
         this.showSuccess('Account activated successfully! You can now login.');
         setTimeout(() => {
           this.router.navigate(['/auth/login']);
         }, 2000);
       },
-      error: error => {
+      error: (error) => {
+        console.error('❌ Activation error:', error);
+        this.isLoading = false;
         this.showError(error.error?.message || 'Activation failed. Please try again.');
       },
     });
@@ -213,11 +254,16 @@ export class ActivateAccountComponent implements OnInit {
       return;
     }
 
+    this.isLoading = true;
     this.loginService.resendActivationEmail(this.email).subscribe({
-      next: response => {
+      next: (response) => {
+        console.log('✅ Resend activation:', response);
+        this.isLoading = false;
         this.showSuccess('Activation email resent. Please check your inbox.');
       },
-      error: error => {
+      error: (error) => {
+        console.error('❌ Resend error:', error);
+        this.isLoading = false;
         this.showError(error.error?.message || 'Failed to resend activation email');
       },
     });

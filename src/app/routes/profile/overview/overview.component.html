@@ -1,71 +1,115 @@
-<!-- src/app/routes/profile/overview/overview.component.html -->
 <mat-card>
-  <mat-tab-group>
-    <mat-tab label="Overview">
-      <div class="m-16">
-        <h2>About {{ user?.firstName }} {{ user?.lastName }}</h2>
-        
-        <mat-list>
-          <mat-list-item>
-            <mat-icon matListItemIcon>email</mat-icon>
-            <div matListItemTitle>Email</div>
-            <div matListItemLine>{{ user?.email || 'Not provided' }}</div>
-          </mat-list-item>
-          
-          <mat-divider></mat-divider>
-          
-          <mat-list-item>
-            <mat-icon matListItemIcon>phone</mat-icon>
-            <div matListItemTitle>Phone</div>
-            <div matListItemLine>{{ user?.phone || 'Not provided' }}</div>
-          </mat-list-item>
-          
-          <mat-divider></mat-divider>
-          
-          <mat-list-item>
-            <mat-icon matListItemIcon>work</mat-icon>
-            <div matListItemTitle>Job Title</div>
-            <div matListItemLine>{{ user?.jobTitle || 'Not provided' }}</div>
-          </mat-list-item>
-          
-          <mat-divider></mat-divider>
-          
-          <mat-list-item>
-            <mat-icon matListItemIcon>business</mat-icon>
-            <div matListItemTitle>Department</div>
-            <div matListItemLine>{{ user?.department || 'Not provided' }}</div>
-          </mat-list-item>
-          
-          <mat-divider></mat-divider>
-          
-          <mat-list-item>
-            <mat-icon matListItemIcon>location_on</mat-icon>
-            <div matListItemTitle>Address</div>
-            <div matListItemLine>{{ user?.address || 'Not provided' }}</div>
-          </mat-list-item>
-          
-          <mat-divider></mat-divider>
-          
-          <mat-list-item>
-            <mat-icon matListItemIcon>cake</mat-icon>
-            <div matListItemTitle>Birth Date</div>
-            <div matListItemLine>{{ user?.birthDate || 'Not provided' }}</div>
-          </mat-list-item>
-        </mat-list>
+  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="m-r-4">person</mat-icon> Overview
+      </ng-template>
+
+      <div style="padding: 32px;">
+
+        <div class="d-flex align-items-center" style="margin-bottom: 28px;">
+          <mat-icon color="primary" style="margin-right: 10px;">info</mat-icon>
+          <h3 class="m-0 f-w-600" style="font-size: 16px;">Personal Information</h3>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-6" style="padding-right: 32px;">
+            <div class="info-item">
+              <div class="info-icon-wrap"><mat-icon>email</mat-icon></div>
+              <div>
+                <p class="info-label">Email Address</p>
+                <p class="info-value">{{ user?.email || 'Not provided' }}</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon-wrap"><mat-icon>phone</mat-icon></div>
+              <div>
+                <p class="info-label">Phone Number</p>
+                <p class="info-value">{{ user?.phone || 'Not provided' }}</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon-wrap"><mat-icon>work</mat-icon></div>
+              <div>
+                <p class="info-label">Job Title</p>
+                <p class="info-value">{{ user?.jobTitle || 'Not provided' }}</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon-wrap"><mat-icon>business</mat-icon></div>
+              <div>
+                <p class="info-label">Department</p>
+                <p class="info-value">{{ user?.department || 'Not provided' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-6" style="padding-left: 32px; border-left: 1px solid #f0f0f0;">
+            <div class="info-item">
+              <div class="info-icon-wrap"><mat-icon>location_on</mat-icon></div>
+              <div>
+                <p class="info-label">Address</p>
+                <p class="info-value">{{ user?.address || 'Not provided' }}</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon-wrap"><mat-icon>cake</mat-icon></div>
+              <div>
+                <p class="info-label">Birth Date</p>
+                <p class="info-value">{{ user?.birthDate | date:'longDate' }}</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon-wrap"><mat-icon>wc</mat-icon></div>
+              <div>
+                <p class="info-label">Gender</p>
+                <p class="info-value">{{ user?.gender || 'Not provided' }}</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon-wrap"><mat-icon>flag</mat-icon></div>
+              <div>
+                <p class="info-label">Nationality</p>
+                <p class="info-value">{{ user?.nationality || 'Not provided' }}</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon-wrap"><mat-icon>favorite</mat-icon></div>
+              <div>
+                <p class="info-label">Marital Status</p>
+                <p class="info-value">{{ user?.maritalStatus || 'Not provided' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </mat-tab>
-    
-    <mat-tab label="Activity">
-      <div class="m-16">
-        <h3>Recent Activity</h3>
-        <p class="text-grey-500">No recent activity</p>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="m-r-4">timeline</mat-icon> Activity
+      </ng-template>
+      <div style="padding: 60px 32px; text-align: center; color: #ccc;">
+        <mat-icon style="font-size: 56px; height: 56px; width: 56px;">inbox</mat-icon>
+        <p style="margin-top: 16px; font-size: 15px;">No recent activity to show</p>
       </div>
     </mat-tab>
-    
-    <mat-tab label="Settings">
-      <div class="m-16">
-        <button mat-raised-button color="warn">Change Password</button>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="m-r-4">settings</mat-icon> Settings
+      </ng-template>
+      <div style="padding: 32px;">
+        <div class="d-flex align-items-center" style="margin-bottom: 28px;">
+          <mat-icon color="warn" style="margin-right: 10px;">security</mat-icon>
+          <h3 class="m-0 f-w-600" style="font-size: 16px;">Security Settings</h3>
+        </div>
+        <button mat-raised-button color="warn" style="border-radius: 24px; padding: 0 24px; height: 42px;">
+          <mat-icon>lock_reset</mat-icon> Change Password
+        </button>
       </div>
     </mat-tab>
+
   </mat-tab-group>
 </mat-card>

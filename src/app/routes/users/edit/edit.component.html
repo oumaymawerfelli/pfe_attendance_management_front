@@ -1,0 +1,181 @@
+<!-- src/app/routes/users/edit/edit.component.html -->
+<div class="user-edit-container">
+  
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading user data...</p>
+  </div>
+
+  <!-- Edit Form -->
+  <div class="edit-card" *ngIf="!isLoading && user">
+    
+    <!-- Header -->
+    <div class="edit-header">
+      <button mat-icon-button (click)="cancel()" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Edit User: {{ user.firstName }} {{ user.lastName }}</h1>
+      <div class="header-actions">
+        <button mat-stroked-button (click)="cancel()">Cancel</button>
+        <button mat-raised-button color="primary" 
+                (click)="saveUser()" 
+                [disabled]="userForm.invalid || isSaving">
+          <mat-icon>save</mat-icon> Save Changes
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulaire -->
+    <form [formGroup]="userForm" class="edit-form">
+      
+      <!-- Deux colonnes -->
+      <div class="form-row">
+        
+        <!-- Colonne gauche -->
+        <div class="form-col">
+          <h3>Personal Information</h3>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>First Name *</mat-label>
+            <input matInput formControlName="firstName">
+            <mat-error *ngIf="firstName?.invalid && firstName?.touched">
+              First name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Last Name *</mat-label>
+            <input matInput formControlName="lastName">
+            <mat-error *ngIf="lastName?.invalid && lastName?.touched">
+              Last name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email *</mat-label>
+            <input matInput formControlName="email" type="email">
+            <mat-error *ngIf="email?.invalid && email?.touched">
+              Please enter a valid email
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Phone</mat-label>
+            <input matInput formControlName="phone">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Birth Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="birthDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Gender</mat-label>
+            <mat-select formControlName="gender">
+              <mat-option *ngFor="let g of genders" [value]="g">
+                {{ g | titlecase }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nationality</mat-label>
+            <input matInput formControlName="nationality">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Marital Status</mat-label>
+            <mat-select formControlName="maritalStatus">
+              <mat-option *ngFor="let status of maritalStatuses" [value]="status">
+                {{ status | titlecase }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Address</mat-label>
+            <textarea matInput formControlName="address" rows="2"></textarea>
+          </mat-form-field>
+        </div>
+
+        <!-- Colonne droite -->
+        <div class="form-col">
+          <h3>Professional Information</h3>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Job Title</mat-label>
+            <input matInput formControlName="jobTitle">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Department</mat-label>
+            <mat-select formControlName="department">
+              <mat-option *ngFor="let dept of departments" [value]="dept">
+                {{ dept }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Service</mat-label>
+            <input matInput formControlName="service">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Hire Date</mat-label>
+            <input matInput [matDatepicker]="hirePicker" formControlName="hireDate">
+            <mat-datepicker-toggle matSuffix [for]="hirePicker"></mat-datepicker-toggle>
+            <mat-datepicker #hirePicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contract Type</mat-label>
+            <mat-select formControlName="contractType">
+              <mat-option *ngFor="let type of contractTypes" [value]="type">
+                {{ type }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contract End Date</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="contractEndDate">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+
+          <h3 class="m-t-24">Role & Permissions</h3>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Role</mat-label>
+            <mat-select formControlName="role">
+              <mat-option *ngFor="let role of roles" [value]="role">
+                {{ role }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <h3 class="m-t-24">Additional Information</h3>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3"></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Actions du bas (mobile) -->
+      <div class="form-actions-mobile">
+        <button mat-stroked-button (click)="cancel()">Cancel</button>
+        <button mat-raised-button color="primary" 
+                (click)="saveUser()" 
+                [disabled]="userForm.invalid || isSaving">
+          <mat-icon>save</mat-icon> Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

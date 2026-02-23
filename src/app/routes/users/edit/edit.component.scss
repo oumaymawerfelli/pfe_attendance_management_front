@@ -1,0 +1,227 @@
+// ============================================================
+// edit.component.scss
+// ============================================================
+
+$brand-gradient: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+$brand-a:  #4338ca;
+$brand-b:  #6d28d9;
+$bg:       #f4f3fb;
+$card:     #ffffff;
+$t1:       #1a1035;
+$t2:       #4b5068;
+$t3:       #9095a8;
+$line:     rgba(88, 80, 200, 0.09);
+$s1:       0 1px 3px rgba(67,56,202,.06), 0 1px 2px rgba(0,0,0,.03);
+$s2:       0 4px 18px rgba(67,56,202,.10), 0 2px 6px rgba(0,0,0,.04);
+$s3:       0 16px 48px rgba(67,56,202,.13), 0 4px 16px rgba(0,0,0,.05);
+$r-s: 8px;  $r-m: 14px;  $r-l: 20px;
+
+@keyframes up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ─────────────────────────────────────────────────────────────
+// PAGE (same wrapper as users + view)
+// ─────────────────────────────────────────────────────────────
+.user-edit-container {
+  padding: 28px 32px;
+  min-height: 100vh;
+  background: $bg;
+  background-image:
+    radial-gradient(ellipse 55% 35% at 85% 8%,  rgba(99,80,220,.07) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 30% at 12% 92%, rgba(109,40,217,.05) 0%, transparent 65%);
+  font-family: 'Outfit', sans-serif;
+}
+
+// ─────────────────────────────────────────────────────────────
+// LOADING
+// ─────────────────────────────────────────────────────────────
+.loading-container {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 420px; gap: 16px; color: $t3; font-size: 13px;
+}
+
+// ─────────────────────────────────────────────────────────────
+// EDIT CARD
+// ─────────────────────────────────────────────────────────────
+.edit-card {
+  background: $card;
+  border-radius: $r-l;
+  box-shadow: $s3;
+  overflow: hidden;
+  animation: up .4s ease both;
+
+  // ── header strip — same gradient + mesh + padding as list .table-header + view .profile-header ──
+  .edit-header {
+    display: flex; align-items: center;
+    padding: 20px 26px;
+    background: $brand-gradient;
+    position: relative; overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 18% 55%, rgba(255,255,255,.09) 0%, transparent 48%),
+        radial-gradient(circle at 82% 18%, rgba(255,255,255,.06) 0%, transparent 38%);
+      pointer-events: none;
+    }
+
+    .back-btn {
+      color: rgba(255,255,255,.85); z-index: 1;
+      transition: transform .2s;
+      &:hover { transform: translateX(-2px); }
+    }
+
+    h1 {
+      flex: 1; margin: 0 18px; z-index: 1;
+      font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -.02em;
+    }
+
+    .header-actions {
+      display: flex; gap: 9px; align-items: center; z-index: 1;
+
+      // cancel — glass ghost (same as view header-btn)
+      .cancel-btn {
+        height: 36px; padding: 0 18px; border-radius: $r-s;
+        font-size: 12px; font-weight: 600;
+        color: rgba(255,255,255,.9);
+        background: rgba(255,255,255,.14); backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,.28); cursor: pointer;
+        transition: background .2s, box-shadow .2s;
+        &:hover { background: rgba(255,255,255,.24); box-shadow: 0 4px 12px rgba(0,0,0,.14); }
+      }
+
+      // save — white solid (same weight contrast as pagination .page-btn.active)
+      .save-btn {
+        height: 36px; padding: 0 22px; border-radius: $r-s;
+        font-size: 12px; font-weight: 800; letter-spacing: .02em;
+        color: $brand-a; background: #fff; border: none; cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,.11);
+        transition: box-shadow .2s, transform .15s;
+        &:hover { box-shadow: 0 4px 16px rgba(0,0,0,.16); transform: translateY(-1px); }
+        &:active { transform: translateY(0); }
+        &:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+      }
+    }
+  }
+
+  // ── form body ──
+  .edit-form {
+    padding: 34px 38px;
+
+    @media (max-width: 768px) { padding: 22px 18px; }
+
+    // section title — same 3-px bar + rule as view .section-title
+    .section-title {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 22px;
+      font-size: 10px; font-weight: 800; color: $t3;
+      text-transform: uppercase; letter-spacing: 1.2px;
+
+      &::before {
+        content: ''; display: block; width: 3px; height: 16px;
+        background: $brand-gradient; border-radius: 2px; flex-shrink: 0;
+      }
+
+      &::after { content: ''; flex: 1; height: 1px; background: $line; }
+    }
+
+    .form-section { margin-bottom: 38px; &:last-of-type { margin-bottom: 0; } }
+
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 22px;
+      @media (max-width: 768px) { grid-template-columns: 1fr; gap: 0; }
+    }
+
+    .full-width { width: 100%; }
+
+    // ── Material field overrides — brand palette ──
+    ::ng-deep {
+      .mat-mdc-form-field {
+        width: 100%; margin-bottom: 18px;
+
+        .mat-mdc-floating-label {
+          font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: $t3;
+        }
+
+        &.mat-focused .mat-mdc-floating-label { color: $brand-a; }
+
+        .mat-mdc-input-element {
+          font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: $t1;
+        }
+
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: $line !important; border-width: 1.5px !important; transition: border-color .2s;
+        }
+
+        &.mat-focused {
+          .mdc-notched-outline__leading,
+          .mdc-notched-outline__notch,
+          .mdc-notched-outline__trailing { border-color: $brand-a !important; border-width: 2px !important; }
+        }
+
+        &:not(.mat-focused):hover {
+          .mdc-notched-outline__leading,
+          .mdc-notched-outline__notch,
+          .mdc-notched-outline__trailing { border-color: rgba(67,56,202,.3) !important; }
+        }
+
+        .mat-mdc-form-field-icon-prefix mat-icon,
+        .mat-mdc-form-field-icon-suffix mat-icon {
+          color: $brand-a; opacity: .65; font-size: 19px; height: 19px; width: 19px;
+        }
+      }
+
+      // select panel — same radius + shadow as sidebar cards
+      .mat-mdc-select-panel {
+        border-radius: $r-m !important;
+        box-shadow: $s2 !important;
+        padding: 8px;
+
+        .mat-mdc-option {
+          border-radius: $r-s; font-size: 13px; font-weight: 600;
+          font-family: 'Outfit', sans-serif; color: $t1; margin: 2px 0;
+          transition: background .15s;
+          &.mdc-list-item--selected { background: rgba(67,56,202,.07); color: $brand-a; }
+          &:hover:not(.mdc-list-item--selected) { background: rgba(67,56,202,.04); }
+        }
+      }
+    }
+  }
+
+  // ── bottom action bar — same height/rhythm as pagination ──
+  .form-actions {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 38px;
+    border-top: 1px solid $line;
+    background: rgba(244,243,251,.5);
+
+    @media (max-width: 768px) { padding: 14px 18px; }
+
+    .btn-ghost {
+      height: 38px; padding: 0 20px; border-radius: $r-s;
+      font-size: 13px; font-weight: 600; font-family: 'Outfit', sans-serif;
+      color: $t2; background: transparent; border: 1.5px solid $line;
+      cursor: pointer; transition: border-color .2s, color .2s;
+      &:hover { border-color: rgba(67,56,202,.3); color: $brand-a; }
+    }
+
+    .btn-primary {
+      height: 38px; padding: 0 26px; border-radius: $r-s;
+      font-size: 13px; font-weight: 800; font-family: 'Outfit', sans-serif; letter-spacing: .02em;
+      color: #fff; background: $brand-gradient; border: none; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(67,56,202,.32);
+      transition: box-shadow .2s, transform .15s;
+      &:hover { box-shadow: 0 6px 20px rgba(67,56,202,.42); transform: translateY(-1px); }
+      &:active { transform: translateY(0); }
+      &:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+    }
+  }
+}
+
+// datepicker accent
+.mat-datepicker-toggle { color: $brand-a; }

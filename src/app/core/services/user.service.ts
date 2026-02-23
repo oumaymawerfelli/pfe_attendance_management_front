@@ -6,7 +6,7 @@ import { User } from '@core/authentication/interface';
 @Injectable({
   providedIn: 'root',
 })
-export class UserService {
+export class UserService { // Keep this name for the core service
   private userSubject = new BehaviorSubject<User | null>(null);
   user$ = this.userSubject.asObservable();
 

@@ -1,0 +1,45 @@
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid #f5f5f5;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.info-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #e8f0fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    color: #1976d2;
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+}
+
+.info-label {
+  margin: 0 0 5px;
+  font-size: 11px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+.info-value {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #2c2c2c;
+}

@@ -11,6 +11,9 @@ import { Error404Component } from './sessions/404.component';
 import { Error500Component } from './sessions/500.component';
 import { ActivateAccountComponent } from './sessions/activate-account/activate-account.component';
 
+
+
+
 const COMPONENTS: any[] = [
   DashboardComponent,
   LoginComponent,
@@ -25,6 +28,6 @@ const COMPONENTS_DYNAMIC: any[] = [];
 
 @NgModule({
   imports: [SharedModule, RoutesRoutingModule],
-  declarations: [...COMPONENTS, ...COMPONENTS_DYNAMIC],
+  declarations: [...COMPONENTS, ...COMPONENTS_DYNAMIC,],
 })
 export class RoutesModule {}

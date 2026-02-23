@@ -10,6 +10,8 @@ export * from './authentication/token';
 export * from './authentication/login.service';
 export * from './authentication/user';
 export * from './authentication/helpers';
+export * from './bootstrap/menu.service';
+export * from './bootstrap/startup.service';
 
 // Authentication - exporter seulement User et Token depuis interface
 export type { User, Token } from './authentication/interface';

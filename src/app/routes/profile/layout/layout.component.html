@@ -1,42 +1,66 @@
-<!-- src/app/routes/profile/layout/layout.component.html -->
 <page-header class="p-t-32 p-b-48 m-b--24 bg-gray-900"
              title="Personal Profile" hideBreadcrumb>
 </page-header>
 
-<div class="row">
+<div class="row" style="margin-top: 16px;">
+  <!-- LEFT SIDEBAR -->
   <div class="col-sm-4 col-md-4 col-lg-3">
-    <mat-card>
+    <mat-card class="profile-sidebar-card">
       <mat-card-content>
         <div class="text-center">
-          <img class="m-b-8 r-full" [src]="avatarUrl" alt="" width="80" height="80">
-          <h2 class="m-t-0 m-b-8 f-w-400">{{ user.firstName }} {{ user.lastName }}</h2>
-          <p class="m-t-0 m-b-8">{{ user.jobTitle || 'No job title' }}</p>
-          <p class="m-t-0 text-grey-500">{{ user.department || 'No department' }}</p>
-          
-          <div class="m-t-16 m-b-16">
-            <span class="badge">{{ role }}</span>
+
+          <!-- Avatar -->
+          <div class="avatar-wrapper">
+            <img [src]="avatarUrl" alt="avatar">
+            <span class="online-dot"></span>
           </div>
 
-          <a mat-raised-button color="primary" href="https://github.com/nzbin" target="_blank">
-            Follow Me
-          </a>
-          <button mat-raised-button color="accent" class="m-l-8">Contact Me</button>
-        </div>
+          <!-- Name & Role -->
+          <h2 class="user-name">{{ user.firstName }} {{ user.lastName }}</h2>
+          <p class="user-job">{{ user.jobTitle || 'No job title' }}</p>
+          <span class="role-badge">{{ role }}</span>
 
-        <mat-nav-list class="m-x--16 m-b--16 m-t-16">
-          <mat-divider></mat-divider>
-          <a mat-list-item routerLink="/profile/overview" routerLinkActive="active">
-            <mat-icon matListItemIcon>account_circle</mat-icon> Overview
-          </a>
-          <mat-divider></mat-divider>
-          <a mat-list-item routerLink="/profile/settings" routerLinkActive="active">
-            <mat-icon matListItemIcon>settings</mat-icon> Settings
-          </a>
-        </mat-nav-list>
+          <!-- Description -->
+          <p *ngIf="user.description" class="description-block">
+            {{ user.description }}
+          </p>
+
+          <mat-divider style="margin: 20px 0;"></mat-divider>
+
+          <!-- Quick Stats -->
+          <div class="stats-row">
+            <div class="stat-item">
+              <p class="stat-value">{{ user.department || '—' }}</p>
+              <p class="stat-label">Dept</p>
+            </div>
+            <div class="stat-item">
+              <p class="stat-value">{{ user.nationality || '—' }}</p>
+              <p class="stat-label">Origin</p>
+            </div>
+            <div class="stat-item">
+              <p class="stat-value">{{ user.maritalStatus || '—' }}</p>
+              <p class="stat-label">Status</p>
+            </div>
+          </div>
+
+          <mat-divider style="margin: 16px 0 20px;"></mat-divider>
+
+          <!-- Buttons -->
+          <div class="action-buttons">
+            <button mat-raised-button color="primary" (click)="openEditDialog()">
+              <mat-icon>edit</mat-icon> Edit Profile
+            </button>
+            <button mat-stroked-button color="accent" (click)="contactUser()">
+              <mat-icon>mail</mat-icon> Contact
+            </button>
+          </div>
+
+        </div>
       </mat-card-content>
     </mat-card>
   </div>
-  
+
+  <!-- RIGHT CONTENT -->
   <div class="col-sm-8 col-md-8 col-lg-9">
     <router-outlet></router-outlet>
   </div>

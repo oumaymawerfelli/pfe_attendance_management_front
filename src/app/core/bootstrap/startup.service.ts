@@ -16,22 +16,39 @@ export class StartupService {
     private rolesService: NgxRolesService
   ) {}
 
-  load() {
-    return new Promise<void>((resolve, reject) => {
-      this.authService
-        .change()
-        .pipe(
-          tap(user => this.setPermissions(user)),
-          switchMap(() => this.authService.menu()),
-          tap((menu: any) => this.setMenu(menu)) // ✅ Utiliser any pour éviter le conflit
-        )
-        .subscribe({
-          next: () => resolve(),
-          error: () => resolve(),
-        });
-    });
-  }
+load() {
+  return new Promise<void>((resolve) => {
+    // ✅ Skip auth flow for public pages
+    const publicPaths = [
+      '/auth/activate',
+      '/auth/login',
+      '/auth/register',
+      '/auth/registration-success',
+    ];
+    const isPublicPath = publicPaths.some(path =>
+      window.location.pathname.startsWith(path)
+    );
 
+    if (isPublicPath) {
+      console.log('🔓 Public path, skipping startup auth:', window.location.pathname);
+      resolve();
+      return;
+    }
+
+    // Normal auth flow for protected pages
+    this.authService
+      .change()
+      .pipe(
+        tap(user => this.setPermissions(user)),
+        switchMap(() => this.authService.menu()),
+        tap((menu: Menu[]) => this.setMenu(menu))
+      )
+      .subscribe({
+        next: () => resolve(),
+        error: () => resolve(),
+      });
+  });
+}
   private setMenu(menu: Menu[]) {
     this.menuService.addNamespace(menu, 'menu');
     this.menuService.set(menu);
