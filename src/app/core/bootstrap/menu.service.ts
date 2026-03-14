@@ -1,3 +1,4 @@
+// src/app/core/bootstrap/menu.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { share } from 'rxjs/operators';
@@ -18,12 +19,13 @@ export interface MenuChildrenItem {
   type: 'link' | 'sub' | 'extLink' | 'extTabLink';
   children?: MenuChildrenItem[];
   permissions?: MenuPermissions;
+  icon?: string; // Add icon for children
 }
 
 export interface Menu {
   route: string;
   name: string;
-  type: 'link' | 'sub' | 'extLink' | 'extTabLink';
+  type: 'link' | 'sub' | 'extLink' | 'extTabLink' | 'subheading'; // ✅ ADD 'subheading' here
   icon: string;
   label?: MenuTag;
   badge?: MenuTag;
@@ -82,12 +84,16 @@ export class MenuService {
   }
 
   // Whether is a leaf menu
-  private isLeafItem(item: MenuChildrenItem): boolean {
-    const cond0 = item.route === undefined;
-    const cond1 = item.children === undefined;
-    const cond2 = !cond1 && item.children?.length === 0;
-    return cond0 || cond1 || cond2;
+ private isLeafItem(item: MenuChildrenItem | Menu): boolean {
+  // Subheadings are not leaf items (they have children)
+  if (item.type === 'subheading') {
+    return false;
   }
+  const cond0 = item.route === undefined;
+  const cond1 = item.children === undefined;
+  const cond2 = !cond1 && item.children?.length === 0;
+  return cond0 || cond1 || cond2;
+}
 
   // Deep clone object could be jsonized
   private deepClone(obj: any): any {

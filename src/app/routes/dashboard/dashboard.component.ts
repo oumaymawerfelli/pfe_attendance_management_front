@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { SettingsService } from '@core';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 import { DashboardService } from './dashboard.service';
 
@@ -39,10 +40,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.notifySubscription = this.settings.notify.subscribe(res => {
-      console.log(res);
-    });
-  }
+   this.notifySubscription = this.settings.notify.pipe(
+    filter(res => res && Object.keys(res).length > 0) // skip empty emission
+  ).subscribe(res => {
+    console.log(res);
+  });
+}
 
   ngAfterViewInit() {
     this.ngZone.runOutsideAngular(() => this.initChart());

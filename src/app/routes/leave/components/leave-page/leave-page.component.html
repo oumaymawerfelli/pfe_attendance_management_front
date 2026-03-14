@@ -1,0 +1,31 @@
+<!-- Clean header replacing page-header -->
+<div class="page-header-clean">
+  <div class="page-header-clean__breadcrumb">
+    <span>Home</span>
+    <mat-icon style="font-size:14px; width:14px; height:14px;">chevron_right</mat-icon>
+    <span>My Space</span>
+    <mat-icon style="font-size:14px; width:14px; height:14px;">chevron_right</mat-icon>
+    <span class="active">Leave Request</span>
+  </div>
+  <div class="page-header-clean__title">
+    <h1>Leave Management</h1>
+    <p>Manage your leave requests and balance</p>
+  </div>
+</div>
+
+<app-leave-balance-cards class="m-b-16"></app-leave-balance-cards>
+
+<mat-card>
+  <mat-tab-group animationDuration="200ms" color="primary">
+    <mat-tab label="Request Leave">
+      <div class="p-16">
+        <app-leave-request-form></app-leave-request-form>
+      </div>
+    </mat-tab>
+    <mat-tab label="My Requests">
+      <div class="p-16">
+        <app-leave-history></app-leave-history>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</mat-card>

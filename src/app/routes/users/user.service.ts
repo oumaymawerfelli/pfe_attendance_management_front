@@ -20,19 +20,14 @@ export interface UserDTO {
   avatar?: string;
 }
 
-// Interface complète pour les détails de l'utilisateur
 export interface UserResponseDTO extends UserDTO {
   username: string;
   createdAt?: string;
   lastLogin?: string;
-  
-  // ✅ AJOUTER CES CHAMPS MANQUANTS
   service?: string;
   contractType?: string;
   contractEndDate?: string;
   description?: string;
-  
-  // ✅ AJOUTER AUSSI CES CHAMPS SI NÉCESSAIRES
   birthDate?: string;
   gender?: string;
   nationality?: string;
@@ -56,36 +51,42 @@ export interface PageResponse<T> {
   number: number;
 }
 
+// Response from the photo upload endpoint
+export interface PhotoUploadResponse {
+  avatarUrl: string;
+  message: string;
+}
+
 @Injectable()
 export class UsersService {
   private apiUrl = `${environment.apiUrl}/users`;
 
-  constructor(private http: HttpClient) {
-    console.log('📡 UsersService initialized with API URL:', this.apiUrl);
-  }
+  constructor(private http: HttpClient) {}
 
   getUsers(page: number, size: number, search: string = ''): Observable<PageResponse<UserDTO>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    
-    if (search) {
-      params = params.set('search', search);
-    }
-    
+    if (search) params = params.set('search', search);
     return this.http.get<PageResponse<UserDTO>>(this.apiUrl, { params });
   }
 
-  // Récupérer un utilisateur avec toutes ses informations
   getUser(id: number): Observable<UserResponseDTO> {
-    console.log('📡 getUser called for id:', id);
     return this.http.get<UserResponseDTO>(`${this.apiUrl}/${id}`);
   }
 
-  // Mettre à jour un utilisateur
   updateUser(id: number, userData: Partial<UserResponseDTO>): Observable<UserResponseDTO> {
-    console.log('📡 updateUser called for id:', id, userData);
     return this.http.put<UserResponseDTO>(`${this.apiUrl}/${id}`, userData);
+  }
+
+  // ── NEW: Upload profile photo ──────────────────────────────
+  uploadPhoto(userId: number, formData: FormData): Observable<PhotoUploadResponse> {
+    return this.http.post<PhotoUploadResponse>(
+      `${this.apiUrl}/${userId}/photo`,
+      formData
+      // Note: Do NOT set Content-Type header manually — Angular sets it automatically
+      // with the correct multipart boundary when you pass a FormData object
+    );
   }
 
   getStats(): Observable<UserStats> {
@@ -103,7 +104,7 @@ export class UsersService {
   resetPassword(id: number): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${id}/reset-password`, {});
   }
-  
+
   approveUser(id: number): Observable<void> {
     return this.http.post<void>(`${environment.apiUrl}/auth/approve-registration/${id}`, {});
   }

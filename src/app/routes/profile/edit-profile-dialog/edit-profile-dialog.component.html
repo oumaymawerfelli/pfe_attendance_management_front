@@ -4,9 +4,51 @@
   Edit Profile
 </h2>
 
-<mat-dialog-content class="form-field-full" style="min-width: 480px; padding-top: 8px;">
+<mat-dialog-content class="form-field-full dialog-content">
   <form [formGroup]="form">
-    
+
+    <!-- ══ PHOTO UPLOAD ══ -->
+    <div class="photo-upload-section">
+      <div class="avatar-container" (click)="triggerFileInput()">
+
+        <!-- Avatar avec image -->
+        <img *ngIf="avatarPreview || data.user.avatar"
+             [src]="avatarPreview || data.user.avatar"
+             class="avatar-img" alt="Profile photo" />
+
+        <!-- Initiales si pas de photo -->
+        <div *ngIf="!avatarPreview && !data.user.avatar" class="avatar-initials">
+          {{ getInitials() }}
+        </div>
+
+        <!-- Overlay caméra au survol -->
+        <div class="avatar-overlay">
+          <mat-icon>photo_camera</mat-icon>
+        </div>
+      </div>
+
+      <input #fileInput type="file"
+             accept="image/jpeg,image/png,image/webp"
+             style="display:none"
+             (change)="onFileSelected($event)" />
+
+      <div class="photo-actions">
+        <button mat-stroked-button type="button" (click)="triggerFileInput()" class="change-photo-btn">
+          <mat-icon>upload</mat-icon> Change Photo
+        </button>
+        <button mat-icon-button type="button" color="warn"
+                *ngIf="avatarPreview || data.user.avatar"
+                (click)="removePhoto()"
+                matTooltip="Remove photo">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+
+      <p class="photo-hint">JPG, PNG or WebP · Max 5MB</p>
+    </div>
+
+    <mat-divider style="margin: 16px 0;"></mat-divider>
+
     <!-- First Name -->
     <mat-form-field appearance="outline" class="w-full">
       <mat-label>First Name</mat-label>
@@ -60,8 +102,8 @@
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-raised-button color="primary" 
-          (click)="onSave()" 
+  <button mat-raised-button color="primary"
+          (click)="onSave()"
           [disabled]="form.invalid || saving">
     <mat-spinner *ngIf="saving" diameter="18" style="display:inline-block; margin-right:6px;"></mat-spinner>
     {{ saving ? 'Saving...' : 'Save Changes' }}

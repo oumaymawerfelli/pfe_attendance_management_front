@@ -1,0 +1,82 @@
+<!-- Success message -->
+<mat-card class="success-card m-b-16" *ngIf="success">
+  <mat-card-content class="flex items-center gap-8">
+    <mat-icon color="primary">check_circle</mat-icon>
+    <span>Your leave request has been submitted successfully.</span>
+    <button mat-button color="primary" (click)="success = false">Submit another</button>
+  </mat-card-content>
+</mat-card>
+
+<!-- Error message -->
+<mat-card class="error-card m-b-16" *ngIf="error">
+  <mat-card-content class="flex items-center gap-8">
+    <mat-icon color="warn">error</mat-icon>
+    <span>{{ error }}</span>
+  </mat-card-content>
+</mat-card>
+
+<form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!success">
+  <!-- Leave type -->
+  <mat-form-field appearance="outline" class="w-full m-b-16">
+    <mat-label>Leave Type</mat-label>
+    <mat-select formControlName="leaveType">
+      <mat-option *ngFor="let t of leaveTypes" [value]="t.value">
+        <mat-icon>{{ t.icon }}</mat-icon>
+        {{ t.label }}
+      </mat-option>
+    </mat-select>
+    <mat-error *ngIf="form.get('leaveType')?.hasError('required')">
+      Leave type is required
+    </mat-error>
+  </mat-form-field>
+
+  <!-- Date range -->
+  <div class="date-row m-b-16">
+    <mat-form-field appearance="outline">
+      <mat-label>Start Date</mat-label>
+      <input matInput [matDatepicker]="startPicker"
+             formControlName="startDate"
+             [min]="today">
+      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+      <mat-error *ngIf="form.get('startDate')?.hasError('required')">
+        Start date is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>End Date</mat-label>
+      <input matInput [matDatepicker]="endPicker"
+             formControlName="endDate"
+             [min]="minEndDate">
+      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+      <mat-datepicker #endPicker></mat-datepicker>
+      <mat-error *ngIf="form.get('endDate')?.hasError('required')">
+        End date is required
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- Reason -->
+  <mat-form-field appearance="outline" class="w-full m-b-16">
+    <mat-label>Reason</mat-label>
+    <textarea matInput formControlName="reason" rows="4"
+              placeholder="Please describe the reason for your leave request...">
+    </textarea>
+    <mat-hint align="end">{{ form.get('reason')?.value?.length || 0 }} / min 10</mat-hint>
+    <mat-error *ngIf="form.get('reason')?.hasError('required')">Reason is required</mat-error>
+    <mat-error *ngIf="form.get('reason')?.hasError('minlength')">
+      Minimum 10 characters required
+    </mat-error>
+  </mat-form-field>
+
+  <!-- Submit -->
+  <div class="flex justify-end">
+    <button mat-raised-button color="primary"
+            type="submit"
+            [disabled]="form.invalid || submitting">
+      <mat-icon>send</mat-icon>
+      {{ submitting ? 'Submitting...' : 'Submit Request' }}
+    </button>
+  </div>
+</form>

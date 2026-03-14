@@ -1,21 +1,298 @@
+// ══════════════════════════════════════════════════════════════
+//  Register Component — Refined Professional Style
+// ══════════════════════════════════════════════════════════════
+
+$primary:      #1565c0;
+$primary-light:#e8f0fe;
+$accent:       #0288d1;
+$text-dark:    #1a1a2e;
+$text-muted:   #6b7280;
+$border:       #e2e8f0;
+$surface:      #f8fafc;
+$white:        #fff;
+$radius:       12px;
+$radius-sm:    8px;
+
+// ── Wrapper ──────────────────────────────────────────────────
+
+
+.register-wrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 16px 64px;
+  background: transparent;
+}
+// ── Card ─────────────────────────────────────────────────────
 .register-card {
   width: 100%;
-  max-width: 640px;
+  max-width: 720px;
+  overflow: hidden;
+  border: 1px solid $border;
+  border-radius: $radius !important;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,.07),
+              0 20px 60px -10px rgba(21, 101, 192, .12) !important;
 }
 
-.register-step {
+// ── Card Header ───────────────────────────────────────────────
+.register-header {
   display: flex;
   flex-direction: column;
-  padding: 8px 0;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 28px 28px 24px !important;
+  background: linear-gradient(135deg, $primary 0%, $accent 100%);
 
-  mat-form-field,
-  mat-slide-toggle {
-    display: block;
+  .header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,.2);
+    border-radius: 50%;
+
+    mat-icon {
+      font-size: 24px;
+      color: $white;
+    }
+  }
+
+  mat-card-title {
+    margin: 0 !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: $white !important;
+  }
+
+  mat-card-subtitle {
+    margin: 0 !important;
+    font-size: 14px !important;
+    color: rgba(255,255,255,.8) !important;
   }
 }
 
-.stepper-actions {
+// ── Stepper overrides ─────────────────────────────────────────
+.custom-stepper {
+  background: transparent !important;
+
+  .mat-step-header {
+    padding: 12px 16px !important;
+    border-radius: $radius-sm;
+    transition: background .2s;
+
+    &:hover { 
+      background: $primary-light !important; 
+    }
+
+    .mat-step-label { 
+      font-size: 14px; 
+      font-weight: 500; 
+    }
+    
+    .mat-step-label-selected { 
+      font-weight: 600 !important; 
+      color: $primary !important; 
+    }
+  }
+
+  .mat-stepper-horizontal-line { 
+    border-top-color: $border !important; 
+  }
+}
+
+// ── Step Content ──────────────────────────────────────────────
+.step-content {
+  padding: 8px 4px 4px;
+}
+
+.step-subtitle {
+  margin: 0 0 20px;
+  font-size: 13px;
+  font-style: italic;
+  color: $text-muted;
+}
+
+// ── Form Grid ─────────────────────────────────────────────────
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+// ── Mat-form-field prefix icons ───────────────────────────────
+mat-form-field {
+  mat-icon[matPrefix] {
+    margin-right: 6px;
+    font-size: 18px;
+    color: $primary;
+  }
+}
+
+// ── Toggle Row ────────────────────────────────────────────────
+.toggle-row {
   display: flex;
-  gap: 8px;
-  margin-top: 16px;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 14px;
+  margin: 4px 0 8px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+
+  .toggle-icon { font-size: 20px; color: $primary; }
+
+  .toggle-label {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-dark;
+  }
+}
+
+// ── Summary Grid ──────────────────────────────────────────────
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+
+  .summary-block {
+    padding: 8px 12px;
+    border-left: 3px solid $primary-light;
+    border-radius: 0 $radius-sm $radius-sm 0;
+
+    .summary-label {
+      margin: 0 0 2px;
+      font-size: 11px;
+      font-weight: 600;
+      color: $text-muted;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    .summary-value {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: $text-dark;
+    }
+  }
+}
+
+// ── Terms Row ─────────────────────────────────────────────────
+.terms-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: $primary-light;
+  border: 1px solid rgba(21, 101, 192, .15);
+  border-radius: $radius-sm;
+
+  .terms-link {
+    font-weight: 600;
+    color: $primary;
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ── Step Actions ──────────────────────────────────────────────
+.step-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 4px 8px;
+
+  button {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    height: 42px;
+    padding: 0 20px !important;
+    font-weight: 500 !important;
+    border-radius: $radius-sm !important;
+  }
+
+  button[mat-flat-button] {
+    justify-content: center;
+    min-width: 140px;
+  }
+}
+
+// ── Submit Button ─────────────────────────────────────────────
+.submit-btn {
+  justify-content: center;
+  min-width: 200px !important;
+
+  .btn-spinner {
+    display: inline-block;
+    margin-right: 6px;
+
+    ::ng-deep circle {
+      stroke: $white !important;
+    }
+  }
+}
+
+// ── Login Link ────────────────────────────────────────────────
+.login-link {
+  padding: 20px 0 8px;
+  font-size: 14px;
+  color: $text-muted;
+  text-align: center;
+
+  a {
+    margin-left: 4px;
+    font-weight: 600;
+    color: $primary;
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────
+@media (width <= 600px) {
+  .register-wrapper { 
+    padding: 16px 8px 48px; 
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+
+    .full-width { 
+      grid-column: 1; 
+    }
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .step-actions {
+    flex-direction: column-reverse;
+    
+    button { 
+      justify-content: center; 
+      width: 100%; 
+    }
+  }
 }

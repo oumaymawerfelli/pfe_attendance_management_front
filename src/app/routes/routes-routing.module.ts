@@ -14,6 +14,7 @@ import { Error500Component } from './sessions/500.component';
 import { authGuard } from '@core/authentication';
 import { RegistrationSuccessComponent } from './sessions/registration-success/registration-success.component';
 import { ActivateAccountComponent } from './sessions/activate-account/activate-account.component';
+import { ChangePasswordComponent } from './sessions/change-password/change-password.component';
 
 const routes: Routes = [
   {
@@ -27,6 +28,17 @@ const routes: Routes = [
       { path: '403', component: Error403Component },
       { path: '404', component: Error404Component },
       { path: '500', component: Error500Component },
+      { path: 'change-password', component: ChangePasswordComponent },
+      
+      // ✅ ADD THESE TWO NEW ROUTES - HR Management
+      {
+        path: 'attendance',
+        loadChildren: () => import('./attendance/attendance.module').then(m => m.AttendanceModule),
+      },
+      {
+        path: 'leave',
+        loadChildren: () => import('./leave/leave.module').then(m => m.LeaveModule),
+      },
       
       // Lazy loaded modules
       {
@@ -65,8 +77,13 @@ const routes: Routes = [
         path: 'utilities',
         loadChildren: () => import('./utilities/utilities.module').then(m => m.UtilitiesModule),
       },
+      {
+        path: 'projects',
+        loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule),
+      },
     ],
   },
+
   {
     path: 'auth',
     component: AuthLayoutComponent,
@@ -79,13 +96,13 @@ const routes: Routes = [
     ],
   },
   { path: 'register', redirectTo: 'auth/register', pathMatch: 'full' },
-  { path: '**', redirectTo: 'dashboard' }, // Must be LAST - wildcard route
+  { path: '**', redirectTo: 'dashboard' },
 ];
 
 @NgModule({
   imports: [
     RouterModule.forRoot(routes, {
-     useHash: true, // Whether to use HashLocationStrategy
+      useHash: true,
     }),
   ],
   exports: [RouterModule],

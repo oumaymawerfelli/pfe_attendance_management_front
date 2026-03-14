@@ -7,7 +7,7 @@
     <p class="page-description">Manage system users and their access permissions</p>
   </div>
 
-  <!-- Stats Cards - FIXED: removed async pipe -->
+  <!-- Stats Cards -->
   <div class="stats-grid" *ngIf="stats">
     <div class="stat-card pending" (click)="filterByStatus('PENDING')">
       <div class="stat-content">
@@ -105,55 +105,55 @@
                 {{ getStatus(user) | titlecase }}
               </span>
             </td>
-           <!-- Dans src/app/routes/users/users.component.html - Remplacer la section actions-cell -->
+            <td>
+              <div class="actions-cell">
+                <!-- 🔥 Vérification si l'utilisateur connecté peut gérer cet utilisateur -->
+                <ng-container *ngIf="canToggleStatus">
+                  
+                  <!-- PENDING: Approve + Reject -->
+                  <ng-container *ngIf="getStatus(user) === 'pending'">
+                    <button class="action-btn approve" (click)="approveUser(user)">Approve</button>
+                    <button class="action-btn reject" (click)="rejectUser(user)">Reject</button>
+                  </ng-container>
 
-<td>
-  <div class="actions-cell">
-    <ng-container *ngIf="canToggleStatus">
-      
-      <!-- PENDING: Approve + Reject -->
-      <ng-container *ngIf="getStatus(user) === 'pending'">
-        <button class="action-btn approve" (click)="approveUser(user)">Approve</button>
-        <button class="action-btn reject" (click)="rejectUser(user)">Reject</button>
-      </ng-container>
+                  <!-- ACTIVE: Can disable -->
+                  <button *ngIf="getStatus(user) === 'active'" 
+                          class="action-btn disable" 
+                          (click)="disableUser(user)">
+                    Disable
+                  </button>
 
-      <!-- ACTIVE: Can disable -->
-      <button *ngIf="getStatus(user) === 'active'" 
-              class="action-btn disable" 
-              (click)="disableUser(user)">
-        Disable
-      </button>
+                  <!-- DISABLED: Can re-enable -->
+                  <button *ngIf="getStatus(user) === 'disabled'" 
+                          class="action-btn enable" 
+                          (click)="enableUser(user)">
+                    Enable
+                  </button>
 
-      <!-- DISABLED: Can re-enable -->
-      <button *ngIf="getStatus(user) === 'disabled'" 
-              class="action-btn enable" 
-              (click)="enableUser(user)">
-        Enable
-      </button>
+                  <!-- LOCKED: Unlock option -->
+                  <button *ngIf="getStatus(user) === 'locked'" 
+                          class="action-btn enable" 
+                          (click)="enableUser(user)">
+                    Unlock
+                  </button>
 
-      <!-- LOCKED: Unlock option -->
-      <button *ngIf="getStatus(user) === 'locked'" 
-              class="action-btn enable" 
-              (click)="enableUser(user)">
-        Unlock
-      </button>
+                </ng-container>
 
-    </ng-container>
-
-    <!-- Menu with View and Edit options -->
-    <button mat-icon-button class="more-btn" [matMenuTriggerFor]="menu">
-      <mat-icon>more_vert</mat-icon>
-    </button>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="viewUser(user)">
-        <mat-icon>person</mat-icon> View Profile
-      </button>
-      <button mat-menu-item (click)="editUser(user)">
-        <mat-icon>edit</mat-icon> Edit
-      </button>
-    </mat-menu>
-  </div>
-</td>
+                <!-- Menu with View and Edit options - Edit visible seulement si canToggleStatus -->
+                <button mat-icon-button class="more-btn" [matMenuTriggerFor]="menu">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="viewUser(user)">
+                    <mat-icon>person</mat-icon> View Profile
+                  </button>
+                  <!-- 🔥 Edit seulement pour Admin/GM -->
+                  <button mat-menu-item *ngIf="canToggleStatus" (click)="editUser(user)">
+                    <mat-icon>edit</mat-icon> Edit
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>

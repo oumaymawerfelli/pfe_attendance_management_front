@@ -28,6 +28,7 @@ export class UsersComponent implements OnInit {
   displayedColumns = ['user', 'contact', 'department', 'role', 'status', 'actions'];
 
   private searchSubject = new Subject<string>();
+  currentUser: any = null;
 
   constructor(
     private usersService: UsersService,
@@ -59,8 +60,13 @@ export class UsersComponent implements OnInit {
 
     this.auth.user().subscribe({
       next: (user: any) => {
-        if (user) {
+        if (user && Object.keys(user).length > 0) {
           console.log('✅ User authenticated:', user.email);
+          console.log('👤 Full user object:', user);
+          
+          // STOCKER L'UTILISATEUR
+          this.currentUser = user;
+          
           this.checkPermissions();
           this.loadStats();
           this.loadUsers();
@@ -69,7 +75,8 @@ export class UsersComponent implements OnInit {
           this.router.navigate(['/auth/login']);
         }
       },
-      error: () => {
+      error: (err) => {
+        console.error('❌ Error getting user:', err);
         this.router.navigate(['/auth/login']);
       }
     });
@@ -84,7 +91,7 @@ export class UsersComponent implements OnInit {
 
   testInterceptor(): void {
     console.log('🧪 Testing interceptor with direct HTTP call');
-    this.http.get('http://localhost:8080/api/users/test').subscribe({
+    this.http.get('http://localhost:8080/api/users?page=0&size=1').subscribe({
       next: (res) => console.log('✅ Test success:', res),
       error: (err) => console.log('❌ Test error:', err)
     });
@@ -94,7 +101,6 @@ export class UsersComponent implements OnInit {
   filterByStatus(status: string): void {
     console.log('🔍 Filtering by status:', status);
     this.currentPage = 0;
-    // You need to implement status filtering in your service
     this.loadUsers();
   }
 
@@ -105,15 +111,22 @@ export class UsersComponent implements OnInit {
   }
 
   private checkPermissions(): void {
-  this.auth.user().subscribe((user: any) => {
-    const roles = user?.roles || [];
-    console.log('🔐 Current user roles:', roles); // ← Add this
+    if (!this.currentUser) {
+      console.log('⚠️ No current user found in checkPermissions');
+      this.canToggleStatus = false;
+      return;
+    }
+    
+    const roles = this.currentUser?.roles || [];
+    console.log('🔐 Current user roles from stored user:', roles);
+    
     this.canToggleStatus = roles.some((r: string) =>
       r.includes('GENERAL_MANAGER') || r.includes('GENERAL_DIRECTOR') || r.includes('ADMIN')
     );
-    console.log('🔐 canToggleStatus:', this.canToggleStatus); // ← And this
-  });
-}
+    
+    console.log('🔐 canToggleStatus:', this.canToggleStatus);
+  }
+
   loadStats(): void {
     this.usersService.getStats().subscribe({
       next: (stats: UserStats) => {
@@ -126,95 +139,76 @@ export class UsersComponent implements OnInit {
   }
 
   loadUsers(keyword = this.searchKeyword): void {
-  this.isLoading = true;
-  
-  this.usersService.getUsers(this.currentPage, this.pageSize, keyword).subscribe({
-    next: (res: PageResponse<UserDTO>) => {
-      // Log the raw data to see what's coming from backend
-      console.log('📦 Raw user data from backend:', res.content);
-      
-      // Set default values for missing fields if needed
-      this.users = res.content.map(user => ({
-        ...user,
-        // Ensure boolean values are properly interpreted
-        registrationPending: user.registrationPending === true,
-        accountNonLocked: user.accountNonLocked === true,
-        active: user.active === true,
-        enabled: user.enabled === true
-      }));
-      
-      this.totalElements = res.totalElements;
-      this.isLoading = false;
-      
-      // Log the processed data
-      console.log('✅ Processed users:', this.users);
-    },
-    error: (err: any) => {
-      console.error('❌ Error loading users:', err);
-      this.snackBar.open('Failed to load users', 'Close', { duration: 3000 });
-      this.isLoading = false;
-      
-      if (err.status === 401 || err.status === 403) {
-        this.router.navigate(['/auth/login']);
+    this.isLoading = true;
+    
+    this.usersService.getUsers(this.currentPage, this.pageSize, keyword).subscribe({
+      next: (res: PageResponse<UserDTO>) => {
+        console.log('📦 Raw user data from backend:', res.content);
+        
+        this.users = res.content.map(user => ({
+          ...user,
+          registrationPending: user.registrationPending === true,
+          accountNonLocked: user.accountNonLocked === true,
+          active: user.active === true,
+          enabled: user.enabled === true
+        }));
+        
+        this.totalElements = res.totalElements;
+        this.isLoading = false;
+        
+        console.log('✅ Processed users:', this.users);
+      },
+      error: (err: any) => {
+        console.error('❌ Error loading users:', err);
+        this.snackBar.open('Failed to load users', 'Close', { duration: 3000 });
+        this.isLoading = false;
+        
+        if (err.status === 401 || err.status === 403) {
+          this.router.navigate(['/auth/login']);
+        }
       }
-    }
-  });
-}
+    });
+  }
+
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
     this.loadUsers();
   }
 
-  // Custom pagination method for the new design
   onCustomPageChange(pageIndex: number): void {
     this.currentPage = pageIndex;
     this.loadUsers();
   }
 
   approveUser(user: UserDTO): void {
-  if (!confirm(`Approve ${user.firstName} ${user.lastName}?`)) return;
+    if (!confirm(`Approve ${user.firstName} ${user.lastName}?`)) return;
 
-  this.usersService.approveUser(user.id).subscribe({
-    next: () => {
-      this.snackBar.open(`${user.firstName} ${user.lastName} approved`, 'Close', { duration: 3000 });
-      this.loadUsers();
-      this.loadStats();
-    },
-    error: () => this.snackBar.open('Failed to approve user', 'Close', { duration: 3000 })
-  });
-}
+    this.usersService.approveUser(user.id).subscribe({
+      next: () => {
+        this.snackBar.open(`${user.firstName} ${user.lastName} approved`, 'Close', { duration: 3000 });
+        this.loadUsers();
+        this.loadStats();
+      },
+      error: () => this.snackBar.open('Failed to approve user', 'Close', { duration: 3000 })
+    });
+  }
 
   rejectUser(user: UserDTO): void {
-  if (!confirm(`Reject ${user.firstName} ${user.lastName}?`)) return;
+    if (!confirm(`Reject ${user.firstName} ${user.lastName}?`)) return;
 
-  this.usersService.rejectUser(user.id).subscribe({
-    next: () => {
-      this.snackBar.open(`${user.firstName} ${user.lastName} rejected`, 'Close', { duration: 3000 });
-      this.loadUsers();
-      this.loadStats();
-    },
-    error: () => this.snackBar.open('Failed to reject user', 'Close', { duration: 3000 })
-  });
-
-    // You need to implement rejectUser in your service
-    // this.usersService.rejectUser(user.id).subscribe({
-    //   next: () => {
-    //     this.snackBar.open(`${user.firstName} ${user.lastName} rejected`, 'Close', { duration: 3000 });
-    //     this.loadUsers();
-    //     this.loadStats();
-    //   },
-    //   error: () => {
-    //     this.snackBar.open('Failed to reject user', 'Close', { duration: 3000 });
-    //   }
-    // });
-    console.log('Reject user:', user);
+    this.usersService.rejectUser(user.id).subscribe({
+      next: () => {
+        this.snackBar.open(`${user.firstName} ${user.lastName} rejected`, 'Close', { duration: 3000 });
+        this.loadUsers();
+        this.loadStats();
+      },
+      error: () => this.snackBar.open('Failed to reject user', 'Close', { duration: 3000 })
+    });
   }
 
   disableUser(user: UserDTO): void {
-    if (!confirm(`Are you sure you want to disable ${user.firstName} ${user.lastName}?`)) {
-      return;
-    }
+    if (!confirm(`Are you sure you want to disable ${user.firstName} ${user.lastName}?`)) return;
     
     this.usersService.disableUser(user.id).subscribe({
       next: () => {
@@ -229,9 +223,7 @@ export class UsersComponent implements OnInit {
   }
 
   enableUser(user: UserDTO): void {
-    if (!confirm(`Are you sure you want to enable ${user.firstName} ${user.lastName}?`)) {
-      return;
-    }
+    if (!confirm(`Are you sure you want to enable ${user.firstName} ${user.lastName}?`)) return;
     
     this.usersService.enableUser(user.id).subscribe({
       next: () => {
@@ -246,9 +238,7 @@ export class UsersComponent implements OnInit {
   }
 
   resetPassword(user: UserDTO): void {
-    if (!confirm(`Send password reset email to ${user.email}?`)) {
-      return;
-    }
+    if (!confirm(`Send password reset email to ${user.email}?`)) return;
     
     this.usersService.resetPassword(user.id).subscribe({
       next: () => {
@@ -260,27 +250,19 @@ export class UsersComponent implements OnInit {
     });
   }
 
- editUser(user: UserDTO): void {
-  console.log('📝 Navigating to edit user:', user.id);
-  this.router.navigate(['/users', user.id, 'edit']);
-}
+  editUser(user: UserDTO): void {
+    console.log('📝 Navigating to edit user:', user.id);
+    this.router.navigate(['/users', user.id, 'edit']);
+  }
 
- getStatus(user: UserDTO): string {
-  // 1. Pending registration (never approved)
-  if (user.registrationPending === true) return 'pending';
+  getStatus(user: UserDTO): string {
+    if (user.registrationPending === true) return 'pending';
+    if (!user.enabled) return 'pending';
+    if (user.enabled && !user.active) return 'disabled';
+    if (user.accountNonLocked === false) return 'locked';
+    return 'active';
+  }
 
-  // 2. Not yet approved at all (edge case: old data with no registrationPending flag)
-  if (!user.enabled) return 'pending';
-
-  // 3. Approved but admin disabled login
-  if (user.enabled && !user.active) return 'disabled';
-
-  // 4. Security lockout (too many failed attempts)
-  if (user.accountNonLocked === false) return 'locked';
-
-  // 5. Fully active
-  return 'active';
-}
   getInitials(user: UserDTO): string {
     return ((user.firstName?.[0] || '') + (user.lastName?.[0] || '')).toUpperCase();
   }
@@ -290,14 +272,11 @@ export class UsersComponent implements OnInit {
     return user.roles[0].replace('ROLE_', '').replace(/_/g, ' ');
   }
 
-  // Helper method for pagination
   min(a: number, b: number): number {
     return Math.min(a, b);
   }
+
   viewUser(user: UserDTO): void {
-  this.router.navigate(['/users', user.id]);
-}
-
-
-
+    this.router.navigate(['/users', user.id]);
+  }
 }

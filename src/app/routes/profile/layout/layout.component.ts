@@ -1,9 +1,11 @@
+// src/app/routes/profile/profile-layout/profile-layout.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService, User } from '@core/authentication';
 import { MatDialog } from '@angular/material/dialog';
 import { EditProfileDialogComponent } from '../edit-profile-dialog/edit-profile-dialog.component';
+import { UserService } from '@core/services/user.service';  // ✅ 1. AJOUTER L'IMPORT
 
 @Component({
   selector: 'app-profile-layout',
@@ -17,11 +19,29 @@ export class ProfileLayoutComponent implements OnInit, OnDestroy {
 
   constructor(
     private auth: AuthService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private userService: UserService  // ✅ 2. AJOUTER DANS LE CONSTRUCTEUR
   ) {}
 
   ngOnInit(): void {
-    this.loadUser();
+    // ✅ 3. CHANGER : ÉCOUTER LE USERSERVICE AU LIEU DE AUTH.SERVICE
+    this.userService.user$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        if (user) {
+          this.user = user;
+          this.avatarUrl = user.avatar || './assets/images/def-avatar.avif';
+        }
+      });
+
+    // Charger l'utilisateur initial depuis AuthService
+    this.auth.user()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        if (user && Object.keys(user).length > 0) {
+          this.userService.setUser(user);  // ✅ Initialiser le service
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -29,16 +49,8 @@ export class ProfileLayoutComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadUser(): void {
-    this.auth.user()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(user => {
-        this.user = user;
-        if (user?.avatar) {
-          this.avatarUrl = user.avatar;
-        }
-      });
-  }
+  // La méthode loadUser() n'est plus nécessaire - on peut la supprimer ou la garder
+  // private loadUser(): void { ... }
 
   get role(): string {
     if (this.user.roles && this.user.roles.length > 0) {
@@ -63,14 +75,15 @@ export class ProfileLayoutComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(result => {
         if (result) {
-          this.loadUser();
+          // Plus besoin de loadUser() - UserService met déjà à jour !
+          console.log('Profile updated');
         }
       });
   }
 
   contactUser(): void {
-  if (this.user?.email) {
-    window.location.href = `mailto:${this.user.email}`;
+    if (this.user?.email) {
+      window.location.href = `mailto:${this.user.email}`;
+    }
   }
-}
 }

@@ -1,0 +1,64 @@
+<div *ngIf="loading" class="flex justify-center p-16">
+  <mat-spinner diameter="36"></mat-spinner>
+</div>
+
+<div class="balance-grid" *ngIf="!loading && balance">
+
+  <!-- Annual -->
+  <div class="balance-card annual">
+    <div class="card-top">
+      <span class="type-label"><span class="dot"></span>Annual</span>
+      <span class="pill">Full balance</span>
+    </div>
+    <div class="card-body">
+      <div class="big-num">{{ balance.annualRemaining }}<span class="of-total"> / {{ balance.annualTotal }} days</span></div>
+      <div class="sub-label">{{ balance.annualTaken }} days used this year</div>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill annual" [style.width.%]="(balance.annualRemaining / balance.annualTotal) * 100"></div>
+    </div>
+    <div class="card-footer">
+      <span>{{ ((balance.annualRemaining / balance.annualTotal) * 100) | number:'1.0-0' }}% remaining</span>
+      <span>Resets Jan 1</span>
+    </div>
+  </div>
+
+  <!-- Sick -->
+  <div class="balance-card sick">
+    <div class="card-top">
+      <span class="type-label"><span class="dot"></span>Sick</span>
+      <span class="pill">Full balance</span>
+    </div>
+    <div class="card-body">
+      <div class="big-num">{{ balance.sickRemaining }}<span class="of-total"> / {{ balance.sickTotal }} days</span></div>
+      <div class="sub-label">{{ balance.sickTaken }} days used this year</div>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill sick" [style.width.%]="(balance.sickRemaining / balance.sickTotal) * 100"></div>
+    </div>
+    <div class="card-footer">
+      <span>{{ ((balance.sickRemaining / balance.sickTotal) * 100) | number:'1.0-0' }}% remaining</span>
+      <span>Resets Jan 1</span>
+    </div>
+  </div>
+
+  <!-- Unpaid -->
+  <div class="balance-card unpaid">
+    <div class="card-top">
+      <span class="type-label"><span class="dot"></span>Unpaid</span>
+      <span class="pill">No cap</span>
+    </div>
+    <div class="card-body">
+      <div class="big-num">{{ balance.unpaidTaken }}<span class="of-total"> days taken</span></div>
+      <div class="sub-label">Unlimited — taken as needed</div>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill unpaid" style="width: 0%"></div>
+    </div>
+    <div class="card-footer">
+      <span>No limit</span>
+      <span>Unpaid</span>
+    </div>
+  </div>
+
+</div>

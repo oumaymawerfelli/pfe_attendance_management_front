@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, iif, merge, of } from 'rxjs';
-import { catchError, map, share, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, share, switchMap, take, tap } from 'rxjs/operators';
 import { filterObject, isEmptyObject } from './helpers';
 import { User } from './interface';
 import { LoginService } from './login.service';
 import { TokenService } from './token.service';
 import { UserService } from '../services/user.service';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -26,7 +27,17 @@ export class AuthService {
   ) {}
 
   init() {
-    return new Promise<void>(resolve => this.change$.subscribe(() => resolve()));
+    return new Promise<void>(resolve =>
+      this.change$.pipe(
+        switchMap(() =>
+          this.user$.pipe(
+            // Wait until user$ has actual data OR token is invalid (not logged in)
+            filter(user => !isEmptyObject(user) || !this.check())
+          )
+        ),
+        take(1)
+      ).subscribe(() => resolve())
+    );
   }
 
   change() {
@@ -40,6 +51,7 @@ export class AuthService {
   login(username: string, password: string, rememberMe = false) {
     return this.loginService.login(username, password, rememberMe).pipe(
       tap(token => {
+        this.user$.next({}); // Clear old user before setting new token
         this.tokenService.set(token);
       }),
       map(() => this.check())
@@ -86,18 +98,18 @@ export class AuthService {
 
     return this.loginService.me().pipe(
       tap(user => {
-        console.log(' Utilisateur chargé depuis /me:', user);
-        console.log(' Rôles bruts:', user.roles);
+        console.log('Utilisateur chargé depuis /me:', user);
+        console.log('Rôles bruts:', user.roles);
         console.log('Type des rôles:', typeof user.roles);
         console.log('Est un tableau?', Array.isArray(user.roles));
         if (Array.isArray(user.roles) && user.roles.length > 0) {
-          console.log(' Premier rôle:', user.roles[0]);
+          console.log('Premier rôle:', user.roles[0]);
         }
         this.user$.next(user);
         this.userService.setUser(user);
       }),
       catchError(error => {
-        console.error(' Erreur chargement utilisateur:', error);
+        console.error('Erreur chargement utilisateur:', error);
         const storedUser = localStorage.getItem('currentUser');
         if (storedUser) {
           const user = JSON.parse(storedUser);

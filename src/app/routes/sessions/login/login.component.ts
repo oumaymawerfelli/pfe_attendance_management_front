@@ -55,30 +55,11 @@ export class LoginComponent {
       .login(email, password, this.rememberMe.value)
       .pipe(filter((authenticated: any) => authenticated))
       .subscribe({
-        next: (response: any) => {
-          console.log('✅ Login successful:', response);
-
-          // 🔍 VÉRIFICATION DU TOKEN APRÈS LOGIN
-          setTimeout(() => {
-            const token = localStorage.getItem('ng-matero-token');
-            console.log('🔍 Token in localStorage:', token);
-
-            if (token) {
-              try {
-                const tokenObj = JSON.parse(token);
-                console.log('🔍 Token object:', tokenObj);
-                console.log('🔍 Access token:', tokenObj.access_token);
-              } catch (e) {
-                console.error('❌ Error parsing token:', e);
-              }
-            } else {
-              console.error('❌ No token found in localStorage!');
-            }
-          }, 100);
-
-          this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
-          this.router.navigateByUrl('/dashboard');
-        },
+      next: (response: any) => {
+  console.log('✅ Login successful:', response);
+  this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
+  this.router.navigateByUrl('/dashboard'); // ← juste ça, pas de me()
+},
         error: (errorRes: HttpErrorResponse) => {
           console.error('❌ Login error:', errorRes);
           this.isSubmitting = false;

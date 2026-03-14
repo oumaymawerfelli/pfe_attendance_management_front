@@ -1,0 +1,67 @@
+<div *ngIf="loading" class="flex justify-center p-24">
+  <mat-spinner diameter="40"></mat-spinner>
+</div>
+
+<mat-table [dataSource]="dataSource" *ngIf="!loading">
+  <ng-container matColumnDef="leaveType">
+    <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+    <mat-cell *matCellDef="let row">
+      <mat-icon [title]="row.leaveType">{{ typeIcon(row.leaveType) }}</mat-icon>
+      {{ row.leaveType | titlecase }}
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="startDate">
+    <mat-header-cell *matHeaderCellDef>From</mat-header-cell>
+    <mat-cell *matCellDef="let row">{{ row.startDate | date:'dd/MM/yyyy' }}</mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="endDate">
+    <mat-header-cell *matHeaderCellDef>To</mat-header-cell>
+    <mat-cell *matCellDef="let row">{{ row.endDate | date:'dd/MM/yyyy' }}</mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="daysCount">
+    <mat-header-cell *matHeaderCellDef>Days</mat-header-cell>
+    <mat-cell *matCellDef="let row">{{ row.daysCount }}</mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="reason">
+    <mat-header-cell *matHeaderCellDef>Reason</mat-header-cell>
+    <mat-cell *matCellDef="let row" class="reason-cell" [title]="row.reason">
+      {{ row.reason | slice:0:40 }}{{ row.reason.length > 40 ? '...' : '' }}
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+    <mat-cell *matCellDef="let row">
+      <mat-chip [color]="statusColor(row.status)" selected>
+        {{ row.status }}
+      </mat-chip>
+      <span *ngIf="row.rejectionReason"
+            class="rejection-hint"
+            [title]="row.rejectionReason">
+        <mat-icon style="font-size:14px">info</mat-icon>
+      </span>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="decidedAt">
+    <mat-header-cell *matHeaderCellDef>Decision Date</mat-header-cell>
+    <mat-cell *matCellDef="let row">
+      {{ row.decidedAt ? (row.decidedAt | date:'dd/MM/yyyy') : '—' }}
+    </mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+
+  <tr class="mat-row" *matNoDataRow>
+    <td class="mat-cell text-center p-24" [attr.colspan]="displayedColumns.length">
+      No leave requests found.
+    </td>
+  </tr>
+</mat-table>
+
+<mat-paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>

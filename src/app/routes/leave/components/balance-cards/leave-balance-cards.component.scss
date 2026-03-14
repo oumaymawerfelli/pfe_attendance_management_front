@@ -1,0 +1,101 @@
+.balance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+
+.balance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 1.25rem 1.25rem 1rem;
+  background: white;
+  border: .5px solid rgba(0,0,0,.1);
+  border-radius: 12px;
+
+  &.annual { border-top: 2px solid #378ADD; }
+  &.sick    { border-top: 2px solid #D85A30; }
+  &.unpaid  { border-top: 2px solid #888780; }
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.type-label {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #666;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+
+  .annual & { background: #378ADD; }
+  .sick &   { background: #D85A30; }
+  .unpaid & { background: #888780; }
+}
+
+.pill {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 20px;
+
+  .annual & { color: #185FA5; background: #E6F1FB; }
+  .sick &   { color: #993C1D; background: #FAECE7; }
+  .unpaid & { color: #5F5E5A; background: #F1EFE8; }
+}
+
+.big-num {
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1;
+
+  .annual & { color: #185FA5; }
+  .sick &   { color: #D85A30; }
+  .unpaid & { color: #888780; }
+}
+
+.of-total {
+  font-size: 14px;
+  font-weight: 400;
+  color: #999;
+}
+
+.sub-label {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #999;
+}
+
+.bar-track {
+  height: 3px;
+  background: rgba(0,0,0,.08);
+  border-radius: 2px;
+}
+
+.bar-fill {
+  height: 3px;
+  border-radius: 2px;
+  transition: width .6s ease;
+
+  &.annual { background: #378ADD; }
+  &.sick   { background: #D85A30; }
+  &.unpaid { background: #888780; }
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #aaa;
+}

@@ -1,0 +1,107 @@
+<div class="form-container">
+
+  <!-- Header -->
+  <div class="form-header">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1 class="form-title">{{ isEditMode ? 'Edit Project' : 'Create New Project' }}</h1>
+      <p class="form-subtitle">{{ isEditMode ? 'Update project information' : 'Fill in the details to create a new project' }}</p>
+    </div>
+  </div>
+
+  <mat-card class="form-card">
+    <mat-card-content>
+      <div [formGroup]="projectForm" class="form-grid">
+
+        <!-- Name -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Project Name</mat-label>
+          <input matInput formControlName="name" placeholder="Enter project name">
+          <mat-icon matPrefix>folder</mat-icon>
+          <mat-error *ngIf="projectForm.get('name')?.hasError('required')">Name is required</mat-error>
+          <mat-error *ngIf="projectForm.get('name')?.hasError('minlength')">Minimum 3 characters</mat-error>
+        </mat-form-field>
+
+        <!-- Description -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description"
+                    placeholder="Describe the project objectives and scope"
+                    rows="4"></textarea>
+          <mat-icon matPrefix>description</mat-icon>
+        </mat-form-field>
+
+        <!-- Status + Manager row -->
+        <div class="two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status">
+              <mat-option value="PLANNED">🔵 Planned</mat-option>
+              <mat-option value="IN_PROGRESS">🟢 In Progress</mat-option>
+              <mat-option value="ON_HOLD">🟠 On Hold</mat-option>
+              <mat-option value="COMPLETED">🟣 Completed</mat-option>
+              <mat-option value="CANCELLED">🔴 Cancelled</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>flag</mat-icon>
+            <mat-error *ngIf="projectForm.get('status')?.hasError('required')">Status is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Project Manager</mat-label>
+            <mat-select formControlName="projectManagerId">
+              <mat-option [value]="null">— Unassigned</mat-option>
+              <mat-option *ngFor="let m of managers" [value]="m.id">
+                {{ m.firstName }} {{ m.lastName }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Dates row -->
+        <div class="two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+            <mat-icon matPrefix>calendar_today</mat-icon>
+            <mat-error *ngIf="projectForm.get('startDate')?.hasError('required')">Start date is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+            <mat-icon matPrefix>event</mat-icon>
+            <mat-error *ngIf="projectForm.hasError('dateInvalid')">End date must be after start date</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="errorMessage" class="error-banner">
+          <mat-icon>error</mat-icon>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button mat-button type="button" (click)="goBack()">Cancel</button>
+          <button mat-raised-button color="primary"
+                  type="button"
+                  [disabled]="projectForm.invalid || isSubmitting"
+                  (click)="onSubmit()">
+            <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+            <mat-icon *ngIf="!isSubmitting">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+            {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create Project') }}
+          </button>
+        </div>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</div>

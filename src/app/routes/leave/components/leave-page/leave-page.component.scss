@@ -1,0 +1,34 @@
+.page-header-clean {
+  padding: 1.5rem 0 1.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: .5px solid rgba(0,0,0,.08);
+
+  &__breadcrumb {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #999;
+
+    span { color: #999; }
+    span.active { font-weight: 500; color: #555; }
+    mat-icon { color: #ccc; }
+  }
+
+  &__title {
+    h1 {
+      margin: 0 0 4px;
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.2;
+      color: #1a1a1a;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: #888;
+    }
+  }
+}

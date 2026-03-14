@@ -1,0 +1,125 @@
+
+    .dialog-container { min-width: 460px; }
+
+    .dialog-header {
+      padding: 20px 24px 0;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    h2[mat-dialog-title] {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 0 0 6px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .dialog-subtitle {
+      margin: 0 0 16px;
+      font-size: 13px;
+      color: #888;
+    }
+
+    mat-dialog-content {
+      max-height: 420px;
+      padding: 0 24px !important;
+    }
+
+    .full-width { width: 100%; margin-bottom: 8px; }
+
+    .loading {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      padding: 32px;
+      color: #aaa;
+    }
+
+    .employee-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .empty {
+      padding: 32px;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .empty mat-icon { width: 40px; height: 40px; font-size: 40px; }
+
+    .employee-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      transition: background .2s;
+    }
+
+    .employee-item:hover { background: #f5f5f5; }
+
+    .employee-item.selected {
+      background: #e3f2fd;
+      border-color: #1976d2;
+    }
+
+    .emp-avatar {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      background: #1976d2;
+      border-radius: 50%;
+    }
+
+    .emp-info { flex: 1; }
+
+    .emp-name {
+      margin: 0 0 2px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .emp-email {
+      margin: 0 0 4px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .emp-role {
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #1976d2;
+      background: #f0f4ff;
+      border-radius: 10px;
+    }
+
+    .check-icon { color: #1976d2; }
+
+    mat-dialog-actions {
+      gap: 8px;
+      padding: 12px 24px !important;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    button[mat-raised-button] {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+  

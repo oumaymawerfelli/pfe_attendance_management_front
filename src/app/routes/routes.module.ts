@@ -10,6 +10,7 @@ import { Error403Component } from './sessions/403.component';
 import { Error404Component } from './sessions/404.component';
 import { Error500Component } from './sessions/500.component';
 import { ActivateAccountComponent } from './sessions/activate-account/activate-account.component';
+import { ChangePasswordComponent } from './sessions/change-password/change-password.component';
 
 
 
@@ -28,6 +29,6 @@ const COMPONENTS_DYNAMIC: any[] = [];
 
 @NgModule({
   imports: [SharedModule, RoutesRoutingModule],
-  declarations: [...COMPONENTS, ...COMPONENTS_DYNAMIC,],
+  declarations: [...COMPONENTS, ...COMPONENTS_DYNAMIC, ChangePasswordComponent,],
 })
 export class RoutesModule {}

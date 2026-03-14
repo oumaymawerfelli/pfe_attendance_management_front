@@ -74,46 +74,68 @@ export class TokenInterceptor implements HttpInterceptor {
       request.url.includes('/auth/login') ||
       request.url.includes('/auth/register') ||
       request.url.includes('/auth/activate') ||
-      request.url.includes('/auth/validate-activation-token')
+      request.url.includes('/auth/validate-activation-token') ||
+      request.url.includes('/auth/resend-activation')
     ) {
       console.log('⏩ Bypassing token for auth endpoint:', request.url);
       return next.handle(request);
     }
 
     // Pour les autres requêtes, ajouter le token si disponible
-    if (bearerToken) {
-      console.log('✅ Adding token to:', request.url);
-      console.log('✅ Full token value:', bearerToken);
+   if (bearerToken) {
+  console.log('✅ Adding token to:', request.url);
+  console.log('✅ Full token value:', bearerToken);
 
-      const cloned = request.clone({
-        setHeaders: {
-          Authorization: bearerToken,
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true
-      });
+  // ✅ CORRECTION : Ne pas forcer Content-Type pour FormData
+  const headers: any = {
+    Authorization: bearerToken
+  };
+  
+  // Seulement ajouter Content-Type: application/json si ce n'est PAS du FormData
+  if (!(request.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
 
-      console.log('✅ Cloned request headers:', cloned.headers.keys());
-      console.log('✅ Authorization header present:', cloned.headers.has('Authorization'));
-      console.log('✅ Authorization header value:', cloned.headers.get('Authorization')?.substring(0, 30) + '...');
+  const cloned = request.clone({
+    setHeaders: headers,
+    withCredentials: true
+  });
 
-      return next.handle(cloned).pipe(
-        catchError((error: HttpErrorResponse) => {
+  console.log('✅ Cloned request headers:', cloned.headers.keys());
+  console.log('✅ Authorization header present:', cloned.headers.has('Authorization'));
+  console.log('✅ Is FormData?', request.body instanceof FormData);
+  console.log('✅ Content-Type header present:', cloned.headers.has('Content-Type'));
+
+  return next.handle(cloned).pipe(
+    catchError((error: HttpErrorResponse) => {
           console.error('❌ Error after adding token:', error);
           console.error('❌ Error status:', error.status);
           console.error('❌ Error URL:', error.url);
+          
+          // 🔥 REDIRECTION VERS LOGIN POUR 401 ET 403
           if (error.status === 401 || error.status === 403) {
-            console.log('🔐 Token rejected, clearing...');
+            console.log('🔐 Non autorisé - Redirection vers login');
+            
+            // Vider le token invalide
             localStorage.removeItem('ng-matero-token');
+            localStorage.removeItem('currentUser');
             this.tokenService.clear();
+            
+            // Redirection vers login
             this.router.navigate(['/auth/login']);
           }
+          
           return throwError(() => error);
         })
       );
     }
 
     console.log('⚠️ No token added for:', request.url);
+    
+    // 🔥 Si pas de token mais requête protégée, rediriger vers login
+    console.log('🔐 Pas de token - Redirection vers login');
+    this.router.navigate(['/auth/login']);
+    
     return next.handle(request);
   }
 

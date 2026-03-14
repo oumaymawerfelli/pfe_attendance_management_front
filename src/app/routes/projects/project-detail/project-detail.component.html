@@ -1,0 +1,167 @@
+<div class="detail-container" *ngIf="project">
+
+      <!-- Header -->
+      <div class="detail-header">
+        <div class="header-left">
+          <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div>
+            <div class="title-row">
+              <span class="project-code">{{ project.code }}</span>
+              <span class="status-badge" [ngClass]="'status-' + project.status.toLowerCase()">
+                {{ getStatusLabel(project.status) }}
+              </span>
+            </div>
+            <h1 class="project-title">{{ project.name }}</h1>
+          </div>
+        </div>
+        <div class="header-actions" *ngIf="isAdminOrGM$ | async">
+          <button mat-stroked-button color="accent" (click)="editProject()">
+            <mat-icon>edit</mat-icon> Edit
+          </button>
+          <button mat-stroked-button color="warn" (click)="deleteProject()">
+            <mat-icon>delete</mat-icon> Delete
+          </button>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+
+        <!-- Left column -->
+        <div class="left-col">
+
+          <!-- Project Info -->
+          <mat-card class="info-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar color="primary">info</mat-icon>
+              <mat-card-title>Project Details</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p class="description">{{ project.description || 'No description provided.' }}</p>
+
+              <div class="info-grid">
+                <div class="info-item">
+                  <mat-icon>calendar_today</mat-icon>
+                  <div>
+                    <p class="info-label">Start Date</p>
+                    <p class="info-value">{{ project.startDate | date:'longDate' }}</p>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <mat-icon [style.color]="isOverdue() ? '#f44336' : ''">event</mat-icon>
+                  <div>
+                    <p class="info-label">End Date</p>
+                    <p class="info-value" [class.overdue]="isOverdue()">
+                      {{ project.endDate | date:'longDate' }}
+                      <span *ngIf="isOverdue()" class="overdue-badge">Overdue</span>
+                    </p>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <mat-icon>person</mat-icon>
+                  <div>
+                    <p class="info-label">Project Manager</p>
+                    <p class="info-value">{{ project.projectManagerName || 'Unassigned' }}</p>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <mat-icon>schedule</mat-icon>
+                  <div>
+                    <p class="info-label">Created</p>
+                    <p class="info-value">{{ project.createdAt | date:'mediumDate' }}</p>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Update Status — ADMIN/GM only -->
+          <mat-card class="status-card" *ngIf="isAdminOrGM$ | async">
+            <mat-card-header>
+              <mat-icon mat-card-avatar color="primary">flag</mat-icon>
+              <mat-card-title>Update Status</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="status-buttons">
+                <button *ngFor="let s of statuses"
+                        mat-stroked-button
+                        [class.active-status]="project.status === s.value"
+                        (click)="updateStatus(s.value)">
+                  {{ s.label }}
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+        </div>
+
+        <!-- Right column — Team -->
+        <div class="right-col">
+          <mat-card class="team-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar color="primary">group</mat-icon>
+              <mat-card-title>Team Members</mat-card-title>
+              <mat-card-subtitle>{{ teamMembers.length }} member(s)</mat-card-subtitle>
+            </mat-card-header>
+
+            <!-- Assign button — ADMIN, GM, or PM -->
+            <div class="team-actions" *ngIf="canManageTeam$ | async">
+              <button mat-raised-button color="primary" (click)="openAssignDialog()">
+                <mat-icon>person_add</mat-icon>
+                Assign Member
+              </button>
+            </div>
+
+            <mat-card-content>
+
+              <div *ngIf="isLoadingTeam" class="team-loading">
+                <mat-spinner diameter="32"></mat-spinner>
+              </div>
+
+              <div *ngIf="!isLoadingTeam && teamMembers.length === 0" class="empty-team">
+                <mat-icon>group_off</mat-icon>
+                <p>No team members assigned yet</p>
+                <p class="empty-hint" *ngIf="canManageTeam$ | async">
+                  Click "Assign Member" to add employees to this project.
+                </p>
+              </div>
+
+              <div *ngIf="!isLoadingTeam && teamMembers.length > 0" class="team-list">
+                <div *ngFor="let member of teamMembers" class="team-member">
+                  <div class="member-avatar">
+                    {{ getInitials(member.firstName + ' ' + member.lastName) }}
+                  </div>
+                  <div class="member-info">
+                    <p class="member-name">{{ member.firstName }} {{ member.lastName }}</p>
+                    <p class="member-email">{{ member.email }}</p>
+                    <p class="member-assigned">
+                      Assigned {{ member.assignedDate | date:'mediumDate' }}
+                      <span *ngIf="member.assigningManager" class="assigning-manager">
+                        by {{ member.assigningManager }}
+                      </span>
+                    </p>
+                  </div>
+                  <button
+  *ngIf="true"
+  mat-icon-button
+  color="warn"
+  (click)="removeMember(member)"
+  matTooltip="Remove from project"
+  class="remove-btn">
+  <mat-icon>person_remove</mat-icon>
+</button>
+                </div>
+              </div>
+
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="page-loading">
+      <mat-spinner diameter="56"></mat-spinner>
+    </div>

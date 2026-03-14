@@ -1,0 +1,196 @@
+ .detail-container { padding: 24px; }
+
+    /* ── Header ── */
+    .detail-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .header-left {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .title-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .project-code {
+      padding: 4px 10px;
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1976d2;
+      background: #f0f4ff;
+      border-radius: 4px;
+    }
+
+    .project-title { margin: 0; font-size: 24px; font-weight: 600; }
+
+    .header-actions { display: flex; gap: 10px; }
+
+    /* ── Status badge ── */
+    .status-badge {
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      border-radius: 20px;
+    }
+
+    .status-planned     { color: #1976d2; background: #e3f2fd; }
+    .status-in_progress { color: #388e3c; background: #e8f5e9; }
+    .status-on_hold     { color: #f57c00; background: #fff3e0; }
+    .status-completed   { color: #7b1fa2; background: #f3e5f5; }
+    .status-cancelled   { color: #c62828; background: #ffebee; }
+
+    /* ── Layout grid ── */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px;
+    }
+
+    .left-col, .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── Project info ── */
+    .description { margin-bottom: 20px; line-height: 1.6; color: #555; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .info-item { display: flex; gap: 10px; align-items: flex-start; }
+    .info-item mat-icon { margin-top: 2px; color: #1976d2; }
+
+    .info-label {
+      margin: 0 0 2px;
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .info-value { margin: 0; font-size: 14px; font-weight: 500; }
+
+    .overdue { color: #f44336; }
+
+    .overdue-badge {
+      padding: 2px 6px;
+      margin-left: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #f44336;
+      background: #ffebee;
+      border-radius: 10px;
+    }
+
+    /* ── Status buttons ── */
+    .status-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .active-status {
+      color: #1976d2 !important;
+      background: #e3f2fd !important;
+      border-color: #1976d2 !important;
+    }
+
+    /* ── Team card ── */
+    .team-actions {
+      padding: 0 16px 12px;
+    }
+
+    .team-actions button {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .team-loading, .empty-team {
+      padding: 32px;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .empty-hint {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #bbb;
+    }
+
+    /* ── Team list ── */
+    .team-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Single unified .team-member block — no duplicates */
+    .team-member {
+      position: relative;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      transition: background .2s;
+    }
+
+    .team-member:hover { background: #f0f4ff; }
+
+    .member-avatar {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      background: #1976d2;
+      border-radius: 50%;
+    }
+
+    .member-info { flex: 1; min-width: 0; }
+
+    .member-name  { margin: 0 0 2px; font-size: 14px; font-weight: 500; }
+    .member-email { margin: 0 0 2px; font-size: 12px; color: #666; }
+
+    .member-assigned {
+      margin: 0;
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    .assigning-manager { color: #1976d2; }
+
+    /* ── Remove button — always visible ── */
+    .remove-btn {
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    .remove-btn:hover {
+      background-color: rgba(244, 67, 54, .1) !important;
+    }
+
+    /* ── Page loading ── */
+    .page-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 400px;
+    }
+  

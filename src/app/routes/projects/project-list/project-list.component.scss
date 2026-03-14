@@ -1,0 +1,179 @@
+.projects-container { padding: 24px; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .page-subtitle {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      padding: 16px !important;
+    }
+
+    .stat-card mat-icon {
+      width: 36px;
+      height: 36px;
+      font-size: 36px;
+    }
+
+    .stat-number {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      margin: 0;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .table-card { overflow: hidden; }
+
+    .projects-table { width: 100%; }
+
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      padding: 48px;
+    }
+
+    .project-code {
+      padding: 4px 8px;
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1976d2;
+      background: #f0f4ff;
+      border-radius: 4px;
+    }
+
+    .project-name-cell {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .project-name {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .project-desc {
+      margin: 0;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border-radius: 20px;
+    }
+
+    .status-planned     { color: #1976d2; background: #e3f2fd; }
+    .status-in_progress { color: #388e3c; background: #e8f5e9; }
+    .status-on_hold     { color: #f57c00; background: #fff3e0; }
+    .status-completed   { color: #7b1fa2; background: #f3e5f5; }
+    .status-cancelled   { color: #c62828; background: #ffebee; }
+
+    .manager-cell {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .manager-avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+      background: #1976d2;
+      border-radius: 50%;
+    }
+
+    .no-manager { font-style: italic; color: #aaa; }
+
+    .dates-cell {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .date-item {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .date-item mat-icon {
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
+      color: #888;
+    }
+
+    .date-arrow { color: #bbb; }
+
+    .date-item.overdue { font-weight: 600; color: #f44336; }
+
+    .actions-cell {
+      display: flex;
+      gap: 4px;
+    }
+
+    .project-row {
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .project-row:hover { background: #f5f5f5; }
+
+    .empty-state {
+      padding: 64px 24px;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .empty-state mat-icon {
+      width: 64px;
+      height: 64px;
+      font-size: 64px;
+    }
+
+    .empty-state h3 { color: #555; }

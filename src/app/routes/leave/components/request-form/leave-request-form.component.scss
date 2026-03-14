@@ -1,0 +1,12 @@
+.date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (width <= 599px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.success-card { border-left: 4px solid #4CAF50; }
+.error-card   { border-left: 4px solid #F44336; }

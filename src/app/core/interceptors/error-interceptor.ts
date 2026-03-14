@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
+import { TokenService } from '@core/authentication'; // ← Ajouter cette importation
 
 export enum STATUS {
   UNAUTHORIZED = 401,
@@ -34,7 +35,11 @@ export class ErrorInterceptor implements HttpInterceptor {
     return `${error.status} ${error.statusText}`;
   };
 
-  constructor(private router: Router, private toast: ToastrService) {}
+  constructor(
+    private router: Router, 
+    private toast: ToastrService,
+    private tokenService: TokenService  // ← Injecter TokenService
+  ) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next
@@ -50,7 +55,15 @@ export class ErrorInterceptor implements HttpInterceptor {
     } else {
       console.error('ERROR', error);
       this.toast.error(this.getMessage(error));
+      
       if (error.status === STATUS.UNAUTHORIZED) {
+        // 🔥 NETTOYER LE TOKEN INVALIDE
+        console.log('🔐 Token invalide - nettoyage et redirection vers login');
+        localStorage.removeItem('ng-matero-token');
+        localStorage.removeItem('currentUser');
+        this.tokenService.clear();
+        
+        // Redirection vers login
         this.router.navigateByUrl('/auth/login');
       }
     }

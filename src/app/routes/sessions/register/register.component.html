@@ -1,245 +1,364 @@
-<div class="d-flex w-full h-full">
-  <mat-card class="m-auto register-card">
-    <mat-card-header class="m-b-24">
-      <mat-card-title>
-        {{ 'register_welcome' | translate }}, <br />
-        {{ 'register_title' | translate }}
-      </mat-card-title>
+<div class="register-wrapper">
+  <mat-card class="register-card">
+
+    <!-- Card Header -->
+    <mat-card-header class="register-header">
+      <div class="header-icon">
+        <mat-icon>person_add</mat-icon>
+      </div>
+      <mat-card-title>{{ 'register_welcome' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'register_title' | translate }}</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
       <form [formGroup]="registerForm">
-        <mat-stepper #stepper linear>
-          <!-- Step 1: Personal -->
-          <mat-step [stepControl]="personal" [label]="'register.step_personal' | translate">
-            <ng-template matStepLabel>{{ 'register.step_personal' | translate }}</ng-template>
-            <div class="form-field-full register-step" formGroupName="personal">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.firstName' | translate }}</mat-label>
-                <input matInput formControlName="firstName" />
-                <mat-error *ngIf="personal.get('firstName')?.invalid">
-                  <span *ngIf="personal.get('firstName')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
-                  <span *ngIf="personal.get('firstName')?.errors?.['remote']">{{ personal.get('firstName')?.errors?.['remote'] }}</span>
-                  <span *ngIf="personal.get('firstName')?.errors?.['minlength']">{{ 'validations.minlength' | translate:{ number: 2 } }}</span>
-                  <span *ngIf="personal.get('firstName')?.errors?.['maxlength']">{{ 'validations.maxlength' | translate:{ number: 50 } }}</span>
-                </mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.lastName' | translate }}</mat-label>
-                <input matInput formControlName="lastName" />
-                <mat-error *ngIf="personal.get('lastName')?.invalid">
-                  <span *ngIf="personal.get('lastName')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
-                  <span *ngIf="personal.get('lastName')?.errors?.['remote']">{{ personal.get('lastName')?.errors?.['remote'] }}</span>
-                  <span *ngIf="personal.get('lastName')?.errors?.['minlength']">{{ 'validations.minlength' | translate:{ number: 2 } }}</span>
-                  <span *ngIf="personal.get('lastName')?.errors?.['maxlength']">{{ 'validations.maxlength' | translate:{ number: 50 } }}</span>
-                </mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.birthDate' | translate }}</mat-label>
-                <input matInput type="date" formControlName="birthDate" />
-                <mat-error *ngIf="personal.get('birthDate')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.gender' | translate }}</mat-label>
-                <mat-select formControlName="gender">
-                  <mat-option value="MALE">{{ 'register.gender_MALE' | translate }}</mat-option>
-                  <mat-option value="FEMALE">{{ 'register.gender_FEMALE' | translate }}</mat-option>
-                  <mat-option value="OTHER">{{ 'register.gender_OTHER' | translate }}</mat-option>
-                </mat-select>
-                <mat-error *ngIf="personal.get('gender')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.nationalId' | translate }}</mat-label>
-                <input matInput formControlName="nationalId" maxlength="8" />
-                <mat-hint>8 {{ 'register.digits' | translate }}</mat-hint>
-                <mat-error *ngIf="personal.get('nationalId')?.invalid">
-                  <span *ngIf="personal.get('nationalId')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
-                  <span *ngIf="personal.get('nationalId')?.errors?.['pattern']">{{ 'register.nationalId_pattern' | translate }}</span>
-                  <span *ngIf="personal.get('nationalId')?.errors?.['remote']">{{ personal.get('nationalId')?.errors?.['remote'] }}</span>
-                </mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.nationality' | translate }}</mat-label>
-                <input matInput formControlName="nationality" />
-                <mat-error *ngIf="personal.get('nationality')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.maritalStatus' | translate }}</mat-label>
-                <mat-select formControlName="maritalStatus">
-                  <mat-option value="SINGLE">{{ 'register.marital_SINGLE' | translate }}</mat-option>
-                  <mat-option value="MARRIED">{{ 'register.marital_MARRIED' | translate }}</mat-option>
-                  <mat-option value="DIVORCED">{{ 'register.marital_DIVORCED' | translate }}</mat-option>
-                  <mat-option value="WIDOWED">{{ 'register.marital_WIDOWED' | translate }}</mat-option>
-                </mat-select>
-                <mat-error *ngIf="personal.get('maritalStatus')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-              </mat-form-field>
-            </div>
-            <div class="stepper-actions">
-              <button mat-button matStepperNext type="button">{{ 'register.next' | translate }}</button>
-            </div>
-          </mat-step>
+        <mat-stepper #stepper linear class="custom-stepper">
 
-          <!-- Step 2: Professional -->
-          <mat-step [stepControl]="professional" [label]="'register.step_professional' | translate">
-            <ng-template matStepLabel>{{ 'register.step_professional' | translate }}</ng-template>
-            <div class="form-field-full register-step" formGroupName="professional">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.email' | translate }}</mat-label>
-                <input matInput type="email" formControlName="email" />
-                <mat-error *ngIf="professional.get('email')?.invalid">
-                  <span *ngIf="professional.get('email')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
-                  <span *ngIf="professional.get('email')?.errors?.['email']">{{ 'validations.invalid_email' | translate }}</span>
-                  <span *ngIf="professional.get('email')?.errors?.['remote']">{{ professional.get('email')?.errors?.['remote'] }}</span>
-                </mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.phone' | translate }}</mat-label>
-                <input matInput formControlName="phone" maxlength="8" />
-                <mat-hint>8 {{ 'register.digits' | translate }}</mat-hint>
-                <mat-error *ngIf="professional.get('phone')?.invalid">
-                  <span *ngIf="professional.get('phone')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
-                  <span *ngIf="professional.get('phone')?.errors?.['pattern']">{{ 'register.phone_pattern' | translate }}</span>
-                  <span *ngIf="professional.get('phone')?.errors?.['remote']">{{ professional.get('phone')?.errors?.['remote'] }}</span>
-                </mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.address' | translate }}</mat-label>
-                <input matInput formControlName="address" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.jobTitle' | translate }}</mat-label>
-                <input matInput formControlName="jobTitle" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.department' | translate }}</mat-label>
-                <mat-select formControlName="department">
-                  <mat-option *ngFor="let d of departments" [value]="d">{{ d }}</mat-option>
-                </mat-select>
-                <mat-error *ngIf="professional.get('department')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.service' | translate }}</mat-label>
-                <input matInput formControlName="service" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.hireDate' | translate }}</mat-label>
-                <input matInput type="date" formControlName="hireDate" />
-                <mat-error *ngIf="professional.get('hireDate')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.contractType' | translate }}</mat-label>
-                <mat-select formControlName="contractType">
-                  <mat-option *ngFor="let c of contractTypes" [value]="c">{{ c }}</mat-option>
-                </mat-select>
-                <mat-error *ngIf="professional.get('contractType')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.contractEndDate' | translate }}</mat-label>
-                <input matInput type="date" formControlName="contractEndDate" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.baseSalary' | translate }}</mat-label>
-                <input matInput type="number" formControlName="baseSalary" min="0" step="0.01" />
-                <mat-error *ngIf="professional.get('baseSalary')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.housingAllowance' | translate }}</mat-label>
-                <input matInput type="number" formControlName="housingAllowance" min="0" step="0.01" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.evaluationScore' | translate }}</mat-label>
-                <input matInput type="number" formControlName="evaluationScore" min="0" max="5" />
-                <mat-hint>0-5</mat-hint>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.socialSecurityNumber' | translate }}</mat-label>
-                <input matInput formControlName="socialSecurityNumber" maxlength="10" />
-                <mat-hint>10 {{ 'register.digits' | translate }}</mat-hint>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'register.childrenCount' | translate }}</mat-label>
-                <input matInput type="number" formControlName="childrenCount" min="0" />
-              </mat-form-field>
-              <mat-slide-toggle formControlName="active">{{ 'register.active' | translate }}</mat-slide-toggle>
-            </div>
-            <div class="stepper-actions">
-              <button mat-button matStepperPrevious type="button">{{ 'register.back' | translate }}</button>
-              <button mat-button matStepperNext type="button">{{ 'register.next' | translate }}</button>
-            </div>
-          </mat-step>
+          <!-- ══════════════════════════════════════════
+               STEP 1 — Personal Information
+          ══════════════════════════════════════════ -->
+          <mat-step [stepControl]="personal" label="Personal">
+            <ng-template matStepLabel>Personal</ng-template>
 
-         <mat-step [stepControl]="account" [label]="'register.step_confirmation' | translate">
-            <ng-template matStepLabel>{{ 'register.step_confirmation' | translate }}</ng-template>
-            
-            <div formGroupName="account" class="step-content">
-              <div class="terms-section">
-                <mat-checkbox formControlName="agreeTerms" color="primary">
-                  {{ 'read_and_agree' | translate }}
-                  <a href="#" mat-button color="primary">{{ 'terms_of_service' | translate }}</a>
-                </mat-checkbox>
-                <mat-error *ngIf="account.get('agreeTerms')?.invalid && account.get('agreeTerms')?.touched">
-                  {{ 'validations.required' | translate }}
-                </mat-error>
+            <div class="step-content" formGroupName="personal">
+              <p class="step-subtitle">Tell us about yourself</p>
+
+              <div class="form-grid">
+
+                <!-- First Name -->
+                <mat-form-field appearance="outline">
+                  <mat-label>First Name</mat-label>
+                  <mat-icon matPrefix>person</mat-icon>
+                  <input matInput formControlName="firstName" />
+                  <mat-error *ngIf="personal.get('firstName')?.invalid">
+                    <span *ngIf="personal.get('firstName')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
+                    <span *ngIf="personal.get('firstName')?.errors?.['minlength']">{{ 'validations.minlength' | translate:{ number: 2 } }}</span>
+                    <span *ngIf="personal.get('firstName')?.errors?.['maxlength']">{{ 'validations.maxlength' | translate:{ number: 50 } }}</span>
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Last Name -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Last Name</mat-label>
+                  <mat-icon matPrefix>person_outline</mat-icon>
+                  <input matInput formControlName="lastName" />
+                  <mat-error *ngIf="personal.get('lastName')?.invalid">
+                    <span *ngIf="personal.get('lastName')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
+                    <span *ngIf="personal.get('lastName')?.errors?.['minlength']">{{ 'validations.minlength' | translate:{ number: 2 } }}</span>
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Birth Date — calendar picker -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Date of Birth</mat-label>
+                  <mat-icon matPrefix>cake</mat-icon>
+                  <input matInput [matDatepicker]="birthPicker" formControlName="birthDate" readonly />
+                  <mat-datepicker-toggle matSuffix [for]="birthPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #birthPicker startView="multi-year"></mat-datepicker>
+                  <mat-error *ngIf="personal.get('birthDate')?.invalid">{{ 'validations.required' | translate }}</mat-error>
+                </mat-form-field>
+
+                <!-- Gender -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Gender</mat-label>
+                  <mat-icon matPrefix>wc</mat-icon>
+                  <mat-select formControlName="gender">
+                    <mat-option value="MALE">Male</mat-option>
+                    <mat-option value="FEMALE">Female</mat-option>
+                    <mat-option value="OTHER">Other</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="personal.get('gender')?.invalid">{{ 'validations.required' | translate }}</mat-error>
+                </mat-form-field>
+
+                <!-- National ID -->
+                <mat-form-field appearance="outline">
+                  <mat-label>National ID</mat-label>
+                  <mat-icon matPrefix>badge</mat-icon>
+                  <input matInput formControlName="nationalId" maxlength="8" />
+                  <mat-hint>8 digits</mat-hint>
+                  <mat-error *ngIf="personal.get('nationalId')?.invalid">
+                    <span *ngIf="personal.get('nationalId')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
+                    <span *ngIf="personal.get('nationalId')?.errors?.['pattern']">Must be 8 digits</span>
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Nationality — dropdown list -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Nationality</mat-label>
+                  <mat-icon matPrefix>flag</mat-icon>
+                  <mat-select formControlName="nationality">
+                    <mat-option value="Tunisian">Tunisian</mat-option>
+                    <mat-option value="Algerian">Algerian</mat-option>
+                    <mat-option value="Moroccan">Moroccan</mat-option>
+                    <mat-option value="Egyptian">Egyptian</mat-option>
+                    <mat-option value="Libyan">Libyan</mat-option>
+                    <mat-option value="French">French</mat-option>
+                    <mat-option value="German">German</mat-option>
+                    <mat-option value="British">British</mat-option>
+                    <mat-option value="American">American</mat-option>
+                    <mat-option value="Canadian">Canadian</mat-option>
+                    <mat-option value="Italian">Italian</mat-option>
+                    <mat-option value="Spanish">Spanish</mat-option>
+                    <mat-option value="Turkish">Turkish</mat-option>
+                    <mat-option value="Saudi">Saudi</mat-option>
+                    <mat-option value="Emirati">Emirati</mat-option>
+                    <mat-option value="Other">Other</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="personal.get('nationality')?.invalid">{{ 'validations.required' | translate }}</mat-error>
+                </mat-form-field>
+
+                <!-- Marital Status — full width -->
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Marital Status</mat-label>
+                  <mat-icon matPrefix>favorite</mat-icon>
+                  <mat-select formControlName="maritalStatus">
+                    <mat-option value="SINGLE">Single</mat-option>
+                    <mat-option value="MARRIED">Married</mat-option>
+                    <mat-option value="DIVORCED">Divorced</mat-option>
+                    <mat-option value="WIDOWED">Widowed</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="personal.get('maritalStatus')?.invalid">{{ 'validations.required' | translate }}</mat-error>
+                </mat-form-field>
+
               </div>
-
-              <mat-card class="summary-card">
-                <mat-card-header>
-                  <mat-card-title>{{ 'register.summary' | translate }}</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="summary-item">
-                    <strong>{{ 'register.name' | translate }}:</strong>
-                    {{ personal.get('firstName')?.value }} {{ personal.get('lastName')?.value }}
-                  </div>
-                  <div class="summary-item">
-                    <strong>{{ 'register.email' | translate }}:</strong>
-                    {{ professional.get('email')?.value }}
-                  </div>
-                  <div class="summary-item">
-                    <strong>{{ 'register.department' | translate }}:</strong>
-                    {{ professional.get('department')?.value }}
-                  </div>
-                  <div class="summary-item">
-                    <strong>{{ 'register.contractType' | translate }}:</strong>
-                    {{ professional.get('contractType')?.value }}
-                  </div>
-                </mat-card-content>
-              </mat-card>
             </div>
 
             <div class="step-actions">
-              <button mat-button matStepperPrevious type="button">
-                <mat-icon>arrow_back</mat-icon>
-                {{ 'register.back' | translate }}
-              </button>
-              <button 
-                mat-raised-button 
-                color="primary" 
-                type="submit"
-                [disabled]="registerForm.invalid || isSubmitting"
-                (click)="onSubmit()">
-                <mat-icon>check_circle</mat-icon>
-                {{ 'register.submit' | translate }}
-                <mat-spinner *ngIf="isSubmitting" diameter="20" class="spinner"></mat-spinner>
+              <span></span>
+              <button mat-flat-button color="primary" matStepperNext type="button">
+                Next <mat-icon>arrow_forward</mat-icon>
               </button>
             </div>
           </mat-step>
+
+          <!-- ══════════════════════════════════════════
+               STEP 2 — Professional Information
+          ══════════════════════════════════════════ -->
+          <mat-step [stepControl]="professional" label="Professional">
+            <ng-template matStepLabel>Professional</ng-template>
+
+            <div class="step-content" formGroupName="professional">
+              <p class="step-subtitle">Your work & contract details</p>
+
+              <div class="form-grid">
+
+                <!-- Email -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Email Address</mat-label>
+                  <mat-icon matPrefix>email</mat-icon>
+                  <input matInput type="email" formControlName="email" />
+                  <mat-error *ngIf="professional.get('email')?.invalid">
+                    <span *ngIf="professional.get('email')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
+                    <span *ngIf="professional.get('email')?.errors?.['email']">Invalid email format</span>
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Phone -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Phone Number</mat-label>
+                  <mat-icon matPrefix>phone</mat-icon>
+                  <input matInput formControlName="phone" maxlength="8" />
+                  <mat-hint>8 digits</mat-hint>
+                  <mat-error *ngIf="professional.get('phone')?.invalid">
+                    <span *ngIf="professional.get('phone')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
+                    <span *ngIf="professional.get('phone')?.errors?.['pattern']">Must be 8 digits</span>
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Address — full width -->
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Address</mat-label>
+                  <mat-icon matPrefix>home</mat-icon>
+                  <input matInput formControlName="address" />
+                </mat-form-field>
+
+                <!-- Job Title -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Job Title</mat-label>
+                  <mat-icon matPrefix>work</mat-icon>
+                  <input matInput formControlName="jobTitle" />
+                </mat-form-field>
+
+                <!-- Department -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Department</mat-label>
+                  <mat-icon matPrefix>business</mat-icon>
+                  <mat-select formControlName="department">
+                    <mat-option *ngFor="let d of departments" [value]="d">{{ d }}</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="professional.get('department')?.invalid">{{ 'validations.required' | translate }}</mat-error>
+                </mat-form-field>
+
+                <!-- Service -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Service</mat-label>
+                  <mat-icon matPrefix>category</mat-icon>
+                  <input matInput formControlName="service" />
+                </mat-form-field>
+
+                <!-- Hire Date — calendar picker -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Hire Date</mat-label>
+                  <mat-icon matPrefix>event</mat-icon>
+                  <input matInput [matDatepicker]="hirePicker" formControlName="hireDate" readonly />
+                  <mat-datepicker-toggle matSuffix [for]="hirePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #hirePicker></mat-datepicker>
+                  <mat-error *ngIf="professional.get('hireDate')?.invalid">{{ 'validations.required' | translate }}</mat-error>
+                </mat-form-field>
+
+                <!-- Contract Type -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Contract Type</mat-label>
+                  <mat-icon matPrefix>description</mat-icon>
+                  <mat-select formControlName="contractType">
+                    <mat-option *ngFor="let c of contractTypes" [value]="c">{{ c }}</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="professional.get('contractType')?.invalid">{{ 'validations.required' | translate }}</mat-error>
+                </mat-form-field>
+
+                <!-- Contract End Date — calendar picker -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Contract End Date</mat-label>
+                  <mat-icon matPrefix>event_busy</mat-icon>
+                  <input matInput [matDatepicker]="contractEndPicker" formControlName="contractEndDate" readonly />
+                  <mat-datepicker-toggle matSuffix [for]="contractEndPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #contractEndPicker></mat-datepicker>
+                </mat-form-field>
+
+                <!-- Base Salary -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Base Salary</mat-label>
+                  <mat-icon matPrefix>payments</mat-icon>
+                  <input matInput type="number" formControlName="baseSalary" min="0" step="0.01" />
+                  <span matSuffix>TND</span>
+                  <mat-error *ngIf="professional.get('baseSalary')?.invalid">{{ 'validations.required' | translate }}</mat-error>
+                </mat-form-field>
+
+                <!-- Housing Allowance -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Housing Allowance</mat-label>
+                  <mat-icon matPrefix>house</mat-icon>
+                  <input matInput type="number" formControlName="housingAllowance" min="0" step="0.01" />
+                  <span matSuffix>TND</span>
+                </mat-form-field>
+
+                <!-- Evaluation Score -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Evaluation Score</mat-label>
+                  <mat-icon matPrefix>star</mat-icon>
+                  <input matInput type="number" formControlName="evaluationScore" min="0" max="5" />
+                  <mat-hint>0 – 5</mat-hint>
+                </mat-form-field>
+
+                <!-- Social Security Number -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Social Security Number</mat-label>
+                  <mat-icon matPrefix>security</mat-icon>
+                  <input matInput formControlName="socialSecurityNumber" maxlength="10" />
+                  <mat-hint>10 digits</mat-hint>
+                </mat-form-field>
+
+                <!-- Children Count -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Children Count</mat-label>
+                  <mat-icon matPrefix>child_care</mat-icon>
+                  <input matInput type="number" formControlName="childrenCount" min="0" />
+                </mat-form-field>
+
+                <!-- Active toggle — full width -->
+                <div class="toggle-row full-width">
+                  <mat-icon class="toggle-icon">toggle_on</mat-icon>
+                  <span class="toggle-label">Active Employee</span>
+                  <mat-slide-toggle formControlName="active" color="primary"></mat-slide-toggle>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="step-actions">
+              <button mat-stroked-button matStepperPrevious type="button">
+                <mat-icon>arrow_back</mat-icon> Back
+              </button>
+              <button mat-flat-button color="primary" matStepperNext type="button">
+                Next <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </mat-step>
+
+          <!-- ══════════════════════════════════════════
+               STEP 3 — Confirmation
+          ══════════════════════════════════════════ -->
+          <mat-step [stepControl]="account" label="Confirm">
+            <ng-template matStepLabel>Confirm</ng-template>
+
+            <div class="step-content" formGroupName="account">
+              <p class="step-subtitle">Review and submit your registration</p>
+
+              <!-- Summary card -->
+              <div class="summary-grid">
+                <div class="summary-block">
+                  <p class="summary-label">Full Name</p>
+                  <p class="summary-value">{{ personal.get('firstName')?.value }} {{ personal.get('lastName')?.value }}</p>
+                </div>
+                <div class="summary-block">
+                  <p class="summary-label">Email</p>
+                  <p class="summary-value">{{ professional.get('email')?.value }}</p>
+                </div>
+                <div class="summary-block">
+                  <p class="summary-label">Department</p>
+                  <p class="summary-value">{{ professional.get('department')?.value || '—' }}</p>
+                </div>
+                <div class="summary-block">
+                  <p class="summary-label">Contract Type</p>
+                  <p class="summary-value">{{ professional.get('contractType')?.value }}</p>
+                </div>
+                <div class="summary-block">
+                  <p class="summary-label">Nationality</p>
+                  <p class="summary-value">{{ personal.get('nationality')?.value }}</p>
+                </div>
+                <div class="summary-block">
+                  <p class="summary-label">Hire Date</p>
+                  <p class="summary-value">{{ professional.get('hireDate')?.value | date:'mediumDate' }}</p>
+                </div>
+              </div>
+
+              <!-- Terms checkbox -->
+              <div class="terms-row">
+                <mat-checkbox formControlName="agreeTerms" color="primary">
+                  I have read and agree to the
+                  <a href="#" class="terms-link">Terms of Service</a>
+                </mat-checkbox>
+                <mat-error *ngIf="account.get('agreeTerms')?.invalid && account.get('agreeTerms')?.touched">
+                  You must accept the terms to continue.
+                </mat-error>
+              </div>
+            </div>
+
+            <div class="step-actions">
+              <button mat-stroked-button matStepperPrevious type="button">
+                <mat-icon>arrow_back</mat-icon> Back
+              </button>
+              <button
+                mat-flat-button
+                color="primary"
+                type="submit"
+                class="submit-btn"
+                [disabled]="registerForm.invalid || isSubmitting"
+                (click)="onSubmit()">
+                <mat-icon *ngIf="!isSubmitting">check_circle</mat-icon>
+                <mat-spinner *ngIf="isSubmitting" diameter="18" class="btn-spinner"></mat-spinner>
+                {{ isSubmitting ? 'Submitting...' : 'Submit Registration' }}
+              </button>
+            </div>
+          </mat-step>
+
         </mat-stepper>
       </form>
 
-      <div class="m-t-16">
-        {{ 'have_an_account' | translate }}?
-        <a routerLink="/auth/login">{{ 'login' | translate }}</a>
+      <div class="login-link">
+        Already have an account?
+        <a routerLink="/auth/login">Sign in</a>
       </div>
     </mat-card-content>
   </mat-card>
 </div>
-      
-
-      <div class="m-t-16">
-        {{ 'have_an_account' | translate }}?
-        <a routerLink="/auth/login">{{ 'login' | translate }}</a>
-      </div>
-   
- 
-

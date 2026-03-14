@@ -1,53 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
+import { map } from 'rxjs/operators';
 import { UserService } from '@core/services/user.service';
 import { User } from '@core/authentication/interface';
+import { AuthService } from '@core/authentication';
 
 @Component({
   selector: 'app-user-panel',
-  template: `
-    <div class="user-panel-container">
-      <!-- User Info Section (click to go to profile) -->
-      <div class="user-panel" *ngIf="user$ | async as user" (click)="goToProfile()">
-        <div class="user-panel__avatar">
-          <img [src]="'./assets/images/def-avatar.avif'" alt="Avatar" />
-        </div>
-        <div class="user-panel__info">
-          <h4>{{ user.firstName }} {{ user.lastName }}</h4>
-          <p>{{ user.email }}</p>
-          <span class="badge">{{ formatRole(user.roles?.[0]) }}</span>
-        </div>
+template: `
+  <div class="user-panel-container">
+    <div class="user-panel" *ngIf="user$ | async as user" (click)="goToProfile()">
+      <div class="user-panel__avatar">
+        <img [src]="user?.avatar || './assets/images/def-avatar.avif'" alt="Avatar" />
       </div>
-
-      <!-- Quick Actions Divider -->
-      <mat-divider class="my-2"></mat-divider>
-
-      <!-- Quick Actions Menu -->
-      <div class="quick-actions">
-        <!-- Users Management Link (only for admins/managers) -->
-        <a class="action-link" routerLink="/users" routerLinkActive="active" matRipple>
-          <mat-icon>people</mat-icon>
-          <span>User Management</span>
-          <span class="badge-count" *ngIf="pendingCount$ | async as count" [class.has-pending]="count > 0">
-            {{ count > 0 ? count : '' }}
-          </span>
-        </a>
-
-        <!-- Settings Link -->
-        <a class="action-link" routerLink="/profile/settings" routerLinkActive="active" matRipple>
-          <mat-icon>settings</mat-icon>
-          <span>Settings</span>
-        </a>
-
-        <!-- Logout Link -->
-        <a class="action-link" (click)="logout()" matRipple>
-          <mat-icon>logout</mat-icon>
-          <span>Logout</span>
-        </a>
+      <div class="user-panel__info">
+        <h4>{{ user.firstName }} {{ user.lastName }}</h4>
+        <p>{{ user.email }}</p>
+        <span class="badge">{{ formatRole(user.roles?.[0]) }}</span>
       </div>
     </div>
-  `,
+    <mat-divider class="my-2"></mat-divider>
+  </div>
+`,
   styles: [
     `
       .user-panel-container {
@@ -105,6 +80,7 @@ import { User } from '@core/authentication/interface';
         display: flex;
         flex-direction: column;
         gap: 4px;
+        min-height: 60px;
       }
 
       .action-link {
@@ -146,20 +122,19 @@ import { User } from '@core/authentication/interface';
         color: #1976d2;
       }
 
-      .badge-count {
-        margin-left: auto;
-        background: #f44336;
-        color: white;
-        font-size: 11px;
-        font-weight: 600;
-        padding: 2px 6px;
-        border-radius: 12px;
-        min-width: 18px;
-        text-align: center;
+      .action-link.logout {
+        margin-top: auto;
+        margin-top: 40px;
+        color: #f44336;
       }
 
-      .badge-count.has-pending {
-        background: #ff9800;
+      .action-link.logout mat-icon {
+        color: #f44336;
+      }
+
+      .action-link.logout:hover {
+        background: rgba(244, 67, 54, 0.08);
+        color: #f44336;
       }
 
       .my-2 {
@@ -170,24 +145,31 @@ import { User } from '@core/authentication/interface';
 })
 export class UserPanelComponent implements OnInit {
   user$!: Observable<User | null>;
-  pendingCount$!: Observable<number>;
+  isAdminOrGM$!: Observable<boolean>;
 
   constructor(
     private userService: UserService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit() {
     this.user$ = this.userService.getUser();
-    // You'll need to create a service to get pending count
-    // this.pendingCount$ = this.userService.getPendingCount();
+
+    this.isAdminOrGM$ = this.authService.user().pipe(
+      map((user: any) => {
+        if (!user?.roles) return false;
+        const roles = Array.isArray(user.roles) ? user.roles : [user.roles];
+        return roles.some((r: string) =>
+          r.includes('ADMIN') || r.includes('GENERAL_MANAGER') || r.includes('GENERAL_DIRECTOR')
+        );
+      })
+    );
   }
 
   formatRole(role: string | undefined): string {
     if (!role) return 'EMPLOYEE';
-    let cleanRole = role.replace('ROLE_', '');
-    cleanRole = cleanRole.replace(/_/g, ' ');
-    return cleanRole;
+    return role.replace('ROLE_', '').replace(/_/g, ' ');
   }
 
   goToProfile(): void {
@@ -195,7 +177,8 @@ export class UserPanelComponent implements OnInit {
   }
 
   logout(): void {
-    // Implement logout logic
-    console.log('Logout clicked');
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/auth/login']);
+    });
   }
 }

@@ -1,0 +1,63 @@
+ <div class="dialog-container">
+
+      <!-- Header -->
+      <div class="dialog-header">
+        <h2 mat-dialog-title>
+          <mat-icon color="primary">person_add</mat-icon>
+          Assign Team Member
+        </h2>
+        <p class="dialog-subtitle">{{ data.projectName }}</p>
+      </div>
+
+      <mat-dialog-content>
+
+        <!-- Search -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Search employee</mat-label>
+          <input matInput [(ngModel)]="searchText" (input)="filterEmployees()"
+                 placeholder="Name or email...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="loading">
+          <mat-spinner diameter="32"></mat-spinner>
+          <p>Loading employees...</p>
+        </div>
+
+        <!-- Employee list -->
+        <div class="employee-list" *ngIf="!isLoading">
+
+          <div *ngIf="filtered.length === 0" class="empty">
+            <mat-icon>people_outline</mat-icon>
+            <p>No employees available</p>
+          </div>
+
+          <div *ngFor="let emp of filtered"
+               class="employee-item"
+               [class.selected]="selected?.id === emp.id"
+               (click)="select(emp)">
+            <div class="emp-avatar">{{ getInitials(emp.firstName + ' ' + emp.lastName) }}</div>
+            <div class="emp-info">
+              <p class="emp-name">{{ emp.firstName }} {{ emp.lastName }}</p>
+              <p class="emp-email">{{ emp.email }}</p>
+              <span class="emp-role">{{ formatRole(emp.roles?.[0]) }}</span>
+            </div>
+            <mat-icon *ngIf="selected?.id === emp.id" color="primary" class="check-icon">check_circle</mat-icon>
+          </div>
+        </div>
+
+      </mat-dialog-content>
+
+      <mat-dialog-actions align="end">
+        <button mat-button (click)="cancel()">Cancel</button>
+        <button mat-raised-button color="primary"
+                [disabled]="!selected || isSubmitting"
+                (click)="assign()">
+          <mat-spinner *ngIf="isSubmitting" diameter="18"></mat-spinner>
+          <mat-icon *ngIf="!isSubmitting">person_add</mat-icon>
+          {{ isSubmitting ? 'Assigning...' : 'Assign' }}
+        </button>
+      </mat-dialog-actions>
+
+    </div>
