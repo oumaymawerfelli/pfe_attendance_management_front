@@ -1,150 +1,116 @@
-@use '@angular/material' as mat;
-@use '../style/transitions';
-@use '../style/breakpoints';
-
-.matero-container-wrap,
-.matero-container {
+// Admin Layout Component Styles
+.matero-container-wrap {
+  position: relative;
+  width: 100%;
   height: 100%;
 }
 
-.matero-content {
+// Header above styles
+.app-header-above {
   position: relative;
-  padding: var(--gutter);
+  z-index: 10;
 }
 
-.matero-sidenav {
-  position: absolute;
-  overflow-x: hidden;
-  transition: transitions.swift-ease-out(width); // Only set width property
-}
-
-// Layout control
-.matero-header-above {
-  .matero-container {
-    height: calc(100% - var(--mat-toolbar-standard-height)) !important;
-
-    @include breakpoints.bp-lt(small) {
-      & {
-        height: calc(100% - var(--mat-toolbar-mobile-height)) !important;
-      }
-    }
+// Sidenav container adjustments
+.matero-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  
+  // When header is above, adjust container height
+  &.has-header-above {
+    height: calc(100% - 64px); // Adjust based on your header height
   }
-
-  .matero-sidebar-main {
-    height: 100% !important;
+  
+  &.has-header-fixed {
+    // Additional adjustments if needed
   }
 }
 
-// Layout control
-.matero-sidenav-collapsed,
-.matero-sidenav-collapsed-fix {
-  .matero-sidenav {
-    width: var(--sidenav-collapsed-width);
-
-    .menu-name,
-    .menu-label,
-    .menu-badge,
-    .menu-caret,
-    .matero-user-panel-name,
-    .matero-user-panel-email,
-    .matero-user-panel-icons {
-      opacity: 0;
-    }
-
-    .matero-user-panel-avatar {
-      transform: scale(.5);
-    }
-
-    &:hover {
-      width: var(--sidenav-width);
-
-      .menu-name,
-      .menu-label,
-      .menu-badge,
-      .menu-caret,
-      .matero-user-panel-name,
-      .matero-user-panel-email,
-      .matero-user-panel-icons {
-        opacity: 1;
-      }
-
-      .matero-user-panel-avatar {
-        transform: scale(1);
-      }
-    }
-  }
-}
-
-// Layout control
-.matero-sidenav-collapsed {
-  .matero-content-wrap {
-    margin-left: var(--sidenav-collapsed-width) !important;
-
-    [dir='rtl'] & {
-      margin-right: var(--sidenav-collapsed-width) !important;
-      margin-left: auto !important;
-    }
-  }
-
-  &[dir='rtl'] .matero-content-wrap {
-    margin-right: var(--sidenav-collapsed-width) !important;
-    margin-left: auto !important;
-  }
-}
-
-// Layout control
-.matero-navbar-top {
-  .matero-topmenu {
-    top: 0;
-  }
-
-  .matero-branding {
-    margin-left: 16px;
-
-    [dir='rtl'] & {
-      margin-right: 16px;
-      margin-left: auto;
-    }
-  }
-}
-
-// Layout control
-.matero-header-fixed {
-  .matero-header {
+// Fixed header inside content
+.app-header-inline {
+  position: relative;
+  z-index: 5;
+  
+  &.app-header-fixed {
     position: sticky;
     top: 0;
-    // Fix header's positioning problem on Firefox
-    // https://github.com/ng-matero/ng-matero/issues/522
-    display: block;
-  }
-
-  .matero-topmenu {
-    top: var(--mat-toolbar-standard-height);
-
-    @include breakpoints.bp-lt(small) {
-      & {
-        top: var(--mat-toolbar-mobile-height);
-      }
-    }
+    z-index: 100;
+    background: inherit;
   }
 }
 
-// Fix the init content width
-.matero-content-width-fix {
-  .matero-content-wrap {
-    margin-left: var(--sidenav-width) !important;
+// Top menu styles
+.app-topmenu {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: inherit;
+}
 
-    [dir='rtl'] & {
-      margin-right: var(--sidenav-width) !important;
-      margin-left: auto !important;
-    }
+// Main content area
+.matero-content {
+  position: relative;
+  min-height: calc(100vh - 64px);
+  padding: 24px;
+  overflow-x: hidden;
+  
+  // Adjust for fixed header
+  &.has-fixed-header {
+    min-height: calc(100vh - 128px); // Header height + content padding
+  }
+  
+  // Adjust for top menu
+  &.has-top-menu {
+    min-height: calc(100vh - 120px);
+  }
+  
+  // Ensure content doesn't get covered
+  > * {
+    position: relative;
+    z-index: 1;
   }
 }
 
-// Colorful
-.matero-header-white {
-  .matero-toolbar,
-  .matero-topmenu {
-    background-color: white;
+// Responsive adjustments
+@media (width <= 959px) {
+  .matero-content {
+    min-height: calc(100vh - 56px);
+    padding: 16px;
+    
+    &.has-fixed-header {
+      min-height: calc(100vh - 112px);
+    }
+  }
+  
+  .matero-container.has-header-above {
+    height: calc(100% - 56px);
+  }
+}
+
+// Ensure router outlet content has proper spacing
+router-outlet + * {
+  display: block;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+// Fix for Material sidenav content scrolling
+.mat-sidenav-content {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+// Prevent content from being hidden under fixed elements
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+  
+  .matero-container-wrap {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }

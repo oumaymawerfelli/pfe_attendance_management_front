@@ -1,28 +1,39 @@
-export type LeaveType = 'ANNUAL' | 'SICK' | 'UNPAID';
-export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
-
-export interface LeaveRequest {
-  leaveType: LeaveType;
-  startDate: string;
-  endDate: string;
-  reason: string;
-}
-
 export interface LeaveRecord {
   id: number;
+
+  // Employee
   userId: number;
   userFullName: string;
   userDepartment: string;
-  leaveType: LeaveType;
+  userJobTitle?: string;
+
+  // Leave details
+  leaveType: string;
   startDate: string;
   endDate: string;
   daysCount: number;
   reason: string;
-  status: LeaveStatus;
-  approvedByFullName: string | null;
-  rejectionReason: string | null;
-  createdAt: string;
-  decidedAt: string | null;
+
+  // Status
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  rejectionReason?: string;
+
+  // Approval info — matches LeaveResponseDTO field names
+  approvedByFullName?: string;
+  approvedByRole?: string;
+
+  createdAt?: string;
+  decidedAt?: string;
+
+  // Document — non-null once approved and PDF uploaded
+  documentPath?: string;
+}
+
+export interface LeaveRequest {
+  leaveType: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
 }
 
 export interface LeaveBalance {

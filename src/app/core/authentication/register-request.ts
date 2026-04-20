@@ -6,7 +6,7 @@
  * password in the same JSON body. Either add a password field to RegisterRequestDTO, or have
  * your controller accept a wrapper (e.g. RegisterCommand with registerRequest + password).
  */
-export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
+export type Gender = 'MALE' | 'FEMALE';
 export type MaritalStatus = 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED';
 export type Department = string;
 export type ContractType =
@@ -39,7 +39,7 @@ export interface RegisterRequestDTO {
   hireDate: string;
   contractType: ContractType;
   contractEndDate?: string;
-  baseSalary: number;
+
   housingAllowance?: number;
   evaluationScore?: number;
   active?: boolean;

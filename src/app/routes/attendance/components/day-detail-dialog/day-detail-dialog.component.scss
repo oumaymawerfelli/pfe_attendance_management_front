@@ -1,0 +1,235 @@
+// day-detail-dialog.component.scss
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.ddd-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         16px 20px 12px;
+  border-bottom:   1px solid #e8edf2;
+
+  &__date {
+    display:     flex;
+    gap:         8px;
+    align-items: center;
+    font-size:   15px;
+    font-weight: 600;
+    color:       #1a3a5c;
+  }
+
+  &__cal-icon {
+    width:     20px;
+    height:    20px;
+    font-size: 20px;
+    color:     #2e86de;
+  }
+
+  &__close {
+    color: #90a4ae;
+    &:hover { color: #546e7a; }
+  }
+}
+
+// ── Content ───────────────────────────────────────────────────────────────────
+.ddd-content {
+  min-height: 180px;
+  padding:    16px 20px 20px !important;
+}
+
+// ── Loading ───────────────────────────────────────────────────────────────────
+.ddd-center {
+  display:         flex;
+  flex-direction:  column;
+  gap:             12px;
+  align-items:     center;
+  justify-content: center;
+  padding:         24px 0;
+}
+
+.ddd-loading-text {
+  margin:    0;
+  font-size: 13px;
+  color:     #90a4ae;
+}
+
+// ── No record state ───────────────────────────────────────────────────────────
+.ddd-no-record {
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  padding:         28px 0 16px;
+  text-align:      center;
+
+  &__icon {
+    width:     52px;
+    height:    52px;
+    margin-bottom: 12px;
+    font-size: 52px;
+  }
+
+  &__title {
+    margin:      0 0 6px;
+    font-size:   16px;
+    font-weight: 600;
+    color:       #2c3e50;
+  }
+
+  &__sub {
+    margin:    0;
+    font-size: 13px;
+    color:     #7f8c9a;
+  }
+}
+
+// ── Status badge ──────────────────────────────────────────────────────────────
+.ddd-status-badge {
+  display:       inline-flex;
+  gap:           8px;
+  align-items:   center;
+  padding:       8px 16px;
+  margin-bottom: 20px;
+  font-size:     13px;
+  font-weight:   600;
+  border:        1.5px solid;
+  border-radius: 24px;
+
+  mat-icon {
+    width:     18px;
+    height:    18px;
+    font-size: 18px;
+  }
+}
+
+// ── Time row ──────────────────────────────────────────────────────────────────
+.ddd-time-row {
+  display:     flex;
+  gap:         10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ddd-time-arrow {
+  flex-shrink: 0;
+  color:     #b0bec5;
+  mat-icon { font-size: 20px; }
+}
+
+.ddd-time-card {
+  flex:          1;
+  padding:       12px 14px;
+  background:    #f4f7fa;
+  border:        1.5px solid #e0e8f0;
+  border-radius: 10px;
+  transition:    border-color .2s;
+
+  &__label {
+    display:     flex;
+    gap:         5px;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size:   10px;
+    font-weight: 700;
+    color:       #8a9aaa;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+
+    mat-icon {
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
+    }
+  }
+
+  &__value {
+    font-size:   22px;
+    font-weight: 700;
+    color:       #1a3a5c;
+    letter-spacing: .5px;
+  }
+
+  &--in {
+    background: #f1f8f1;
+    border-color: #a5d6a7;
+  }
+
+  &--out {
+    background: #f0f6ff;
+    border-color: #90caf9;
+  }
+
+  &--missing {
+    background:   #fffdf0 !important;
+    border-color: #ffcc80 !important;
+
+    .ddd-time-card__value {
+      font-size: 14px;
+      color: #e67e22;
+    }
+  }
+}
+
+// ── Stats row ─────────────────────────────────────────────────────────────────
+.ddd-stats-row {
+  display: flex;
+  gap:     12px;
+  margin-bottom: 14px;
+}
+
+.ddd-stat {
+  display:       flex;
+  flex:          1;
+  gap:           10px;
+  align-items:   center;
+  padding:       12px 14px;
+  background:    #f8fafb;
+  border:        1px solid #e8edf2;
+  border-radius: 10px;
+
+  &__icon {
+    width:     22px;
+    height:    22px;
+    font-size: 22px;
+    color:     #2e86de;
+
+    &--overtime { color: #f39c12; }
+  }
+
+  &__value {
+    font-size:   18px;
+    font-weight: 700;
+    line-height: 1;
+    color:       #1a3a5c;
+  }
+
+  &__label {
+    margin-top: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    color:     #8a9aaa;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+}
+
+// ── Notes ─────────────────────────────────────────────────────────────────────
+.ddd-notes {
+  display:       flex;
+  gap:           8px;
+  align-items:   flex-start;
+  padding:       10px 12px;
+  font-size:     13px;
+  color:         #5d4037;
+  background:    #fffde7;
+  border:        1px solid #ffe082;
+  border-radius: 8px;
+
+  mat-icon {
+    flex-shrink: 0;
+    width:      18px;
+    height:     18px;
+    margin-top: 1px;
+    font-size:  18px;
+    color:      #f9a825;
+  }
+}

@@ -1,0 +1,91 @@
+.filter-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+
+  button {
+    padding: 0 18px;
+    font-size: .82rem;
+    font-weight: 500;
+    color: #6b7280;
+    border-radius: 20px;
+    transition: all .15s;
+
+    &.active {
+      font-weight: 600;
+      color: #3b82f6;
+      background: #f0f4ff;
+    }
+  }
+}
+
+.loading-center {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.empty-state {
+  padding: 3rem;
+  color: #94a3b8;
+  text-align: center;
+
+  mat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+  }
+
+  p {
+    margin-top: 8px;
+    font-size: .9rem;
+  }
+}
+
+.employee-name {
+  font-size: .88rem;
+  font-weight: 500;
+}
+
+// ── Status badges ─────────────────────────────────────────
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  border-radius: 20px;
+
+  &.badge-pending  {
+    color: #92400e;
+    background: #fef3c7;
+  }
+
+  &.badge-approved {
+    color: #065f46;
+    background: #d1fae5;
+  }
+
+  &.badge-rejected {
+    color: #991b1b;
+    background: #fee2e2;
+  }
+}
+
+// ── Table ─────────────────────────────────────────────────
+.mat-mdc-row:hover {
+  background: #f9fafb;
+}
+
+.mat-mdc-header-cell {
+  font-size: .75rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.mat-mdc-cell {
+  font-size: .85rem;
+  color: #374151;
+}

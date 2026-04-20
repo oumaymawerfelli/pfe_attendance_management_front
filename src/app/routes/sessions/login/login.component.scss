@@ -1,0 +1,9 @@
+mat-form-field {
+  mat-icon[matprefix] {
+    color: #3f51b5;
+  }
+
+  button[matsuffix] mat-icon {
+    color: #124085;
+  }
+}

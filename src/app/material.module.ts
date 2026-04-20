@@ -8,7 +8,12 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MAT_CARD_CONFIG, MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatRippleModule, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import {
+  MatRippleModule,
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+  MatOptionModule,
+} from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import {
   MatDialogConfig,
@@ -79,6 +84,7 @@ import { PaginatorI18nService } from '@shared/services/paginator-i18n.service';
     MatTableModule,
     MatTabsModule,
     MatToolbarModule,
+    MatOptionModule,
     MatTooltipModule,
     MatTreeModule,
   ],

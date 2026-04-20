@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, iif, merge, of } from 'rxjs';
 import { catchError, filter, map, share, switchMap, take, tap } from 'rxjs/operators';
 import { filterObject, isEmptyObject } from './helpers';
@@ -23,20 +24,18 @@ export class AuthService {
   constructor(
     private loginService: LoginService,
     private tokenService: TokenService,
-    private userService: UserService
+    private userService: UserService,
+    private http: HttpClient // ← injected to call attendance endpoint
   ) {}
 
   init() {
     return new Promise<void>(resolve =>
-      this.change$.pipe(
-        switchMap(() =>
-          this.user$.pipe(
-            // Wait until user$ has actual data OR token is invalid (not logged in)
-            filter(user => !isEmptyObject(user) || !this.check())
-          )
-        ),
-        take(1)
-      ).subscribe(() => resolve())
+      this.change$
+        .pipe(
+          switchMap(() => this.user$.pipe(filter(user => !isEmptyObject(user) || !this.check()))),
+          take(1)
+        )
+        .subscribe(() => resolve())
     );
   }
 
@@ -50,11 +49,9 @@ export class AuthService {
 
   login(username: string, password: string, rememberMe = false) {
     return this.loginService.login(username, password, rememberMe).pipe(
-      tap(token => {
-        this.user$.next({}); // Clear old user before setting new token
-        this.tokenService.set(token);
-      }),
-      map(() => this.check())
+      tap(token => this.tokenService.set(token)),
+      map(() => this.check()),
+      catchError(() => of(false))
     );
   }
 
@@ -69,12 +66,23 @@ export class AuthService {
   }
 
   logout() {
-    return this.loginService.logout().pipe(
+    // ── Step 1: record checkout BEFORE the token is cleared ──────────────
+    // If the call fails (e.g. already checked out, weekend) we still
+    // continue with the normal logout — catchError guarantees this.
+    return this.http.post('/api/attendance/logout-checkout', {}).pipe(
+      catchError(() => of(null)), // never block logout on attendance errors
+
+      // ── Step 2: standard logout (invalidate token on the backend) ──────
+      switchMap(() => this.loginService.logout()),
+
+      // ── Step 3: clear everything locally ──────────────────────────────
       tap(() => {
         this.tokenService.clear();
         localStorage.removeItem('currentUser');
+        this.userService.setUser(null); // ← add this if UserService stores the user
         this.user$.next({});
       }),
+
       map(() => !this.check())
     );
   }
@@ -92,31 +100,22 @@ export class AuthService {
       return of({}).pipe(tap(user => this.user$.next(user)));
     }
 
-    if (!isEmptyObject(this.user$.getValue())) {
-      return of(this.user$.getValue());
-    }
-
+    // ── Remove the cache check entirely — always fetch fresh from /me ──────
     return this.loginService.me().pipe(
       tap(user => {
-        console.log('Utilisateur chargé depuis /me:', user);
-        console.log('Rôles bruts:', user.roles);
-        console.log('Type des rôles:', typeof user.roles);
-        console.log('Est un tableau?', Array.isArray(user.roles));
-        if (Array.isArray(user.roles) && user.roles.length > 0) {
-          console.log('Premier rôle:', user.roles[0]);
-        }
+        console.log('🔍 /me response:', JSON.stringify(user)); // ← add this
         this.user$.next(user);
         this.userService.setUser(user);
       }),
-      catchError(error => {
-        console.error('Erreur chargement utilisateur:', error);
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-          const user = JSON.parse(storedUser);
+      catchError(() => {
+        // Only fall back to cache if /me itself fails (network error etc.)
+        const stored = localStorage.getItem('currentUser');
+        if (stored) {
+          const user = JSON.parse(stored);
           this.user$.next(user);
           return of(user);
         }
-        return of({}).pipe(tap(user => this.user$.next(user)));
+        return of({}).pipe(tap(u => this.user$.next(u)));
       })
     );
   }

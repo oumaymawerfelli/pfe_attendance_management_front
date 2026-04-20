@@ -1,71 +1,133 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  OnDestroy,
-  ChangeDetectionStrategy,
-  NgZone,
-} from '@angular/core';
-import { SettingsService } from '@core';
-import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Chart, registerables } from 'chart.js';
+import { AuthService } from '@core/authentication';
+import { DashboardApiService, DashboardStats } from './dashboard.service';
 
-import { DashboardService } from './dashboard.service';
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DashboardService],
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = this.dashboardSrv.getData();
+  currentUser: any = null;
+  isAdmin = false;
+  loading = true;
+  today = new Date();
 
-  messages = this.dashboardSrv.getMessages();
+  kpis = [
+    { label: 'Total employees', value: '—', sub: 'active' },
+    { label: 'New hires', value: '—', sub: 'this month' },
+    { label: 'Departments', value: '—', sub: 'in the company' },
+    { label: 'Largest dept', value: '—', sub: 'by headcount' },
+  ];
 
-  charts = this.dashboardSrv.getCharts();
-  chart1: any;
-  chart2: any;
+  deptLabels: string[] = [];
+  deptData: number[] = [];
+  deptColors = [
+    '#378ADD',
+    '#7F77DD',
+    '#1D9E75',
+    '#BA7517',
+    '#D85A30',
+    '#E24B4A',
+    '#0F6E56',
+    '#854F0B',
+    '#993556',
+  ];
 
-  stats = this.dashboardSrv.getStats();
-
-  notifySubscription!: Subscription;
+  private charts: Chart[] = [];
 
   constructor(
-    private ngZone: NgZone,
-    private dashboardSrv: DashboardService,
-    private settings: SettingsService
+    private auth: AuthService,
+    private dashApi: DashboardApiService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
-   this.notifySubscription = this.settings.notify.pipe(
-    filter(res => res && Object.keys(res).length > 0) // skip empty emission
-  ).subscribe(res => {
-    console.log(res);
-  });
-}
-
-  ngAfterViewInit() {
-    this.ngZone.runOutsideAngular(() => this.initChart());
+  get greeting(): string {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 18) return 'Good afternoon';
+    return 'Good evening';
   }
 
-  ngOnDestroy() {
-    if (this.chart1) {
-      this.chart1?.destroy();
-    }
-    if (this.chart2) {
-      this.chart2?.destroy();
-    }
-
-    this.notifySubscription.unsubscribe();
+  ngOnInit(): void {
+    this.auth.user().subscribe((user: any) => {
+      this.currentUser = user;
+      const roles: string[] = Array.isArray(user?.roles)
+        ? user.roles.map((r: any) => (typeof r === 'string' ? r : r?.name ?? ''))
+        : [];
+      this.isAdmin = roles.some((r: string) =>
+        ['ADMIN', 'GENERAL_MANAGER', 'ROLE_ADMIN', 'ROLE_GENERAL_MANAGER'].includes(r)
+      );
+      if (this.isAdmin) this.loadStats();
+      else this.loading = false;
+      this.cdr.markForCheck();
+    });
   }
 
-  initChart() {
-    this.chart1 = new ApexCharts(document.querySelector('#chart1'), this.charts[0]);
-    this.chart1?.render();
-    this.chart2 = new ApexCharts(document.querySelector('#chart2'), this.charts[1]);
-    this.chart2?.render();
+  ngAfterViewInit(): void {}
+
+  ngOnDestroy(): void {
+    this.charts.forEach(c => c.destroy());
+  }
+
+  private loadStats(): void {
+    this.loading = true;
+    this.dashApi.getStats().subscribe({
+      next: (stats: DashboardStats) => {
+        // ── KPI cards ──────────────────────────────────
+        this.kpis[0].value = String(stats.totalEmployees);
+        this.kpis[1].value = String(stats.newHiresThisMonth);
+        this.kpis[2].value = String(stats.byDepartment.length);
+
+        const largest = stats.byDepartment[0];
+        this.kpis[3].value = largest ? `${largest.department} (${largest.count})` : '—';
+
+        // ── Donut data ─────────────────────────────────
+        this.deptLabels = stats.byDepartment.map(d => d.department);
+        this.deptData = stats.byDepartment.map(d => d.count);
+
+        this.loading = false;
+        this.cdr.markForCheck();
+
+        setTimeout(() => this.buildDonutChart(), 0);
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private buildDonutChart(): void {
+    this.charts.forEach(c => c.destroy());
+    this.charts = [];
+
+    const canvas = document.getElementById('donutChart') as HTMLCanvasElement;
+    if (!canvas || !this.deptData.length) return;
+
+    const chart = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: this.deptLabels,
+        datasets: [
+          {
+            data: this.deptData,
+            backgroundColor: this.deptColors.slice(0, this.deptData.length),
+            borderWidth: 2,
+            borderColor: '#0c1018',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: { legend: { display: false } },
+      },
+    });
+    this.charts.push(chart);
   }
 }

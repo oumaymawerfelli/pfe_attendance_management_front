@@ -1,31 +1,176 @@
-.filter-row {
+.db-root {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1200px;
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.welcome {
   display: flex;
   flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+
+  .welcome-greet {
+    margin: 0 0 4px;
+    font-size: .9rem;
+    color: #6b7280;
+  }
+
+  .welcome-name {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .welcome-date {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: .85rem;
+    color: #6b7280;
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+}
+
+.loading-center {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+// ── KPI row ───────────────────────────────────────────────
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
+
+  @media (width <= 768px) { grid-template-columns: repeat(2, 1fr); }
+  @media (width <= 480px) { grid-template-columns: 1fr; }
+}
+
+.kpi-card {
+  padding: 22px 24px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-top: 4px solid #3b82f6;
+  border-radius: 14px;
+  transition: box-shadow .18s, transform .18s;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+    transform: translateY(-2px);
+  }
+
+  &:nth-child(2) { border-top-color: #10b981; }
+  &:nth-child(3) { border-top-color: #8b5cf6; }
+  &:nth-child(4) { border-top-color: #f59e0b; }
+
+  .kpi-label {
+    margin-bottom: 10px;
+    font-size: .7rem;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+  }
+
+  .kpi-val {
+    margin-bottom: 6px;
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #111827;
+  }
+
+  .kpi-sub {
+    font-size: .78rem;
+    color: #9ca3af;
+  }
+}
+
+// ── Chart card ────────────────────────────────────────────
+.chart-card {
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  .chart-title {
+    margin-bottom: 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+  }
+}
+
+.charts-inner {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 40px;
   align-items: center;
 
-  mat-form-field { width: 160px; }
-  .spacer { flex: 1; }
+  @media (width <= 640px) { grid-template-columns: 1fr; }
 }
 
-.stats-grid {
+.chart-wrap {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  canvas { display: block; }
+}
+
+// ── Dept legend ───────────────────────────────────────────
+.dept-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dept-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-}
+  grid-template-columns: 10px 1fr 40px 120px;
+  gap: 12px;
+  align-items: center;
 
-.stat-card {
-  text-align: center;
-  border-top: 4px solid transparent;
+  .leg-dot {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
 
-  .stat-icon mat-icon { width: 32px; height: 32px; font-size: 32px; }
-  .stat-value { margin: 8px 0 4px; font-size: 2rem; font-weight: 700; }
-  .stat-label { font-size: .8rem; color: #888; text-transform: uppercase; }
+  .dept-name {
+    font-size: .85rem;
+    color: #374151;
+  }
 
-  &.stat-present  { border-color: #4CAF50; .stat-icon { color: #4CAF50; } }
-  &.stat-late     { border-color: #FF9800; .stat-icon { color: #FF9800; } }
-  &.stat-absent   { border-color: #F44336; .stat-icon { color: #F44336; } }
-  &.stat-half     { border-color: #9C27B0; .stat-icon { color: #9C27B0; } }
-  &.stat-hours    { border-color: #2196F3; .stat-icon { color: #2196F3; } }
-  &.stat-overtime { border-color: #009688; .stat-icon { color: #009688; } }
+  .dept-count {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #111827;
+    text-align: right;
+  }
+
+  .dept-bar-wrap {
+    height: 6px;
+    overflow: hidden;
+    background: #f3f4f6;
+    border-radius: 3px;
+
+    .dept-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .8s cubic-bezier(.22,1,.36,1);
+    }
+  }
 }

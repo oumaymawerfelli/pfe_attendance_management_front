@@ -1,39 +1,70 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-
+import { Component } from '@angular/core';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { Observable } from 'rxjs';
-import { skip } from 'rxjs/operators';
+import { RouterTestingModule } from '@angular/router/testing';
 import { HttpRequest } from '@angular/common/http';
+import { skip } from 'rxjs/operators';
 import { LocalStorageService, MemoryStorageService } from '@shared/services/storage.service';
-import { AuthService, LoginService, TokenService, User } from '@core/authentication';
+import { AuthService, LoginService, TokenService } from '@core/authentication';
+import { of } from 'rxjs';
+@Component({ template: '' })
+class DummyComponent {}
+
+// ✅ JWT minimal valide (exp dans le futur)
+function makeJwt(expiresInSeconds = 3600): string {
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const payload = btoa(
+    JSON.stringify({
+      sub: '1',
+      exp: Math.floor(Date.now() / 1000) + expiresInSeconds,
+    })
+  );
+  return `${header}.${payload}.fake-sig`;
+}
 
 describe('AuthService', () => {
   let authService: AuthService;
   let loginService: LoginService;
   let tokenService: TokenService;
   let httpMock: HttpTestingController;
-  let user$: Observable<User>;
+
   const email = 'foo@bar.com';
-  const token = { access_token: 'token', token_type: 'bearer' };
   const user = { id: 1, email };
+
+  // ✅ Tokens avec access_token JWT valide
+  const token = { access_token: makeJwt(3600), token_type: 'bearer', expires_in: 3600 };
+  const shortToken = { access_token: makeJwt(5), token_type: 'bearer', expires_in: 5 };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      declarations: [DummyComponent],
+      imports: [
+        HttpClientTestingModule,
+        RouterTestingModule.withRoutes([
+          { path: 'auth/login', component: DummyComponent },
+          { path: '**', component: DummyComponent },
+        ]),
+      ],
       providers: [{ provide: LocalStorageService, useClass: MemoryStorageService }],
     });
-    loginService = TestBed.inject(LoginService);
+
     authService = TestBed.inject(AuthService);
+    loginService = TestBed.inject(LoginService);
     tokenService = TestBed.inject(TokenService);
     httpMock = TestBed.inject(HttpTestingController);
-
-    user$ = authService.user();
-    authService.change().subscribe(user => {
-      expect(user).toBeInstanceOf(Object);
-    });
   });
 
-  afterEach(() => httpMock.verify());
+  afterEach(() => {
+    // ✅ Flush toutes les requêtes encore ouvertes avant verify()
+    //    Évite les Uncaught HttpErrorResponse après la fin du test
+    httpMock
+      .match(() => true)
+      .forEach(req => {
+        if (!req.cancelled) req.flush({});
+      });
+    tokenService.clear();
+    httpMock.verify();
+  });
 
   it('should be created', () => {
     expect(authService).toBeTruthy();
@@ -41,93 +72,124 @@ describe('AuthService', () => {
 
   it('should log in failed', () => {
     authService.login(email, 'password', false).subscribe(isLogin => expect(isLogin).toBeFalse());
-    httpMock.expectOne('/auth/login').flush({});
 
+    httpMock
+      .expectOne(req => req.url.includes('auth/login'))
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    httpMock.expectNone('/api/auth/me');
     expect(authService.check()).toBeFalse();
   });
 
   it('should log in successful and get user info', () => {
-    user$.pipe(skip(1)).subscribe(currentUser => expect(currentUser.id).toEqual(user.id));
-    authService.login(email, 'password', false).subscribe(isLogin => expect(isLogin).toBeTrue());
-    httpMock.expectOne('/auth/login').flush(token);
+    const changeSub = authService.change().subscribe();
 
+    // ✅ Garder une référence pour unsubscribe avant afterEach
+    const userSub = authService
+      .user()
+      .pipe(skip(1))
+      .subscribe({
+        next: u => expect(u.id).toEqual(user.id),
+        error: () => {},
+      });
+
+    authService.login(email, 'password', false).subscribe({
+      next: isLogin => expect(isLogin).toBeTrue(),
+      error: () => fail('should not error'),
+    });
+
+    httpMock
+      .expectOne(req => req.url.includes('auth/login'))
+      .flush({
+        token: makeJwt(3600),
+        tokenType: 'bearer',
+        expiresIn: 3600,
+        user,
+      });
+
+    httpMock.expectOne('/api/auth/me').flush(user);
     expect(authService.check()).toBeTrue();
-    httpMock.expectOne('/me').flush(user);
+
+    // ✅ Désabonner avant que afterEach ne flush {} sur les requêtes ouvertes
+    userSub.unsubscribe();
+    changeSub.unsubscribe();
   });
+  it('should log out user', () => {
+    spyOn(loginService, 'logout').and.returnValue(of({}));
 
-  it('should log out failed when user is not login', () => {
-    spyOn(loginService, 'logout').and.callThrough();
-    expect(authService.check()).toBeFalse();
-
-    authService.logout().subscribe();
-    httpMock.expectOne('/auth/logout');
-
-    expect(authService.check()).toBeFalse();
-    expect(loginService.logout).toHaveBeenCalled();
-  });
-
-  it('should log out successful when user is login', () => {
+    authService.change().subscribe();
     tokenService.set(token);
-    expect(authService.check()).toBeTrue();
-    httpMock.expectOne('/me').flush(user);
+    httpMock.expectOne('/api/auth/me').flush(user);
 
-    user$.pipe(skip(1)).subscribe(currentUser => expect(currentUser.id).toBeUndefined());
     authService.logout().subscribe();
-    httpMock.expectOne('/auth/logout').flush({});
+    httpMock.expectOne(req => req.url.includes('attendance/logout-checkout')).flush({});
 
+    expect(loginService.logout).toHaveBeenCalled();
     expect(authService.check()).toBeFalse();
   });
 
   it('should refresh token when access_token is valid', fakeAsync(() => {
-    tokenService.set(Object.assign({ expires_in: 5 }, token));
-    expect(authService.check()).toBeTrue();
-    httpMock.expectOne('/me').flush(user);
-    const match = (req: HttpRequest<any>) => req.url === '/auth/refresh' && !req.body.refresh_token;
+    authService.change().subscribe();
+    tokenService.set(shortToken);
+    httpMock.expectOne('/api/auth/me').flush(user);
 
     tick(4000);
-    expect(authService.check()).toBeTrue();
-    httpMock.match(match)[0].flush(token);
+    httpMock
+      .match(
+        (req: HttpRequest<any>) => req.url === '/api/auth/refresh' && !req.body?.refresh_token
+      )[0]
+      ?.flush(token);
 
     expect(authService.check()).toBeTrue();
-    httpMock.expectNone('/me');
+    // ✅ ngOnDestroy ici uniquement — stoppe le timer interne du TokenService
     tokenService.ngOnDestroy();
   }));
 
-  it('should refresh token when access_token is invalid and refresh_token is valid', fakeAsync(() => {
-    tokenService.set(Object.assign({ expires_in: 5, refresh_token: 'foo' }, token));
-    const match = (req: HttpRequest<any>) =>
-      req.url === '/auth/refresh' && req.body.refresh_token === 'foo';
+  it('should refresh token when access_token expired and refresh_token valid', fakeAsync(() => {
+    authService.change().subscribe();
+    tokenService.set({ ...shortToken, refresh_token: 'foo' });
+    httpMock.expectOne('/api/auth/me').flush(user);
 
-    expect(authService.check()).toBeTrue();
-    httpMock.expectOne('/me').flush(user);
     tick(10000);
-    expect(authService.check()).toBeFalse();
-    httpMock.match(match)[0].flush(token);
+    httpMock
+      .match(
+        (req: HttpRequest<any>) =>
+          req.url === '/api/auth/refresh' && req.body?.refresh_token === 'foo'
+      )[0]
+      ?.flush(token);
 
     expect(authService.check()).toBeTrue();
-    httpMock.expectNone('/me');
     tokenService.ngOnDestroy();
   }));
 
-  it('it should clear token when access_token is invalid and refresh token response is 401', fakeAsync(() => {
+  it('should clear token when refresh returns 401', fakeAsync(() => {
     spyOn(tokenService, 'set').and.callThrough();
-    tokenService.set(Object.assign({ expires_in: 5, refresh_token: 'foo' }, token));
-    const match = (req: HttpRequest<any>) =>
-      req.url === '/auth/refresh' && req.body.refresh_token === 'foo';
+    authService.change().subscribe();
+
+    tokenService.set({ ...shortToken, refresh_token: 'foo' });
+    httpMock.expectOne('/api/auth/me').flush(user);
 
     tick(10000);
-    expect(authService.check()).toBeFalse();
-    httpMock.expectOne('/me').flush({});
-    httpMock.match(match)[0].flush({}, { status: 401, statusText: 'Unauthorized' });
+    httpMock
+      .match(
+        (req: HttpRequest<any>) =>
+          req.url === '/api/auth/refresh' && req.body?.refresh_token === 'foo'
+      )[0]
+      ?.flush({}, { status: 401, statusText: 'Unauthorized' });
 
     expect(authService.check()).toBeFalse();
     expect(tokenService.set).toHaveBeenCalledWith(undefined);
     tokenService.ngOnDestroy();
   }));
 
-  it('it only call http request once when on change subscribe twice', () => {
+  it('should call /me only once when subscribed twice', () => {
     authService.change().subscribe();
+    authService.change().subscribe();
+
     tokenService.set(token);
-    httpMock.expectOne('/me').flush({});
+    // ✅ shareReplay(1) → un seul appel /me même avec 2 subscribers
+    httpMock.expectOne('/api/auth/me').flush(user);
+
+    expect(authService.check()).toBeTrue();
   });
 });

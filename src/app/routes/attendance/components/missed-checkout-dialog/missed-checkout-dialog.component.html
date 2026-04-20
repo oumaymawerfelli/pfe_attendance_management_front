@@ -1,0 +1,30 @@
+<div style="padding: 1.5rem;">
+  <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+    <mat-icon style="color:#f59e0b;">schedule</mat-icon>
+    <h2 style="font-size:18px; font-weight:500; margin:0;">Missed Check-out</h2>
+  </div>
+
+  <p style="color:#888; font-size:14px; margin:0 0 1.5rem;">
+    You forgot to check out yesterday. Please enter the time you left to maintain accurate records.
+  </p>
+
+  <mat-form-field appearance="outline" style="width:100%">
+    <mat-label>Time you left yesterday</mat-label>
+    <input matInput type="time" [formControl]="checkOutTime" />
+    <mat-error *ngIf="checkOutTime.hasError('required')">Please enter a time</mat-error>
+  </mat-form-field>
+
+  <p *ngIf="error" style="color:#ef4444; font-size:13px;">{{ error }}</p>
+
+  <div style="display:flex; gap:12px; margin-top:16px;">
+    <button mat-stroked-button style="flex:1" (click)="skip()">I don't remember</button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      style="flex:1" 
+      [disabled]="checkOutTime.invalid || saving" 
+      (click)="confirm()">
+      {{ saving ? 'Saving...' : 'Confirm' }}
+    </button>
+  </div>
+</div>

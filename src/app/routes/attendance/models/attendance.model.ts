@@ -12,15 +12,18 @@ export interface AttendanceRecord {
   workDuration: number | null;
   overtimeHours: number;
   notes: string | null;
+  userEmail?: string;
 }
 
 export interface DailyHours {
   day: string;
   workedHours: number;
   overtimeHours: number;
+  status: string;
 }
 
 export interface AttendanceSummary {
+  leaveDays: any;
   totalWorkingDays: number;
   presentDays: number;
   absentDays: number;

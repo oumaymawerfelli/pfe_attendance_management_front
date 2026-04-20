@@ -19,6 +19,7 @@
           "options": {
             "allowedCommonJsDependencies": [
               "base64-js",
+              "rfdc",
               "moment"
             ],
             "outputPath": "dist/attendance-management",

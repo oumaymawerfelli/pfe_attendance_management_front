@@ -1,0 +1,35 @@
+ <div style="padding: 1.5rem;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+        <mat-icon style="color:#3b82f6;">access_time</mat-icon>
+        <h2 style="font-size:18px; font-weight:500; margin:0;">
+          It's 5:00 PM
+        </h2>
+      </div>
+
+      <p style="color:#888; font-size:14px; margin:0 0 1.5rem;">
+        Are you done for the day or continuing to work overtime?
+      </p>
+
+      <div style="display:flex; gap:12px;">
+        <button
+          mat-stroked-button
+          style="flex:1"
+          [disabled]="loading"
+          (click)="leave()">
+          <mat-icon style="font-size:18px; margin-right:6px;">logout</mat-icon>
+          I'm leaving
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          style="flex:1"
+          (click)="overtime()">
+          <mat-icon style="font-size:18px; margin-right:6px;">trending_up</mat-icon>
+          Working overtime
+        </button>
+      </div>
+
+      <p *ngIf="error" style="color:#ef4444; font-size:13px; margin:12px 0 0; text-align:center;">
+        {{ error }}
+      </p>
+    </div>

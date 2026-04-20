@@ -13,7 +13,7 @@ import {
   RegistrationResponse,
 } from '@core/authentication/register-request';
 
-const GENDERS: Gender[] = ['MALE', 'FEMALE', 'OTHER'];
+const GENDERS: Gender[] = ['MALE', 'FEMALE'];
 const MARITAL_STATUSES: MaritalStatus[] = ['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED'];
 const CONTRACT_TYPES: ContractType[] = ['CDI', 'CDD', 'INTERNSHIP', 'FREELANCE'];
 const DEPARTMENTS = ['IT', 'HR', 'FINANCE', 'OPERATIONS', 'MARKETING', 'ADMIN'];
@@ -50,7 +50,6 @@ export class RegisterComponent {
     hireDate: ['', [Validators.required]],
     contractType: ['CDI' as ContractType, [Validators.required]],
     contractEndDate: [''],
-    baseSalary: [0, [Validators.required, Validators.min(0.01)]],
     housingAllowance: [0, [Validators.min(0)]],
     evaluationScore: [0, [Validators.min(0), Validators.max(5)]],
     active: [true],
@@ -101,35 +100,25 @@ export class RegisterComponent {
     console.log('isSubmitting:', this.isSubmitting);
 
     if (this.registerForm.invalid || this.isSubmitting) {
-      console.log('Form invalid or already submitting');
-
-      // Mark all fields as touched to show validation errors
       this.markFormGroupTouched(this.registerForm);
       return;
     }
 
     this.isSubmitting = true;
-    console.log('Starting registration...');
 
     const p = this.personal.getRawValue();
     const prof = this.professional.getRawValue();
 
-    // Format dates properly
     const formatDate = (date: any): string => {
-  if (!date) return '';
-  
-  // Si c'est déjà au bon format ISO
-  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
-  
-  // Convertir en objet Date
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return '';
-  
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+      if (!date) return '';
+      if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return '';
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
 
     const payload: RegisterPayload = {
       firstName: p.firstName,
@@ -148,7 +137,6 @@ export class RegisterComponent {
       hireDate: formatDate(prof.hireDate),
       contractType: prof.contractType,
       contractEndDate: prof.contractEndDate ? formatDate(prof.contractEndDate) : undefined,
-      baseSalary: Number(prof.baseSalary),
       housingAllowance: prof.housingAllowance ? Number(prof.housingAllowance) : undefined,
       evaluationScore: prof.evaluationScore ? Number(prof.evaluationScore) : undefined,
       active: prof.active ?? true,
@@ -163,7 +151,6 @@ export class RegisterComponent {
     this.loginService.register(payload).subscribe({
       next: (response: RegistrationResponse) => {
         console.log('Registration successful:', response);
-        // Store email in localStorage as backup
         localStorage.setItem('registrationEmail', payload.email);
 
         this.router.navigate(['/auth/registration-success'], {
@@ -191,7 +178,6 @@ export class RegisterComponent {
     });
   }
 
-  // Add this helper method
   markFormGroupTouched(formGroup: any) {
     Object.values(formGroup.controls).forEach((control: any) => {
       control.markAsTouched();

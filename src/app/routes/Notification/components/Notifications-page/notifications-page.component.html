@@ -1,0 +1,37 @@
+﻿<div class="notifications-container">
+  <div class="notifications-header">
+    <h2>Notifications</h2>
+    <button mat-button *ngIf="notifications.length > 0" (click)="markAllRead()">
+      Mark all as read
+    </button>
+  </div>
+
+  <div *ngIf="loading && notifications.length === 0" class="loading-spinner">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <mat-list *ngIf="!loading && notifications.length > 0">
+    <mat-list-item *ngFor="let notification of notifications" (click)="markRead(notification)" [class.unread]="!notification.read">
+      <mat-icon matListIcon [style.color]="getMeta(notification.type).color">
+        {{ getMeta(notification.type).icon }}
+      </mat-icon>
+      <div matListItemTitle>
+        {{ notification.title }}
+        <span *ngIf="!notification.read" class="unread-badge">New</span>
+      </div>
+      <div matListItemLine>{{ notification.message }}</div>
+      <div matListItemLine class="timestamp">{{ timeAgo(notification.createdAt) }}</div>
+    </mat-list-item>
+  </mat-list>
+
+  <div *ngIf="!loading && notifications.length === 0" class="no-notifications">
+    <mat-icon>notifications_none</mat-icon>
+    <p>No notifications yet</p>
+  </div>
+
+  <div *ngIf="hasMore" class="load-more">
+    <button mat-button (click)="loadMore()" [disabled]="loading">
+      {{ loading ? 'Loading...' : 'Load more' }}
+    </button>
+  </div>
+</div>

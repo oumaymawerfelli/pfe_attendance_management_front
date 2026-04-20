@@ -1,2 +1,72 @@
-.reason-cell { max-width: 200px; }
-.rejection-hint { margin-left: 4px; color: #F44336; cursor: help; }
+.loading-center {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.type-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  font-size: 16px;
+  color: #9ca3af;
+  vertical-align: middle;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  border-radius: 20px;
+
+  &.badge-pending {
+    color: #92400e;
+    background: #fef3c7;
+  }
+
+  &.badge-approved {
+    color: #065f46;
+    background: #d1fae5;
+  }
+
+  &.badge-rejected {
+    color: #991b1b;
+    background: #fee2e2;
+  }
+}
+
+.info-icon {
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  font-size: 14px;
+  color: #9ca3af;
+  vertical-align: middle;
+  cursor: help;
+}
+
+.empty-state {
+  padding: 2rem;
+  font-size: .88rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.mat-mdc-header-cell {
+  font-size: .75rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.mat-mdc-cell {
+  font-size: .85rem;
+  color: #374151;
+}
+
+.mat-mdc-row:hover {
+  background: #f9fafb;
+}

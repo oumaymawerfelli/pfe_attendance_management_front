@@ -1,0 +1,125 @@
+<!-- day-detail-dialog.component.html -->
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<div class="ddd-header">
+  <div class="ddd-header__date">
+    <mat-icon class="ddd-header__cal-icon">calendar_today</mat-icon>
+    <span>{{ data.dateLabel }}</span>
+  </div>
+  <button mat-icon-button mat-dialog-close class="ddd-header__close">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<!-- ── Loading ─────────────────────────────────────────────────────────────── -->
+<mat-dialog-content class="ddd-content">
+
+  <div *ngIf="data.loading" class="ddd-center">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p class="ddd-loading-text">Loading details…</p>
+  </div>
+
+  <!-- ── Error / No record ───────────────────────────────────────────────── -->
+  <div *ngIf="!data.loading && (data.error || !data.record)" class="ddd-no-record">
+
+    <!-- Weekend -->
+    <ng-container *ngIf="data.calStatus === 'weekend'">
+      <mat-icon class="ddd-no-record__icon" style="color:#90a4ae">weekend</mat-icon>
+      <p class="ddd-no-record__title">Weekend</p>
+      <p class="ddd-no-record__sub">No attendance recorded on weekends.</p>
+    </ng-container>
+
+    <!-- Future -->
+    <ng-container *ngIf="data.calStatus === 'future'">
+      <mat-icon class="ddd-no-record__icon" style="color:#b0bec5">upcoming</mat-icon>
+      <p class="ddd-no-record__title">Future Date</p>
+      <p class="ddd-no-record__sub">Attendance has not been recorded yet.</p>
+    </ng-container>
+
+    <!-- Leave -->
+    <ng-container *ngIf="data.calStatus === 'leave'">
+      <mat-icon class="ddd-no-record__icon" style="color:#2e86de">beach_access</mat-icon>
+      <p class="ddd-no-record__title">On Approved Leave</p>
+      <p class="ddd-no-record__sub">This day is covered by an approved leave request.</p>
+    </ng-container>
+
+    <!-- Absent (has error / no DB record) -->
+    <ng-container *ngIf="data.calStatus === 'absent' || data.error">
+      <mat-icon class="ddd-no-record__icon" style="color:#e74c3c">event_busy</mat-icon>
+      <p class="ddd-no-record__title">Absent</p>
+      <p class="ddd-no-record__sub">No check-in was recorded for this day.</p>
+    </ng-container>
+
+  </div>
+
+  <!-- ── Record detail ───────────────────────────────────────────────────── -->
+  <ng-container *ngIf="hasRecord && data.record">
+
+    <!-- Status badge -->
+    <div class="ddd-status-badge"
+         [style.background]="statusConfig.color + '18'"
+         [style.borderColor]="statusConfig.color + '55'">
+      <mat-icon [style.color]="statusConfig.color">{{ statusConfig.icon }}</mat-icon>
+      <span [style.color]="statusConfig.color">{{ statusConfig.label }}</span>
+    </div>
+
+    <!-- Time row -->
+    <div class="ddd-time-row">
+
+      <div class="ddd-time-card ddd-time-card--in">
+        <div class="ddd-time-card__label">
+          <mat-icon>login</mat-icon> Check In
+        </div>
+        <div class="ddd-time-card__value">
+          {{ formatTime(data.record.checkIn) }}
+        </div>
+      </div>
+
+      <div class="ddd-time-arrow">
+        <mat-icon>arrow_forward</mat-icon>
+      </div>
+
+      <div class="ddd-time-card ddd-time-card--out"
+           [class.ddd-time-card--missing]="!data.record.checkOut">
+        <div class="ddd-time-card__label">
+          <mat-icon>logout</mat-icon> Check Out
+        </div>
+        <div class="ddd-time-card__value">
+          {{ data.record.checkOut ? formatTime(data.record.checkOut) : 'Not recorded' }}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Stats row -->
+    <div class="ddd-stats-row">
+
+      <div class="ddd-stat">
+        <mat-icon class="ddd-stat__icon">access_time</mat-icon>
+        <div>
+          <div class="ddd-stat__value">{{ formatHours(data.record.workDuration) }}</div>
+          <div class="ddd-stat__label">Worked</div>
+        </div>
+      </div>
+
+      <div class="ddd-stat">
+        <mat-icon class="ddd-stat__icon ddd-stat__icon--overtime">trending_up</mat-icon>
+        <div>
+          <div class="ddd-stat__value">
+            {{ data.record.overtimeHours > 0 ? formatHours(data.record.overtimeHours) : '—' }}
+          </div>
+          <div class="ddd-stat__label">Overtime</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Notes -->
+    <div class="ddd-notes" *ngIf="data.record.notes">
+      <mat-icon>sticky_note_2</mat-icon>
+      <span>{{ data.record.notes }}</span>
+    </div>
+
+  </ng-container>
+
+</mat-dialog-content>

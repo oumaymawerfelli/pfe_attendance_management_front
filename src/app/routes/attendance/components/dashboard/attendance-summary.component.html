@@ -1,0 +1,223 @@
+<page-header title="My Attendance" subtitle="Track your work hours and presence"></page-header>
+
+<!-- Filters -->
+<mat-card class="m-b-16">
+  <mat-card-content>
+    <div class="filter-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Month</mat-label>
+        <mat-select [(ngModel)]="selectedMonth" (ngModelChange)="onFilterChange()">
+          <mat-option *ngFor="let m of months" [value]="m.value">{{ m.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Year</mat-label>
+        <mat-select [(ngModel)]="selectedYear" (ngModelChange)="onFilterChange()">
+          <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <span class="spacer"></span>
+
+      <!-- Read-only today status badge — no action required from the employee -->
+      <mat-chip *ngIf="summary?.checkedInToday" color="primary" selected>
+        <mat-icon>login</mat-icon>&nbsp;Checked in today
+      </mat-chip>
+
+      <mat-chip *ngIf="!summary?.checkedInToday" color="warn" selected>
+        <mat-icon>schedule</mat-icon>&nbsp;Not checked in today
+      </mat-chip>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<!-- Loading -->
+<div *ngIf="loading" class="flex justify-center p-32">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+
+<ng-container *ngIf="!loading && summary">
+
+  <!-- ── Stat cards ─────────────────────────────────────── -->
+  <div class="stats-grid m-b-16">
+
+    <mat-card class="stat-card stat-present">
+      <mat-card-content>
+        <div class="stat-icon"><mat-icon>check_circle</mat-icon></div>
+        <div class="stat-value">{{ summary.presentDays }}</div>
+        <div class="stat-label">Present Days</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-late">
+      <mat-card-content>
+        <div class="stat-icon"><mat-icon>schedule</mat-icon></div>
+        <div class="stat-value">{{ summary.lateDays }}</div>
+        <div class="stat-label">Late Days</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-absent">
+      <mat-card-content>
+        <div class="stat-icon"><mat-icon>cancel</mat-icon></div>
+        <div class="stat-value">{{ summary.absentDays }}</div>
+        <div class="stat-label">Absent Days</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-half">
+      <mat-card-content>
+        <div class="stat-icon"><mat-icon>timelapse</mat-icon></div>
+        <div class="stat-value">{{ summary.halfDays }}</div>
+        <div class="stat-label">Half Days</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-leave">
+      <mat-card-content>
+        <div class="stat-icon"><mat-icon>beach_access</mat-icon></div>
+        <div class="stat-value">{{ summary.leaveDays }}</div>
+        <div class="stat-label">Leave Days</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-hours">
+      <mat-card-content>
+        <div class="stat-icon"><mat-icon>access_time</mat-icon></div>
+       <ng-container *ngIf="summary">
+  <div class="stat-value">{{ summary.totalWorkedHours | number:'1.1-1' }}h</div>
+        <div class="stat-label">Total Hours</div>
+</ng-container>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-overtime">
+      <mat-card-content>
+        <div class="stat-icon"><mat-icon>trending_up</mat-icon></div>
+        <div class="stat-value">{{ summary.totalOvertimeHours | number:'1.1-1' }}h</div>
+        <div class="stat-label">Overtime</div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       ATTENDANCE CALENDAR
+  ══════════════════════════════════════════════════════ -->
+  <mat-card class="calendar-card m-b-16">
+    <mat-card-content>
+
+      <!-- Calendar header -->
+      <div class="cal-header">
+        <div class="cal-header-left">
+          <span class="cal-month-label">{{ currentMonthLabel }}</span>
+          <span class="cal-year-badge">{{ selectedYear }}</span>
+        </div>
+
+        <!-- Attendance rate donut (excludes leave days) -->
+        <div class="cal-rate-wrapper">
+          <svg class="cal-rate-svg" viewBox="0 0 70 70">
+            <circle cx="35" cy="35" r="30" fill="none" stroke="#e9ecef" stroke-width="6"/>
+            <circle
+              cx="35" cy="35" r="30"
+              fill="none"
+              stroke="#4CAF50"
+              stroke-width="6"
+              stroke-linecap="round"
+              [attr.stroke-dasharray]="strokeDasharray"
+              transform="rotate(-90 35 35)"/>
+          </svg>
+          <div class="cal-rate-text">
+            <span class="cal-rate-num">{{ attendanceRate }}%</span>
+            <span class="cal-rate-lbl">Rate</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekday header row -->
+      <div class="cal-grid cal-weekdays">
+        <div *ngFor="let d of weekDays"
+             class="cal-weekday"
+             [class.cal-weekday--weekend]="d === 'Sat' || d === 'Sun'">
+          {{ d }}
+        </div>
+      </div>
+
+      <!-- Calendar weeks -->
+      <div *ngFor="let week of calendarWeeks" class="cal-grid cal-week">
+  <div *ngFor="let cell of week"
+       class="cal-cell"
+       [class.cal-cell--empty]="cell.status === 'empty'"
+       [class.cal-cell--future]="cell.status === 'future'"
+       [class.cal-cell--today]="cell.isToday"
+       [class.cal-cell--present]="cell.status === 'present'"
+       [class.cal-cell--absent]="cell.status === 'absent'"
+       [class.cal-cell--late]="cell.status === 'late'"
+       [class.cal-cell--half]="cell.status === 'half'"
+       [class.cal-cell--leave]="cell.status === 'leave'"
+       [class.cal-cell--weekend]="cell.status === 'weekend'"
+       [class.cal-cell--holiday]="cell.status === 'holiday'"
+       [class.cal-cell--clickable]="cell.clickable"
+       [matTooltip]="getTooltip(cell)"
+       matTooltipPosition="above"
+       (click)="onDayClick(cell)">
+ 
+    <ng-container *ngIf="cell.day">
+      <span class="cal-day-num">{{ cell.day }}</span>
+ 
+      <span *ngIf="!['empty','future','weekend'].includes(cell.status)"
+            class="cal-dot"></span>
+ 
+      <mat-icon *ngIf="cell.status === 'leave'" class="cal-leave-icon">beach_access</mat-icon>
+ 
+      <span *ngIf="cell.workedHours != null && cell.workedHours > 0 && cell.status !== 'leave'"
+            class="cal-hours-badge">
+        {{ cell.workedHours | number:'1.0-1' }}h
+      </span>
+    </ng-container>
+ 
+  </div>
+</div>
+
+      <!-- Legend -->
+      <div class="cal-legend">
+        <div class="cal-legend-item cal-legend--present"><span class="cal-legend-dot"></span>Present</div>
+        <div class="cal-legend-item cal-legend--late"><span class="cal-legend-dot"></span>Late</div>
+        <div class="cal-legend-item cal-legend--absent"><span class="cal-legend-dot"></span>Absent</div>
+        <div class="cal-legend-item cal-legend--half"><span class="cal-legend-dot"></span>Half Day</div>
+        <div class="cal-legend-item cal-legend--leave"><span class="cal-legend-dot"></span>On Leave</div>
+        <div class="cal-legend-item cal-legend--holiday"><span class="cal-legend-dot"></span>Holiday</div>
+        <div class="cal-legend-item cal-legend--weekend"><span class="cal-legend-dot"></span>Weekend</div>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Bar chart -->
+  <mat-card *ngIf="chartData.length > 0">
+    <mat-card-header>
+      <mat-card-title>Daily Worked Hours</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <ngx-charts-bar-vertical
+        [results]="chartData"
+        [scheme]="colorScheme"
+        [view]="view"
+        [xAxis]="true"
+        [yAxis]="true"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        xAxisLabel="Day"
+        yAxisLabel="Hours"
+        [roundEdges]="true">
+      </ngx-charts-bar-vertical>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="chartData.length === 0" class="text-center p-32">
+    <mat-icon style="font-size: 48px; color: #ccc;">bar_chart</mat-icon>
+    <p class="text-muted">No completed days for this period yet.</p>
+  </mat-card>
+
+</ng-container>

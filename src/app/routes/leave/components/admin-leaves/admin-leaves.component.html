@@ -1,0 +1,98 @@
+<!-- Filter toggle -->
+<div class="filter-row">
+  <button mat-button
+          [class.active]="filter === 'PENDING'"
+          (click)="filter = 'PENDING'; load()">
+    Pending
+  </button>
+  <button mat-button
+          [class.active]="filter === 'ALL'"
+          (click)="filter = 'ALL'; load()">
+    All Requests
+  </button>
+</div>
+
+<mat-card>
+  <mat-card-content>
+
+    <div *ngIf="loading" class="loading-center">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!loading && dataSource.data.length === 0" class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No leave requests found.</p>
+    </div>
+
+    <mat-table [dataSource]="dataSource" matSort
+               *ngIf="!loading && dataSource.data.length > 0">
+
+      <ng-container matColumnDef="employee">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Employee</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <span class="employee-name">{{ row.userFullName }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="department">
+        <mat-header-cell *matHeaderCellDef>Department</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.userDepartment }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="type">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Type</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ typeLabel(row.leaveType) }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="dates">
+        <mat-header-cell *matHeaderCellDef>Dates</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          {{ row.startDate | date:'dd MMM' }} → {{ row.endDate | date:'dd MMM yyyy' }}
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="days">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Days</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.daysCount }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <span class="status-badge" [class]="'badge-' + row.status.toLowerCase()">
+            {{ row.status }}
+          </span>
+        </mat-cell>
+      </ng-container>
+
+   <ng-container matColumnDef="actions">
+  <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+  <mat-cell *matCellDef="let row">
+
+    <!-- Review (pending) or View details (decided) -->
+    <button mat-icon-button
+            [matTooltip]="row.status === 'PENDING' ? 'Review' : 'View Details'"
+            (click)="openDetail(row, row.status === 'PENDING')">
+      <mat-icon>{{ row.status === 'PENDING' ? 'rate_review' : 'visibility' }}</mat-icon>
+    </button>
+
+    <!-- View authorization letter — only when PDF was generated -->
+    <button mat-icon-button
+            color="primary"
+            matTooltip="View Authorization Letter"
+            *ngIf="hasDocument(row)"
+            (click)="viewDocument(row)">
+      <mat-icon>picture_as_pdf</mat-icon>
+    </button>
+
+  </mat-cell>
+</ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+    <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+
+  </mat-card-content>
+</mat-card>

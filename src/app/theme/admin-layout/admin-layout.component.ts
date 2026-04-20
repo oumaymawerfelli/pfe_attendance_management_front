@@ -19,6 +19,7 @@ const MONITOR_MEDIAQUERY = 'screen and (min-width: 960px)';
 export class AdminLayoutComponent implements OnDestroy {
   @ViewChild('sidenav', { static: true }) sidenav!: MatSidenav;
   @ViewChild('content', { static: true }) content!: MatSidenavContent;
+  @ViewChild('sidenavNotice') sidenavNotice!: MatSidenav; // Add this if needed
 
   options = this.settings.options;
 
@@ -59,51 +60,116 @@ export class AdminLayoutComponent implements OnDestroy {
     private breakpointObserver: BreakpointObserver,
     private settings: SettingsService
   ) {
-    this.layoutChangesSubscription = this.breakpointObserver
-      .observe([MOBILE_MEDIAQUERY, TABLET_MEDIAQUERY, MONITOR_MEDIAQUERY])
-      .subscribe(state => {
-        // SidenavOpened must be reset true when layout changes
-        this.options.sidenavOpened = true;
-
-        this.isMobileScreen = state.breakpoints[MOBILE_MEDIAQUERY];
-        this.options.sidenavCollapsed = state.breakpoints[TABLET_MEDIAQUERY];
-        this.isContentWidthFixed = state.breakpoints[MONITOR_MEDIAQUERY];
-      });
-
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(e => {
-      if (this.isOver) {
-        this.sidenav.close();
-      }
-      this.content.scrollTo({ top: 0 });
-    });
+    this.initBreakpointObserver();
+    this.initRouterEvents();
   }
 
   ngOnDestroy() {
     this.layoutChangesSubscription.unsubscribe();
   }
 
-  toggleCollapsed() {
+  /**
+   * Initialize breakpoint observer for responsive layout
+   */
+  private initBreakpointObserver(): void {
+    this.layoutChangesSubscription = this.breakpointObserver
+      .observe([MOBILE_MEDIAQUERY, TABLET_MEDIAQUERY, MONITOR_MEDIAQUERY])
+      .subscribe(state => {
+        // Reset sidenav state on layout change
+        this.options.sidenavOpened = true;
+        this.isMobileScreen = state.breakpoints[MOBILE_MEDIAQUERY];
+        this.options.sidenavCollapsed = state.breakpoints[TABLET_MEDIAQUERY];
+        this.isContentWidthFixed = state.breakpoints[MONITOR_MEDIAQUERY];
+      });
+  }
+
+  /**
+   * Initialize router events to handle navigation
+   */
+  private initRouterEvents(): void {
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
+      this.handleNavigationEnd();
+    });
+  }
+
+  /**
+   * Handle navigation end events
+   */
+  private handleNavigationEnd(): void {
+    // Close sidenav on mobile after navigation
+    if (this.isOver) {
+      this.sidenav.close();
+    }
+    // Scroll to top on navigation
+    this.content.scrollTo({ top: 0 });
+  }
+
+  /**
+   * Toggle sidenav collapsed state
+   * Cycles between: opened → icons-only → closed
+   */
+  toggleCollapsed(): void {
     this.isContentWidthFixed = false;
-    this.options.sidenavCollapsed = !this.options.sidenavCollapsed;
+
+    if (this.options.sidenavOpened) {
+      // Icons-only → Fully closed
+      this.options.sidenavOpened = false;
+      this.options.sidenavCollapsed = false;
+      this.sidenav.close();
+    } else {
+      // Fully closed → Icons-only
+      this.options.sidenavOpened = true;
+      this.options.sidenavCollapsed = true;
+      this.sidenav.open();
+    }
+
     this.resetCollapsedState();
   }
 
-  // TODO: Trigger when transition end
-  resetCollapsedState(timer = 400) {
+  /**
+   * Check if main sidenav should be open
+   */
+  isMainSidenavOpen(): boolean {
+    return this.options.navPos === 'side' && this.options.sidenavOpened && !this.isOver;
+  }
+
+  /**
+   * Check if toggle button should be shown in header
+   */
+  shouldShowToggle(): boolean {
+    return !this.options.sidenavCollapsed && this.options.navPos !== 'top';
+  }
+
+  /**
+   * Reset collapsed state after animation
+   * @param timer Delay in milliseconds
+   */
+  private resetCollapsedState(timer = 400): void {
     setTimeout(() => this.settings.setOptions(this.options), timer);
   }
 
-  onSidenavClosedStart() {
+  /**
+   * Handle sidenav closed start event
+   */
+  onSidenavClosedStart(): void {
     this.isContentWidthFixed = false;
   }
 
-  onSidenavOpenedChange(isOpened: boolean) {
+  /**
+   * Handle sidenav opened state change
+   * @param isOpened Whether sidenav is opened
+   */
+  onSidenavOpenedChange(isOpened: boolean): void {
     this.isCollapsedWidthFixed = !this.isOver;
     this.options.sidenavOpened = isOpened;
     this.settings.setOptions(this.options);
   }
 
-  updateOptions(options: AppSettings) {
+  /**
+   * Update layout options
+   * @param options New app settings
+   */
+  updateOptions(options: AppSettings): void {
     this.options = options;
     this.settings.setOptions(options);
     this.settings.setDirection();

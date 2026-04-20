@@ -26,16 +26,15 @@ export function TranslateHttpLoaderFactory(http: HttpClient) {
 }
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, RegistrationSuccessComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    HttpClientModule,
+    HttpClientModule, // ✅ only once
     CoreModule,
     ThemeModule,
     RoutesModule,
     SharedModule,
-     HttpClientModule,
     FormlyConfigModule.forRoot(),
     NgxPermissionsModule.forRoot(),
     ToastrModule.forRoot(),

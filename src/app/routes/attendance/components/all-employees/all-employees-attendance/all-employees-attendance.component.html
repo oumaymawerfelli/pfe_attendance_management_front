@@ -1,0 +1,153 @@
+<!-- all-employees-attendance.component.html -->
+<div class="page-header-clean">
+  <div class="page-header-clean__breadcrumb">
+    <span>Home</span>
+    <mat-icon>chevron_right</mat-icon>
+    <span>Management</span>
+    <mat-icon>chevron_right</mat-icon>
+    <span class="active">All Employees Attendance</span>
+  </div>
+  <div class="page-header-clean__title">
+    <h1>Attendance Management</h1>
+    <p>View attendance records for all employees</p>
+  </div>
+</div>
+
+<!-- Filters row -->
+<div class="filters-row">
+
+  <!-- Month -->
+  <mat-form-field appearance="outline">
+    <mat-label>Month</mat-label>
+    <mat-select [(ngModel)]="selectedMonth" (ngModelChange)="onFilterChange()">
+      <mat-option [value]="null">All months</mat-option>
+      <mat-option *ngFor="let m of months" [value]="m.value">{{ m.label }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- Year -->
+  <mat-form-field appearance="outline">
+    <mat-label>Year</mat-label>
+    <mat-select [(ngModel)]="selectedYear" (ngModelChange)="onFilterChange()">
+      <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- Email search -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Search by email</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      type="text"
+      placeholder="employee@company.com"
+      [(ngModel)]="searchEmail"
+      (ngModelChange)="onEmailSearch()"/>
+    <button
+      *ngIf="searchEmail"
+      matSuffix
+      mat-icon-button
+      aria-label="Clear"
+      (click)="clearSearch()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+
+</div>
+
+<!-- Results badge -->
+<div class="results-badge" *ngIf="searchEmail && !loading">
+  <mat-icon>filter_list</mat-icon>
+  {{ records.length }} record{{ records.length !== 1 ? 's' : '' }} matching
+  <strong>"{{ searchEmail }}"</strong>
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading" class="loading-container">
+  <mat-spinner diameter="36"></mat-spinner>
+</div>
+
+<!-- Error -->
+<div *ngIf="error" class="error-message">{{ error }}</div>
+
+<!-- Table -->
+<mat-card *ngIf="!loading && !error">
+  <mat-card-content>
+    <div class="table-container">
+      <table mat-table [dataSource]="records" class="full-width-table">
+
+        <!-- Employee -->
+        <ng-container matColumnDef="employee">
+          <th mat-header-cell *matHeaderCellDef>Employee</th>
+          <td mat-cell *matCellDef="let record">
+            <div class="employee-info">
+              <strong>{{ record.userFullName }}</strong>
+              <span class="department">{{ record.userDepartment }}</span>
+              <span class="email">{{ record.userEmail }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Date -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let record">{{ record.date | date:'dd/MM/yyyy' }}</td>
+        </ng-container>
+
+        <!-- Check In -->
+        <ng-container matColumnDef="checkIn">
+          <th mat-header-cell *matHeaderCellDef>Check In</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.checkIn ? (record.checkIn | date:'HH:mm') : '—' }}
+          </td>
+        </ng-container>
+
+        <!-- Check Out -->
+        <ng-container matColumnDef="checkOut">
+          <th mat-header-cell *matHeaderCellDef>Check Out</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.checkOut ? (record.checkOut | date:'HH:mm') : '—' }}
+          </td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let record">
+            <mat-chip [color]="getStatusColor(record.status)" selected>
+              {{ formatStatus(record.status) }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Worked Hours -->
+        <ng-container matColumnDef="workedHours">
+          <th mat-header-cell *matHeaderCellDef>Worked Hours</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.workDuration ? (record.workDuration | number:'1.1-1') + 'h' : '—' }}
+          </td>
+        </ng-container>
+
+        <!-- Overtime -->
+        <ng-container matColumnDef="overtime">
+          <th mat-header-cell *matHeaderCellDef>Overtime</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.overtimeHours > 0 ? (record.overtimeHours | number:'1.1-1') + 'h' : '—' }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <!-- No data -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+            <mat-icon>inbox</mat-icon>
+            <span>No records found{{ searchEmail ? ' matching "' + searchEmail + '"' : ' for the selected period' }}.</span>
+          </td>
+        </tr>
+
+      </table>
+    </div>
+  </mat-card-content>
+</mat-card>

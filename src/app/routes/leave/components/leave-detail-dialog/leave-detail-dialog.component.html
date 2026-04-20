@@ -1,0 +1,190 @@
+<!-- leave-detail-dialog.component.html -->
+
+<!-- ══════════════════════════════════════════════════════
+     STEP 1 — REVIEW
+══════════════════════════════════════════════════════ -->
+<ng-container *ngIf="step === 'review'">
+
+  <div class="dialog-header">
+    <mat-icon class="dialog-header__icon">description</mat-icon>
+    <div>
+      <h2 mat-dialog-title>Leave Request</h2>
+      <p class="dialog-header__sub">Review details before taking action</p>
+    </div>
+    <mat-chip [color]="statusColor(leave.status)" selected class="status-chip">
+      {{ leave.status }}
+    </mat-chip>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+
+    <!-- Employee -->
+    <div class="info-section">
+      <span class="section-label">Employee</span>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Full Name</span>
+          <span class="info-value">{{ leave.userFullName || '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Department</span>
+          <span class="info-value">{{ leave.userDepartment || '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leave details -->
+    <div class="info-section">
+      <span class="section-label">Leave Details</span>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Type</span>
+          <span class="info-value">{{ typeLabel(leave.leaveType) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Start Date</span>
+          <span class="info-value">{{ leave.startDate | date:'dd MMMM yyyy' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">End Date</span>
+          <span class="info-value">{{ leave.endDate | date:'dd MMMM yyyy' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Working Days</span>
+          <span class="info-value days-badge">
+            {{ leave.daysCount }} day{{ leave.daysCount !== 1 ? 's' : '' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reason -->
+    <div class="info-section">
+      <span class="section-label">Reason</span>
+      <p class="reason-text">{{ leave.reason || 'No reason provided.' }}</p>
+    </div>
+
+    <!-- Rejection input -->
+    <div class="info-section" *ngIf="rejecting">
+      <span class="section-label">Rejection Reason</span>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Explain why this request is rejected</mat-label>
+        <textarea matInput [formControl]="rejectionReason" rows="3"></textarea>
+        <mat-error *ngIf="rejectionReason.invalid">Rejection reason is required.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="error-banner" *ngIf="error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions" align="end">
+    <button mat-button (click)="cancel()" [disabled]="saving">Close</button>
+
+    <ng-container *ngIf="mode === 'decide'">
+      <ng-container *ngIf="!rejecting">
+        <button mat-stroked-button color="warn" (click)="showRejectForm()" [disabled]="saving">
+          <mat-icon>close</mat-icon> Reject
+        </button>
+        <button mat-raised-button color="primary" (click)="goToSign()" [disabled]="saving">
+          <mat-icon>draw</mat-icon> Approve &amp; Sign
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="rejecting">
+        <button mat-button (click)="rejecting = false" [disabled]="saving">Cancel</button>
+        <button mat-raised-button color="warn"
+                (click)="confirmReject()"
+                [disabled]="saving || rejectionReason.invalid">
+          <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+          <mat-icon *ngIf="!saving">cancel</mat-icon>
+          Confirm Rejection
+        </button>
+      </ng-container>
+    </ng-container>
+  </mat-dialog-actions>
+
+</ng-container>
+
+
+<!-- ══════════════════════════════════════════════════════
+     STEP 2 — SIGNATURE
+══════════════════════════════════════════════════════ -->
+<ng-container *ngIf="step === 'sign'">
+
+  <div class="dialog-header">
+    <mat-icon class="dialog-header__icon dialog-header__icon--sign">edit</mat-icon>
+    <div>
+      <h2 mat-dialog-title>Authorize &amp; Sign</h2>
+      <p class="dialog-header__sub">Your signature will be embedded in the official PDF letter</p>
+    </div>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+
+    <!-- Summary pill -->
+    <div class="approval-summary">
+      <mat-icon>person</mat-icon>
+      <span><strong>{{ leave.userFullName }}</strong> — {{ typeLabel(leave.leaveType) }}</span>
+      <span class="sep">·</span>
+      <span>{{ leave.startDate | date:'dd MMM' }} → {{ leave.endDate | date:'dd MMM yyyy' }}</span>
+      <span class="sep">·</span>
+      <span><strong>{{ leave.daysCount }}</strong> day{{ leave.daysCount !== 1 ? 's' : '' }}</span>
+    </div>
+
+    <!-- Approver info -->
+    <div class="approver-info">
+      <mat-icon>badge</mat-icon>
+      <span>Approving as <strong>{{ approverFullName }}</strong> · {{ approverRole }}</span>
+    </div>
+
+    <!-- Signature canvas -->
+    <div class="signature-section">
+      <p class="signature-label">
+        <mat-icon>draw</mat-icon>
+        Draw your signature below
+      </p>
+      <div class="signature-wrapper">
+        <canvas #signatureCanvas class="signature-canvas"></canvas>
+        <div class="sig-watermark">Sign here</div>
+      </div>
+      <div class="signature-actions">
+        <button mat-button color="warn" (click)="clearSignature()" type="button">
+          <mat-icon>refresh</mat-icon> Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- PDF notice -->
+    <div class="pdf-notice">
+      <mat-icon>picture_as_pdf</mat-icon>
+      <span>
+        A formal leave authorization letter will be
+        <strong>downloaded automatically</strong> once you confirm.
+      </span>
+    </div>
+
+    <div class="error-banner" *ngIf="error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions" align="end">
+    <button mat-button (click)="backToReview()" [disabled]="saving">
+      <mat-icon>arrow_back</mat-icon> Back
+    </button>
+    <button mat-raised-button color="primary"
+            (click)="confirmApprove()"
+            [disabled]="saving">
+      <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+      <mat-icon *ngIf="!saving">check_circle</mat-icon>
+      {{ saving ? 'Approving…' : 'Confirm & Download PDF' }}
+    </button>
+  </mat-dialog-actions>
+
+</ng-container>

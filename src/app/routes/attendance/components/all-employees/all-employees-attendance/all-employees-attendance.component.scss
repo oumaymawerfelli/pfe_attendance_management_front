@@ -1,0 +1,108 @@
+// all-employees-attendance.component.scss
+.page-header-clean {
+  padding: 1.5rem 0 1.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, .08);
+
+  &__breadcrumb {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: #999;
+
+    mat-icon {
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    span.active {
+      font-weight: 500;
+      color: #555;
+    }
+  }
+
+  &__title {
+    h1 {
+      margin: 0 0 4px;
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
+    }
+  }
+}
+
+.filters-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  mat-form-field {
+    width: 180px;
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.error-message {
+  padding: 16px;
+  margin: 16px 0;
+  color: #f44336;
+  text-align: center;
+  background: #ffebee;
+  border-radius: 8px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.full-width-table {
+  width: 100%;
+}
+
+.employee-info {
+  display: flex;
+  flex-direction: column;
+  
+  .department {
+    font-size: 12px;
+    color: #666;
+  }
+}
+
+.no-data-cell {
+  padding: 32px !important;
+  color: #999;
+  text-align: center;
+}
+
+// Status chip styling
+::ng-deep .mat-chip {
+  &.mat-primary {
+    color: white;
+    background-color: #4caf50;
+  }
+  
+  &.mat-warn {
+    color: white;
+    background-color: #ff9800;
+  }
+  
+  &.mat-accent {
+    color: white;
+    background-color: #f44336;
+  }
+}
