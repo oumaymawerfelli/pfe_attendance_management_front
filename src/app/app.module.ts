@@ -18,15 +18,13 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { environment } from '@env/environment';
 import { BASE_URL, httpInterceptorProviders, appInitializerProviders } from '@core';
 import { TokenInterceptor } from '@core/interceptors/token-interceptor';
-import { RegistrationSuccessComponent } from './routes/sessions/registration-success/registration-success.component';
-
 // Required for AOT compilation
 export function TranslateHttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
 @NgModule({
-  declarations: [AppComponent, RegistrationSuccessComponent],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -48,8 +46,9 @@ export function TranslateHttpLoaderFactory(http: HttpClient) {
   ],
   providers: [
     { provide: BASE_URL, useValue: environment.baseUrl },
-    httpInterceptorProviders,
+    httpInterceptorProviders, // ← this is all you need
     appInitializerProviders,
+    // ← DELETE the manual BaseUrlInterceptor and TokenInterceptor entries
   ],
   bootstrap: [AppComponent],
 })

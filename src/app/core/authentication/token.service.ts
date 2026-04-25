@@ -54,33 +54,25 @@ export class TokenService implements OnDestroy {
     return this.token?.valid() ?? false;
   }
 
- getBearerToken(): string {
-  const token = this.token;
-  console.log('🔍 TokenService.token:', token);
-
-  if (!token) {
-    console.log('❌ No token found in TokenService');
-    
-    // Try to read from localStorage directly as fallback
-    const rawToken = localStorage.getItem('ng-matero-token');
-    if (rawToken) {
-      try {
-        const parsed = JSON.parse(rawToken);
-        if (parsed.access_token) {
-          console.log('✅ Fallback: extracted token from localStorage');
-          return `Bearer ${parsed.access_token}`;
+  getBearerToken(): string {
+    const token = this.token;
+    if (!token) {
+      const rawToken = localStorage.getItem('ng-matero-token');
+      if (rawToken) {
+        try {
+          const parsed = JSON.parse(rawToken);
+          if (parsed.access_token) {
+            return `Bearer ${parsed.access_token}`;
+          }
+        } catch {
+          // ignore malformed JSON in localStorage
         }
-      } catch (e) {
-        console.error('Error parsing token in fallback:', e);
       }
+      return '';
     }
-    return '';
-  }
 
-  const bearerToken = token.getBearerToken();
-  console.log('🔍 Bearer token from service:', bearerToken ? 'Token exists' : 'No token');
-  return bearerToken;
-}
+    return token.getBearerToken() || '';
+  }
 
   getRefreshToken(): string | void {
     return this.token?.refresh_token;
@@ -90,7 +82,6 @@ export class TokenService implements OnDestroy {
     this.clearRefresh();
   }
 
-  // ✅ MÉTHODE PRIVÉE AJOUTÉE
   private buildRefresh(): void {
     this.clearRefresh();
 
@@ -101,21 +92,18 @@ export class TokenService implements OnDestroy {
     }
   }
 
-  // ✅ MÉTHODE PRIVÉE AJOUTÉE
   private clearRefresh(): void {
     if (this.timer$ && !this.timer$.closed) {
       this.timer$.unsubscribe();
     }
   }
 
-  // ✅ MÉTHODE PRIVÉE AJOUTÉE
   private save(token?: Token): void {
     this._token = undefined;
 
     if (!token) {
       this.store.remove(this.key);
     } else {
-      // ✅ CORRECTION : Utiliser access_token uniquement
       const tokenData = {
         access_token: token.access_token || token.token,
         token_type: token.token_type || 'Bearer',
@@ -123,17 +111,14 @@ export class TokenService implements OnDestroy {
         expires_in: token.expires_in,
       };
 
-      // Calculer l'expiration si disponible
       const exp = token.expires_in ? currentTimestamp() + token.expires_in : null;
 
-      // Fusionner avec les données existantes
       const value = {
-        ...tokenData,
         ...token,
+        ...tokenData,
         exp,
       };
 
-      // Filtrer et sauvegarder
       this.store.set(this.key, filterObject(value as Record<string, unknown>));
     }
 

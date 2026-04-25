@@ -4,10 +4,7 @@ import { FormControl, Validators } from '@angular/forms';
 import SignaturePad from 'signature_pad';
 import { LeaveRecord } from '../../models/leave.model';
 import { LeaveService } from '../../services/leave.service';
-
 import { AuthService } from '@core/authentication/auth.service';
-
-import { LeavePdfService } from '../../services/leave-pdf.service';
 import { Subject, takeUntil, switchMap } from 'rxjs';
 
 export interface LeaveDetailDialogData {
@@ -45,17 +42,14 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: LeaveDetailDialogData,
     private dialogRef: MatDialogRef<LeaveDetailDialogComponent>,
     private leaveService: LeaveService,
-    private authService: AuthService,
-    private pdfService: LeavePdfService
+    private authService: AuthService
   ) {
     this.leave = data.leave;
     this.mode = data.mode;
     this.isPM = data.isPM ?? false;
   }
-  logoBase64 = '';
 
   ngOnInit(): void {
-    this.loadLogo();
     this.authService
       .user()
       .pipe(takeUntil(this.destroy$))
@@ -67,17 +61,6 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
         const cleanRoles = rawRoles.map(r => r.replace(/^ROLE_/, ''));
         this.approverRole = this.formatRole(cleanRoles[0] ?? '');
       });
-  }
-
-  private loadLogo(): void {
-    fetch('assets/images/image.png')
-      .then(r => r.blob())
-      .then(blob => {
-        const reader = new FileReader();
-        reader.onloadend = () => (this.logoBase64 = reader.result as string);
-        reader.readAsDataURL(blob);
-      })
-      .catch(() => console.warn('Logo not found'));
   }
 
   ngOnDestroy(): void {
@@ -109,7 +92,7 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
     canvas.height = canvas.offsetHeight * ratio;
     canvas.getContext('2d')!.scale(ratio, ratio);
     this.signaturePad = new SignaturePad(canvas, {
-      backgroundColor: '#ffffff',
+      backgroundColor: 'rgba(0,0,0,0)',
       penColor: '#1a2e44',
     });
   }
@@ -137,22 +120,27 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
       ? this.leaveService.approveTeamLeave(this.leave.id)
       : this.leaveService.approveLeave(this.leave.id);
 
+    const signatureBase64 = this.signaturePad.toDataURL('image/png');
+
     approve$
       .pipe(
-        // Step 2: generate PDF blob + upload to backend
-        switchMap(updated => {
-          const blob = this.buildPdfBlob(updated);
-          return this.leaveService.uploadDocument(this.leave.id, blob).pipe(
-            // Pass the updated leave record through for the close event
-            switchMap(() => [updated])
-          );
-        }),
+        switchMap(updated =>
+          this.leaveService
+            .generateDocument(this.leave.id, {
+              startDate: updated.startDate ?? this.leave.startDate,
+              endDate: updated.endDate ?? this.leave.endDate,
+              reason: updated.reason ?? this.leave.reason ?? '',
+              signatureBase64,
+              approvedBy: this.approverFullName,
+              approvalDate: new Date().toISOString().split('T')[0],
+            })
+            .pipe(switchMap(() => [updated]))
+        ),
         takeUntil(this.destroy$)
       )
       .subscribe({
         next: updated => {
-          // Step 3: also trigger local download for the approver
-          this.downloadLocalCopy(updated);
+          this.leaveService.openDocument(this.leave.id);
           this.dialogRef.close({ action: 'approved', leave: updated });
         },
         error: err => {
@@ -190,57 +178,6 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close(null);
   }
 
-  // ── PDF helpers ───────────────────────────────────────────────────────────
-
-  /** Build the PDF and return it as a Blob (for uploading to the backend). */
-  private buildPdfBlob(updated: LeaveRecord): Blob {
-    return this.pdfService.generateBlob({
-      leaveId: this.leave.id,
-      employeeFullName: updated.userFullName ?? this.leave.userFullName ?? '—',
-      employeeDepartment: updated.userDepartment ?? this.leave.userDepartment ?? '—',
-      employeeJobTitle: (updated as any).userJobTitle ?? (this.leave as any).userJobTitle,
-      leaveType: updated.leaveType ?? this.leave.leaveType,
-      startDate: this.fmtDate(updated.startDate ?? this.leave.startDate),
-      endDate: this.fmtDate(updated.endDate ?? this.leave.endDate),
-      daysCount: updated.daysCount ?? this.leave.daysCount,
-      reason: updated.reason ?? this.leave.reason ?? '—',
-      requestDate: this.fmtDate(this.leave.createdAt),
-      approverFullName: this.approverFullName,
-      approverRole: this.approverRole,
-      approvalDate: this.fmtDate(new Date().toISOString()),
-      signatureDataUrl: this.signaturePad.toDataURL('image/png'),
-      companyName: 'Your Company Name',
-      companyEmail: 'hr@yourcompany.com',
-      companyPhone: '+216 XX XXX XXX',
-      companyAddress: 'Tunis, Tunisia',
-    });
-  }
-
-  /** Triggers a local download for the approver's own copy. */
-  private downloadLocalCopy(updated: LeaveRecord): void {
-    this.pdfService.generateAndDownload({
-      leaveId: this.leave.id,
-      employeeFullName: updated.userFullName ?? this.leave.userFullName ?? '—',
-      employeeDepartment: updated.userDepartment ?? this.leave.userDepartment ?? '—',
-      employeeJobTitle: (updated as any).userJobTitle ?? (this.leave as any).userJobTitle,
-      leaveType: updated.leaveType ?? this.leave.leaveType,
-      startDate: this.fmtDate(updated.startDate ?? this.leave.startDate),
-      endDate: this.fmtDate(updated.endDate ?? this.leave.endDate),
-      daysCount: updated.daysCount ?? this.leave.daysCount,
-      reason: updated.reason ?? this.leave.reason ?? '—',
-      requestDate: this.fmtDate(this.leave.createdAt),
-      approverFullName: this.approverFullName,
-      approverRole: this.approverRole,
-      approvalDate: this.fmtDate(new Date().toISOString()),
-      signatureDataUrl: this.signaturePad.toDataURL('image/png'),
-      companyName: 'ArabSoft',
-      companyEmail: 'hr@yourcompany.com',
-      companyPhone: '+216 XX XXX XXX',
-      companyAddress: 'Tunis, Tunisia',
-      companyLogo: this.logoBase64,
-    });
-  }
-
   // ── Template helpers ──────────────────────────────────────────────────────
 
   typeLabel(t: string): string {
@@ -249,19 +186,6 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
 
   statusColor(s: string): string {
     return ({ PENDING: 'accent', APPROVED: 'primary', REJECTED: 'warn' } as any)[s] ?? '';
-  }
-
-  private fmtDate(raw: string | Date | undefined): string {
-    if (!raw) return '—';
-    try {
-      return new Date(raw).toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-      });
-    } catch {
-      return String(raw);
-    }
   }
 
   private formatRole(role: string): string {

@@ -124,6 +124,20 @@ export class LoginService {
   }
 
   menu() {
-    return this.http.get<{ menu: Menu[] }>('/api/auth/me/menu').pipe(map(res => res.menu));
+    return this.http.get<any[]>('/api/auth/me/menu').pipe(
+      map(res =>
+        res.map(item => ({
+          route: item.route,
+          name: item.name,
+          icon: item.icon,
+          type: item.type as 'link' | 'sub',
+          children: item.children?.map((child: any) => ({
+            route: child.route,
+            name: child.name,
+            type: child.type as 'link' | 'sub',
+          })),
+        }))
+      )
+    );
   }
 }

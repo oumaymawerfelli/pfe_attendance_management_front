@@ -1,6 +1,8 @@
 ﻿// src/app/core/index.ts
 
-// Authentication - exporter tout sauf Menu (pour éviter conflit)
+// =====================
+// AUTHENTICATION
+// =====================
 export * from './authentication/register-request';
 export * from './authentication/auth.guard';
 export * from './authentication/auth.service';
@@ -10,28 +12,33 @@ export * from './authentication/token';
 export * from './authentication/login.service';
 export * from './authentication/user';
 export * from './authentication/helpers';
-export * from './bootstrap/menu.service';
-export * from './bootstrap/startup.service';
 
-// Authentication - exporter seulement User et Token depuis interface
+// Export only types
 export type { User, Token } from './authentication/interface';
 
-// Bootstrap
+// =====================
+// BOOTSTRAP
+// =====================
 export * from './bootstrap/menu.service';
 export * from './bootstrap/startup.service';
 export * from './bootstrap/translate-lang.service';
 export * from './bootstrap/preloader.service';
 export * from './bootstrap/sanctum.service';
 
-// Settings
+// =====================
+// SETTINGS
+// =====================
 export * from './settings/settings.service';
 export * from './settings/settings';
 
-// Constants - exporter tout (contient BASE_URL et httpInterceptorProviders)
-export * from './constants';
+// =====================
+// CONSTANTS
+// =====================
+export * from './constants'; // BASE_URL etc.
 
-// Interceptors - NE PAS exporter tout car conflit
-// Exporter uniquement les intercepteurs individuels
+// =====================
+// INTERCEPTORS
+// =====================
 export {
   BaseUrlInterceptor,
   DefaultInterceptor,
@@ -40,7 +47,10 @@ export {
   NoopInterceptor,
   SettingsInterceptor,
   TokenInterceptor,
+  httpInterceptorProviders, // ✅ IMPORTANT
 } from './interceptors';
 
-// Module guard
+// =====================
+// MODULE GUARD
+// =====================
 export * from './module-import-guard';

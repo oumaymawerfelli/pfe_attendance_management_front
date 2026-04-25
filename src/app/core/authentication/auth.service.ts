@@ -7,7 +7,7 @@ import { User } from './interface';
 import { LoginService } from './login.service';
 import { TokenService } from './token.service';
 import { UserService } from '../services/user.service';
-
+import { environment } from '@env/environment';
 @Injectable({
   providedIn: 'root',
 })
@@ -69,7 +69,7 @@ export class AuthService {
     // ── Step 1: record checkout BEFORE the token is cleared ──────────────
     // If the call fails (e.g. already checked out, weekend) we still
     // continue with the normal logout — catchError guarantees this.
-    return this.http.post('/api/attendance/logout-checkout', {}).pipe(
+    return this.http.post(`${environment.apiUrl}/attendance/logout-checkout`, {}).pipe(
       catchError(() => of(null)), // never block logout on attendance errors
 
       // ── Step 2: standard logout (invalidate token on the backend) ──────

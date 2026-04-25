@@ -1,9 +1,9 @@
 ﻿import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map } from 'rxjs/operators';
 import { Notification } from '../models/Notification.model';
-import { map } from 'rxjs/operators';
+import { environment } from '@env/environment';
 
 export interface NotificationPage {
   content: Notification[];
@@ -15,52 +15,57 @@ export interface NotificationPage {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService implements OnDestroy {
-  private apiUrl = '/api/notifications';
+  private apiUrl = `${environment.apiUrl}/notifications`;
   private unreadCountSubject = new BehaviorSubject<number>(0);
   public unreadCount$ = this.unreadCountSubject.asObservable();
 
   private eventSource: EventSource | null = null;
+  private initialized = false;
 
   constructor(private http: HttpClient) {
-    this.connectSSE();
+    // ❌ DO NOT connect here
   }
 
-  // ── SSE ──────────────────────────────────────────────────────────────────
+  /** Call this once after the user is authenticated */
+  init(): void {
+    if (this.initialized) return;
+    this.initialized = true;
+    this.connectSSE();
+    this.refreshUnreadCount();
+  }
+
+  // ── SSE ─────────────────────────────────────────────────────
 
   private connectSSE(): void {
-    // Get token for SSE auth - make sure you're using the correct key
-    const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+    let token: string | null = null;
+    try {
+      const raw = localStorage.getItem('ng-matero-token');
+      if (raw) {
+        token = JSON.parse(raw)?.access_token ?? null;
+      }
+    } catch {
+      token = null;
+    }
 
-    if (!token || token === 'null' || token === 'undefined') {
+    if (!token) {
       console.error('No valid token found for SSE connection');
       return;
     }
 
-    console.log('Connecting to SSE with token length:', token.length);
-
-    // Close existing connection if any
     if (this.eventSource) {
       this.eventSource.close();
     }
 
     this.eventSource = new EventSource(`${this.apiUrl}/stream?token=${encodeURIComponent(token)}`);
 
-    this.eventSource.onmessage = event => {
-      console.log('SSE message received:', event.data);
-      // Any new event means a new notification arrived — bump the count
+    this.eventSource.onmessage = () => {
       const current = this.unreadCountSubject.value;
       this.unreadCountSubject.next(current + 1);
     };
 
-    this.eventSource.onerror = error => {
-      console.error('SSE connection error:', error);
-      // Reconnect after 5s if connection drops
+    this.eventSource.onerror = () => {
       this.eventSource?.close();
       setTimeout(() => this.connectSSE(), 5000);
-    };
-
-    this.eventSource.onopen = () => {
-      console.log('SSE connection established');
     };
   }
 
@@ -68,7 +73,7 @@ export class NotificationService implements OnDestroy {
     this.eventSource?.close();
   }
 
-  // ── HTTP ─────────────────────────────────────────────────────────────────
+  // ── HTTP ─────────────────────────────────────────────────────
 
   getNotifications(page = 0, size = 20): Observable<NotificationPage> {
     return this.http.get<NotificationPage>(`${this.apiUrl}?page=${page}&size=${size}`);
@@ -76,8 +81,8 @@ export class NotificationService implements OnDestroy {
 
   getUnreadCount(): Observable<number> {
     return this.http.get<{ count: number }>(`${this.apiUrl}/unread-count`).pipe(
-      tap(response => this.unreadCountSubject.next(response.count)),
-      map(response => response.count)
+      tap(res => this.unreadCountSubject.next(res.count)),
+      map(res => res.count)
     );
   }
 

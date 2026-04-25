@@ -2,7 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
-import { LeaveRecord, LeaveRequest, LeaveBalance } from '../models/leave.model';
+import {
+  LeaveRecord,
+  LeaveRequest,
+  LeaveBalance,
+  LeaveDocumentRequest,
+} from '../models/leave.model';
 
 @Injectable({ providedIn: 'root' })
 export class LeaveService {
@@ -61,6 +66,10 @@ export class LeaveService {
   }
 
   // ── Document ──────────────────────────────────────────────────────────────
+
+  generateDocument(leaveId: number, request: LeaveDocumentRequest): Observable<void> {
+    return this.http.post<void>(`${this.api}/${leaveId}/generate-document`, request);
+  }
 
   /**
    * Uploads the generated PDF blob to the backend.

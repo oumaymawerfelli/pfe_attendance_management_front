@@ -78,7 +78,7 @@ export class AdminLayoutComponent implements OnDestroy {
         // Reset sidenav state on layout change
         this.options.sidenavOpened = true;
         this.isMobileScreen = state.breakpoints[MOBILE_MEDIAQUERY];
-        this.options.sidenavCollapsed = state.breakpoints[TABLET_MEDIAQUERY];
+        this.options.sidenavCollapsed = false; // always start expanded with text
         this.isContentWidthFixed = state.breakpoints[MONITOR_MEDIAQUERY];
       });
   }
@@ -110,22 +110,9 @@ export class AdminLayoutComponent implements OnDestroy {
    */
   toggleCollapsed(): void {
     this.isContentWidthFixed = false;
-
-    if (this.options.sidenavOpened) {
-      // Icons-only → Fully closed
-      this.options.sidenavOpened = false;
-      this.options.sidenavCollapsed = false;
-      this.sidenav.close();
-    } else {
-      // Fully closed → Icons-only
-      this.options.sidenavOpened = true;
-      this.options.sidenavCollapsed = true;
-      this.sidenav.open();
-    }
-
+    this.options.sidenavCollapsed = !this.options.sidenavCollapsed;
     this.resetCollapsedState();
   }
-
   /**
    * Check if main sidenav should be open
    */

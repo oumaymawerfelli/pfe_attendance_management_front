@@ -1,5 +1,234 @@
 :host ::ng-deep {
   .mat-mdc-tab {
-    min-width: 160px;
+    min-width: 140px;
+  }
+}
+
+.notice-tab-content {
+  min-width: 300px;
+  padding: 16px;
+}
+
+.notice-section-title {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mat-sys-outline, #888);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+// ── Today status ────────────────────────────────────────────────────────────
+
+.today-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.status-chip {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant, #555);
+  background: var(--mat-sys-surface-variant, #f0f0f0);
+  border: 1px solid transparent;
+  border-radius: 20px;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+
+  &.active {
+    color: var(--mat-sys-on-primary-container, #0d47a1);
+    background: var(--mat-sys-primary-container, #e3f2fd);
+    border-color: currentColor;
+  }
+}
+
+// ── Monthly summary grid ─────────────────────────────────────────────────────
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+
+  .val {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .lbl {
+    margin-top: 2px;
+    font-size: 11px;
+    opacity: .8;
+  }
+
+  &.present {
+    color: #2e7d32;
+    background: #e8f5e9;
+  }
+
+  &.absent {
+    color: #c62828;
+    background: #fce4ec;
+  }
+
+  &.late {
+    color: #f57f17;
+    background: #fff8e1;
+  }
+
+  &.hours {
+    color: #1565c0;
+    background: #e3f2fd;
+  }
+}
+
+.overtime-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--mat-sys-secondary, #7b1fa2);
+
+  .ot-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+// ── Leave tab ────────────────────────────────────────────────────────────────
+
+.leave-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  .notice-section-title {
+    margin-bottom: 0;
+  }
+}
+
+.leave-form-wrap {
+  padding: 12px;
+  margin-bottom: 16px;
+  background: var(--mat-sys-surface-variant, #f5f5f5);
+  border-radius: 8px;
+
+  .full-width {
+    width: 100%;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    .btn-spinner {
+      display: inline-block;
+      margin: 2px;
+    }
+  }
+}
+
+.success-msg {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #2e7d32;
+}
+
+.error-msg {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #c62828;
+}
+
+// ── Leave items ──────────────────────────────────────────────────────────────
+
+.leave-empty {
+  padding: 16px 0;
+  font-size: 13px;
+  color: var(--mat-sys-outline, #888);
+  text-align: center;
+}
+
+.leave-item {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.leave-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.leave-type {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.leave-item-dates {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant, #666);
+
+  .date-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+
+  .days-count {
+    opacity: .7;
+  }
+}
+
+// ── Shared ───────────────────────────────────────────────────────────────────
+
+.loading-row {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.view-link {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+
+  a {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 13px;
   }
 }

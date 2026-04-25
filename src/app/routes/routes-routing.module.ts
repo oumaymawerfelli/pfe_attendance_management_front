@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { environment } from '@env/environment';
-import { AdminLeavesComponent } from './leave/components/admin-leaves/admin-leaves.component';
-import { AllEmployeesAttendanceComponent } from './attendance/components/all-employees/all-employees-attendance/all-employees-attendance.component';
+
 import { AdminLayoutComponent } from '@theme/admin-layout/admin-layout.component';
 import { AuthLayoutComponent } from '@theme/auth-layout/auth-layout.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -15,8 +14,6 @@ import { authGuard } from '@core/authentication';
 import { RegistrationSuccessComponent } from './sessions/registration-success/registration-success.component';
 import { ActivateAccountComponent } from './sessions/activate-account/activate-account.component';
 import { ChangePasswordComponent } from './sessions/change-password/change-password.component';
-import { LeaveHistoryComponent } from './leave/components/history/leave-history.component';
-import { AttendanceSummaryComponent } from './attendance/components/dashboard/attendance-summary.component';
 
 const routes: Routes = [
   {
@@ -32,7 +29,7 @@ const routes: Routes = [
       { path: '500', component: Error500Component },
       { path: 'change-password', component: ChangePasswordComponent },
 
-      // HR Management
+      // HR Management — sub-routes handled inside each child routing module
       {
         path: 'attendance',
         loadChildren: () => import('./attendance/attendance.module').then(m => m.AttendanceModule),
@@ -42,31 +39,7 @@ const routes: Routes = [
         loadChildren: () => import('./leave/leave.module').then(m => m.LeaveModule),
       },
 
-      // Attendance views
-      {
-        path: 'attendance/my',
-        component: AttendanceSummaryComponent,
-      },
-      {
-        path: 'attendance/manage',
-        component: AllEmployeesAttendanceComponent,
-        canActivate: [authGuard],
-        data: { roles: ['PROJECT_MANAGER', 'GENERAL_MANAGER', 'ADMIN'] },
-      },
-
-      // Leave views
-      {
-        path: 'leaves/my',
-        component: LeaveHistoryComponent,
-      },
-      {
-        path: 'leaves/manage',
-        component: AdminLeavesComponent,
-        canActivate: [authGuard],
-        data: { roles: ['PROJECT_MANAGER', 'GENERAL_MANAGER', 'ADMIN'] },
-      },
-
-      // Notifications - Path is correct since we're already in routes folder
+      // Notifications
       {
         path: 'notifications',
         loadChildren: () =>

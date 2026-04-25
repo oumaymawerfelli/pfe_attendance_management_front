@@ -4,21 +4,16 @@
 const SPRING_BACKEND = 'http://localhost:8080';
 
 const PROXY_CONFIG = {
-  // Proxy API calls to Spring (auth, me, and any other /api paths you add)
- 
-  // IMPORTANT: Uncomment this to proxy /api requests
-  '/api': {
-    target: SPRING_BACKEND,
-    changeOrigin: true,
-    secure: false,
-    logLevel: 'debug',
+  "/api": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
   },
-  '/users/**': {
-    target: 'https://api.github.com',
-    changeOrigin: true,
-    secure: false,
-    logLevel: 'debug',
-  },
+  "/uploads": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  }
 };
 
 module.exports = PROXY_CONFIG;

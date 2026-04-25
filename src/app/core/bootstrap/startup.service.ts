@@ -4,7 +4,7 @@ import { AuthService, User } from '@core/authentication';
 import { NgxPermissionsService, NgxRolesService } from 'ngx-permissions';
 import { switchMap, tap } from 'rxjs/operators';
 import { Menu, MenuService } from './menu.service';
-
+import { NotificationService } from '../../routes/Notification/services/Notification.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -13,7 +13,8 @@ export class StartupService {
     private authService: AuthService,
     private menuService: MenuService,
     private permissonsService: NgxPermissionsService,
-    private rolesService: NgxRolesService
+    private rolesService: NgxRolesService,
+    private notificationService: NotificationService
   ) {}
 
   load() {
@@ -49,8 +50,13 @@ export class StartupService {
   }
 
   private setMenu(menu: Menu[]) {
-    this.menuService.addNamespace(menu, 'menu');
+    if (!menu || !Array.isArray(menu)) {
+      console.warn('⚠️ setMenu received invalid data:', menu);
+      this.menuService.set([]);
+      return;
+    }
     this.menuService.set(menu);
+    this.notificationService.init();
   }
 
   private setPermissions(user: User) {

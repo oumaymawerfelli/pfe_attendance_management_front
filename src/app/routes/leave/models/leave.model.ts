@@ -36,6 +36,15 @@ export interface LeaveRequest {
   reason: string;
 }
 
+export interface LeaveDocumentRequest {
+  startDate: string;
+  endDate: string;
+  reason: string;
+  signatureBase64: string;
+  approvedBy?: string;
+  approvalDate?: string;
+}
+
 export interface LeaveBalance {
   year: number;
   annualTotal: number;
