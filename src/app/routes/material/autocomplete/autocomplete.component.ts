@@ -10,7 +10,7 @@ export interface StateGroup {
 @Component({
   selector: 'app-autocomplete',
   templateUrl: './autocomplete.component.html',
-  styleUrls: ['./autocomplete.component.scss'],
+  styleUrls: [],
 })
 export class AutocompleteComponent implements OnInit {
   states = [

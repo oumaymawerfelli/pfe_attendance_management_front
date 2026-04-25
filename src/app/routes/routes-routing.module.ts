@@ -51,39 +51,17 @@ const routes: Routes = [
         path: 'users',
         loadChildren: () => import('./users/users.module').then(m => m.UsersModule),
       },
-      {
-        path: 'design',
-        loadChildren: () => import('./design/design.module').then(m => m.DesignModule),
-      },
+
       {
         path: 'material',
         loadChildren: () => import('./material/material.module').then(m => m.MaterialModule),
       },
-      {
-        path: 'media',
-        loadChildren: () => import('./media/media.module').then(m => m.MediaModule),
-      },
-      {
-        path: 'forms',
-        loadChildren: () => import('./forms/forms.module').then(m => m.FormsModule),
-      },
-      {
-        path: 'tables',
-        loadChildren: () => import('./tables/tables.module').then(m => m.TablesModule),
-      },
+
       {
         path: 'profile',
         loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule),
       },
-      {
-        path: 'permissions',
-        loadChildren: () =>
-          import('./permissions/permissions.module').then(m => m.PermissionsModule),
-      },
-      {
-        path: 'utilities',
-        loadChildren: () => import('./utilities/utilities.module').then(m => m.UtilitiesModule),
-      },
+
       {
         path: 'projects',
         loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule),
