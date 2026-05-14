@@ -52,8 +52,9 @@
           </mat-card-content>
         </mat-card>
 
-        <!-- Activation Form -->
-        <form [formGroup]="activationForm" (ngSubmit)="onSubmit()" *ngIf="activationForm">
+        <!-- Activation Form - no ngSubmit, no native form submission -->
+        <form [formGroup]="activationForm" *ngIf="activationForm">
+
           <!-- Username Field -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Username</mat-label>
@@ -158,7 +159,8 @@
             <button 
               mat-raised-button 
               color="primary" 
-              type="submit" 
+              type="button"
+              (click)="onSubmit()"
               [disabled]="activationForm.invalid"
               class="submit-button">
               <mat-icon>check_circle</mat-icon>
@@ -173,12 +175,13 @@
               Back to Login
             </button>
           </div>
+
         </form>
 
         <!-- Resend Link -->
         <div class="resend-section">
           <p>Didn't receive the email? 
-            <a href="#" (click)="$event.preventDefault(); resendActivation()">
+            <a href="javascript:void(0)" (click)="resendActivation()">
               Click here to resend
             </a>
           </p>

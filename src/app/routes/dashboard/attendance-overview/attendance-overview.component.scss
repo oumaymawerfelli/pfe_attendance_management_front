@@ -1,0 +1,615 @@
+// attendance-overview.component.scss
+// ── Tokens ────────────────────────────────────────────────────────────────────
+$hero-bg:     #0d1b3e;
+$hero-dark:   #091429;
+$blue:        #3b82f6;
+$blue-mid:    #2563eb;
+$orange:      #f97316;
+$red:         #ef4444;
+$purple:      #7c3aed;
+$teal:        #0891b2;
+$green:       #22c55e;
+$navy:        #1a2e5a;
+$border:      #e2e8f0;
+$text-main:   #1e293b;
+$text-muted:  #64748b;
+$text-light:  #94a3b8;
+
+// ── Outer wrap ────────────────────────────────────────────────────────────────
+.ao-wrap {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid $border;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.ao-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ao-header-left { display: flex; flex-direction: column; gap: 5px; }
+
+.ao-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: $navy;
+  margin: 0;
+}
+
+.ao-live-row { display: flex; align-items: center; gap: 7px; }
+
+.live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: $green;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 50% { opacity: 0.3; } }
+
+.live-txt { font-size: 12px; color: $text-muted; font-weight: 500; }
+
+.ao-header-right { display: flex; align-items: center; gap: 10px; }
+
+// Period tabs — individual pill buttons
+.period-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ptab {
+  padding: 5px 14px;
+  border-radius: 24px;
+  border: 1px solid $border;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-muted;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  &:hover:not(.active) {
+    border-color: #cbd5e1;
+    color: $text-main;
+  }
+
+  &.active {
+    background: $navy;
+    border-color: $navy;
+    color: #ffffff;
+  }
+}
+
+.icon-btn {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  mat-icon { font-size: 18px !important; color: $text-muted; }
+}
+
+// ── Main 2-column grid ────────────────────────────────────────────────────────
+.ao-main {
+  display: grid;
+  grid-template-columns: 520px 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+
+  @media (max-width: 1100px) { grid-template-columns: 1fr; }
+}
+
+// ── Hero card ─────────────────────────────────────────────────────────────────
+.hero-card {
+  background: $hero-bg;
+  border-radius: 16px;
+  padding: 22px 24px 18px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 520px;
+  height: 620px;
+}
+
+.hero-glow {
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(59,130,246,0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-pattern {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+// Top: info block + donut
+.hero-top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.rate-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+}
+
+.rate-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rate-val {
+  font-size: 48px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.rate-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+
+  mat-icon { font-size: 15px !important; width: 15px !important; height: 15px !important; }
+
+  &.up   { color: $green; mat-icon { color: $green; } }
+  &.down { color: $red;   mat-icon { color: $red;   } }
+}
+
+.rate-vs {
+  font-size: 13px;
+  color: rgba(255,255,255,0.38);
+  font-weight: 500;
+  margin-top: -2px;
+}
+
+.emp-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 7px 12px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.emp-icon {
+  font-size: 18px !important;
+  width: 22px !important;
+  height: 22px !important;
+  color: $blue;
+}
+
+.emp-num {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.emp-lbl {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+
+// Donut area
+.hero-donut-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  flex-shrink: 0;
+
+  canvas { width: 200px !important; height: 200px !important; }
+}
+
+.donut-center-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+
+  mat-icon {
+    font-size: 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    color: $blue;
+  }
+}
+
+// Line chart area — takes remaining height
+.hero-chart-wrap {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+
+  canvas { width: 100% !important; height: 100% !important; }
+}
+
+// ── Right column ──────────────────────────────────────────────────────────────
+.ao-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 620px;
+}
+
+// ── 4 stat cards (horizontal row) ────────────────────────────────────────────
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+
+  @media (max-width: 800px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.scard {
+  background: #ffffff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  border-top: 3px solid transparent;
+  padding: 16px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  height: 290px;
+  transition: box-shadow 0.15s;
+
+  &:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
+
+  &.sc-orange { border-top-color: $orange; }
+  &.sc-red    { border-top-color: $red; }
+  &.sc-purple { border-top-color: $purple; }
+  &.sc-teal   { border-top-color: $teal; }
+}
+
+.scard-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.scard-icon-wrap {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+
+  mat-icon { font-size: 20px !important; width: 20px !important; height: 20px !important; color: #fff; }
+}
+
+.ic-orange { background: $orange; }
+.ic-red    { background: $red; }
+.ic-purple { background: $purple; }
+.ic-teal   { background: $teal; }
+
+.scard-dots {
+  font-size: 16px !important;
+  color: $text-light;
+  cursor: pointer;
+}
+
+.scard-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  color: $text-muted;
+  text-transform: uppercase;
+}
+
+.scard-num {
+  font-size: 32px;
+  font-weight: 900;
+  color: $text-main;
+  line-height: 1;
+}
+
+.scard-trend {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  color: $text-muted;
+
+  mat-icon { font-size: 13px !important; width: 13px !important; height: 13px !important; }
+
+  &.trend-good { color: $green; mat-icon { color: $green; } }
+  &.trend-bad  { color: $red;   mat-icon { color: $red;   } }
+
+  .scard-vs { font-weight: 400; color: $text-light; margin-left: 2px; }
+}
+
+.spark-box {
+  margin-top: auto;
+  height: 60px;
+  margin-top: auto;
+  canvas { width: 100% !important; height: 60px !important; }
+}
+
+// ── Attendance trend card ─────────────────────────────────────────────────────
+.trend-card {
+  flex: 1;
+  min-height: 0;
+  background: #ffffff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 12px 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.trend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.trend-title-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trend-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-main;
+}
+
+.trend-info-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: $text-light;
+  cursor: pointer;
+}
+
+.trend-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 8px;
+}
+
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.leg-prev { color: $text-light; }
+
+.trend-period-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-main;
+  cursor: pointer;
+  background: #fff;
+
+  mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; }
+}
+
+.trend-canvas-wrap {
+  flex: 1;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+
+  canvas { width: 100% !important; height: 100% !important; }
+}
+
+// ── Insight bar ───────────────────────────────────────────────────────────────
+.insight-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: linear-gradient(135deg, #fff8f0 0%, #fff4e8 100%);
+  border-radius: 14px;
+  border: 1px solid #fde8cc;
+  overflow: hidden;
+}
+
+.ins-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  flex: 0 0 auto;
+  min-width: 280px;
+}
+
+.ins-icon-box {
+  width: 38px; height: 38px;
+  background: $navy;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 18px !important;
+    color: #fff;
+  }
+}
+
+.ins-body { display: flex; flex-direction: column; gap: 2px; }
+
+.ins-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: $navy;
+}
+
+.ins-text {
+  font-size: 13px;
+  color: #374151;
+  margin: 0;
+  line-height: 1.5;
+}
+
+::ng-deep .ins-text strong { color: $green; }
+
+.ins-divider {
+  width: 1px;
+  align-self: stretch;
+  background: #fdd5a0;
+  flex-shrink: 0;
+}
+
+.ins-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  padding: 12px 18px;
+}
+
+.ins-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  padding: 0 16px;
+  border-right: 1px solid #fdd5a0;
+
+  &:first-child { padding-left: 0; }
+  &:last-child  { border-right: none; }
+}
+
+.is-icon {
+  font-size: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+
+  &.ic-navy  { color: $blue; }
+  &.ic-green { color: $green; }
+  &.ic-red   { color: $red; }
+}
+
+.is-text { display: flex; flex-direction: column; gap: 1px; }
+
+.is-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.is-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: $text-main;
+  line-height: 1.1;
+
+  small {
+    font-size: 12px;
+    font-weight: 500;
+    color: $text-muted;
+  }
+}
+
+.ins-cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $navy;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s;
+
+  mat-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; }
+
+  &:hover { background: darken($navy, 5%); }
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+.sk-wrap {
+  display: grid;
+  grid-template-columns: 520px 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+@mixin shimmer {
+  background: linear-gradient(90deg, #f0f2f5 25%, #e8eaed 50%, #f0f2f5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 12px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.sk-hero  { @include shimmer; min-height: 480px; }
+.sk-right { display: flex; flex-direction: column; gap: 14px; }
+.sk-row   { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.sk-stat  { @include shimmer; height: 170px; }
+.sk-trend { @include shimmer; flex: 1; min-height: 240px; }
+
+// ── Error ─────────────────────────────────────────────────────────────────────
+.error-state {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; padding: 60px 24px;
+  color: $text-light; font-size: 14px;
+  mat-icon { font-size: 22px !important; }
+}

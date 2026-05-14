@@ -1,108 +1,518 @@
-// all-employees-attendance.component.scss
-.page-header-clean {
-  padding: 1.5rem 0 1.25rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, .08);
+// ── Palette ───────────────────────────────────────────────────────────────────
+$navy:           #1e3a5f;
+$navy-light:     #e8eef6;
+$navy-mid:       #c5cae9;
+$gold:           #d4920a;
+$gold-light:     #fef3c7;
+$text-primary:   #0f172a;
+$text-secondary: #64748b;
+$text-muted:     #94a3b8;
+$border:         #e2e8f0;
+$bg:             #f5f7fa;
+$white:          #ffffff;
+$red:            #dc2626;
+$red-light:      #fee2e2;
+$green:          #16a34a;
+$green-light:    #dcfce7;
+$purple:         #7c3aed;
+$purple-light:   #f3e8ff;
+$orange:         #ea580c;
+$orange-light:   #fff7ed;
 
-  &__breadcrumb {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    margin-bottom: 12px;
-    font-size: 12px;
-    color: #999;
+// ── Angular Material overrides ────────────────────────────────────────────────
+::ng-deep .mat-mdc-paginator {
+  background: transparent;
+  color: $text-secondary;
+}
+::ng-deep .mat-mdc-paginator-range-label { display: none; }
+::ng-deep .mat-mdc-progress-spinner circle,
+::ng-deep .mat-progress-spinner circle   { stroke: $navy !important; }
 
-    mat-icon {
-      width: 14px;
-      height: 14px;
-      font-size: 14px;
-      color: #ccc;
-    }
+// ── Page wrapper ──────────────────────────────────────────────────────────────
+.attendance-page {
+  padding: 32px 40px;
+  background: $bg;
+  min-height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-    span.active {
-      font-weight: 500;
-      color: #555;
-    }
-  }
+// ── Page Header ───────────────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
 
-  &__title {
-    h1 {
-      margin: 0 0 4px;
-      font-size: 24px;
-      font-weight: 500;
-    }
+.page-title {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 700;
+  color: $text-primary;
+  letter-spacing: -0.4px;
+}
 
-    p {
-      margin: 0;
-      font-size: 14px;
-      color: #666;
-    }
-  }
+.page-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: $text-secondary;
+}
+
+.page-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.record-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: $navy-light;
+  color: $navy;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+// ── Filters Card ──────────────────────────────────────────────────────────────
+.filters-card {
+  background: $white;
+  border: 1.5px solid $border;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.filters-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: $text-muted;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; }
 }
 
 .filters-row {
   display: flex;
   gap: 16px;
-  margin-bottom: 24px;
-
-  mat-form-field {
-    width: 180px;
-  }
+  flex-wrap: wrap;
+  align-items: flex-end;
 }
 
-.loading-container {
-  display: flex;
-  justify-content: center;
-  padding: 48px;
-}
-
-.error-message {
-  padding: 16px;
-  margin: 16px 0;
-  color: #f44336;
-  text-align: center;
-  background: #ffebee;
-  border-radius: 8px;
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-.full-width-table {
-  width: 100%;
-}
-
-.employee-info {
+.filter-group {
   display: flex;
   flex-direction: column;
-  
-  .department {
-    font-size: 12px;
-    color: #666;
+  gap: 6px;
+
+  &.search-group { flex: 1; min-width: 240px; }
+}
+
+.filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+// ── Native select ─────────────────────────────────────────────────────────────
+.select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: $white;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  height: 46px;
+  width: 180px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+
+  &:focus-within {
+    border-color: $navy;
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.10);
   }
 }
 
+.select-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 17px; width: 17px; height: 17px;
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 10px;
+  font-size: 20px; width: 20px; height: 20px;
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.filter-select {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: $text-primary;
+  padding: 0 36px 0 38px;
+  font-family: inherit;
+  appearance: none;
+  cursor: pointer;
+}
+
+// ── Search wrap ───────────────────────────────────────────────────────────────
+.search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 46px;
+  background: $white;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+
+  &:focus-within, &.active {
+    border-color: $navy;
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.10);
+  }
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 18px; width: 18px; height: 18px;
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.search-input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: $text-primary;
+  padding: 0 40px 0 42px;
+  font-family: inherit;
+
+  &::placeholder { color: $text-muted; }
+}
+
+.clear-btn {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $text-muted;
+  padding: 0;
+
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  &:hover { color: $text-primary; }
+}
+
+// ── Loading / Error ───────────────────────────────────────────────────────────
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 0;
+  color: $text-muted;
+  font-size: 14px;
+}
+
+.error-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: $red-light;
+  border: 1.5px solid #fca5a5;
+  border-radius: 12px;
+  color: $red;
+  font-size: 14px;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+}
+
+// ── Table Card ────────────────────────────────────────────────────────────────
+.table-card {
+  background: $white;
+  border: 1.5px solid $border;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.search-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 24px;
+  background: $navy-light;
+  font-size: 13px;
+  color: $navy;
+  border-bottom: 1px solid $border;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  .clear-search-link {
+    margin-left: 6px;
+    background: none;
+    border: none;
+    color: $navy;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    font-family: inherit;
+
+    &:hover { opacity: 0.75; }
+  }
+}
+
+.table-wrapper { overflow-x: auto; }
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+.attendance-table {
+  width: 100%;
+
+  .mat-mdc-header-row { background: #f8fafc; }
+
+  .mat-mdc-header-cell {
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    border-bottom: 1.5px solid $border;
+    padding: 16px 20px;
+    white-space: nowrap;
+  }
+
+  .mat-mdc-row,
+  .mat-mdc-header-row { min-height: 80px; }
+
+  .mat-mdc-cell {
+    font-size: 14px;
+    color: $text-primary;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 20px 20px;
+    vertical-align: middle;
+  }
+
+  .data-row {
+    transition: background 0.1s;
+    &:hover .mat-mdc-cell { background: $navy-light; }
+    &:last-child .mat-mdc-cell { border-bottom: none; }
+  }
+}
+
+// ── Employee cell ─────────────────────────────────────────────────────────────
+.employee-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.emp-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;  // ← was 50%
+  font-size: 14px;
+  font-weight: 700;
+  color: $white;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.emp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.emp-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.emp-dept {
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.emp-email {
+  font-size: 11.5px;
+  color: $text-muted;
+}
+
+// ── Date cell ─────────────────────────────────────────────────────────────────
+.date-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.date-main {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary;
+  white-space: nowrap;
+}
+
+.date-day {
+  font-size: 11.5px;
+  color: $text-muted;
+}
+
+// ── Time values ───────────────────────────────────────────────────────────────
+.time-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary;
+  font-variant-numeric: tabular-nums;
+
+  &.absent-time { color: $text-muted; }
+}
+
+// ── Status — dot + text, no pill ──────────────────────────────────────────────
+.status-dot-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &.status-present {
+    color: $navy;
+    .status-dot { background: $navy; box-shadow: 0 0 0 3px rgba(30,58,95,.15); }
+  }
+
+  &.status-late {
+    color: $gold;
+    .status-dot { background: $gold; box-shadow: 0 0 0 3px rgba(212,146,10,.15); }
+  }
+
+  &.status-early-departure {
+    color: $orange;
+    .status-dot { background: $orange; box-shadow: 0 0 0 3px rgba(234,88,12,.15); }
+  }
+
+  &.status-absent {
+    color: $red;
+    .status-dot { background: $red; box-shadow: 0 0 0 3px rgba(220,38,38,.15); }
+  }
+
+  &.status-half-day {
+    color: $purple;
+    .status-dot { background: $purple; box-shadow: 0 0 0 3px rgba(124,58,237,.15); }
+  }
+}
+
+// ── Hours ─────────────────────────────────────────────────────────────────────
+.hours-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary;
+  font-variant-numeric: tabular-nums;
+
+  &.no-value { color: $text-muted; }
+}
+
+.overtime-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-muted;
+  font-variant-numeric: tabular-nums;
+
+  &.has-ot { color: $navy; font-weight: 600; }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
 .no-data-cell {
-  padding: 32px !important;
-  color: #999;
-  text-align: center;
+  padding: 0 !important;
+  border: none !important;
 }
 
-// Status chip styling
-::ng-deep .mat-chip {
-  &.mat-primary {
-    color: white;
-    background-color: #4caf50;
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 72px 24px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px; width: 48px; height: 48px;
+    color: $text-muted;
+    opacity: 0.5;
+    margin-bottom: 12px;
   }
-  
-  &.mat-warn {
-    color: white;
-    background-color: #ff9800;
+
+  .empty-title {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-secondary;
   }
-  
-  &.mat-accent {
-    color: white;
-    background-color: #f44336;
+
+  .empty-hint {
+    margin: 0;
+    font-size: 13px;
+    color: $text-muted;
   }
+}
+
+// ── Pagination footer ─────────────────────────────────────────────────────────
+.pagination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 20px;
+  border-top: 1.5px solid $border;
+  background: #fafbfc;
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: $text-secondary;
+  padding-left: 4px;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 960px) {
+  .attendance-page { padding: 20px; }
+  .filters-row { flex-direction: column; align-items: stretch; }
+  .select-wrap { width: 100%; }
+  .filter-group.search-group { min-width: unset; }
 }

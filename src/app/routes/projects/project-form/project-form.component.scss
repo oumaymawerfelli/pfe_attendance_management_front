@@ -1,118 +1,563 @@
-.form-container {
-  max-width: 800px;
-  padding: 24px;
-  margin: 0 auto;
+// ── Variables — same palette as users/projects ────────────────────────────────
+$navy:           #1e3a5f;
+$navy-hover:     #16304f;
+$navy-light:     #e8eef6;
+$gold:           #d4920a;
+$gold-light:     #fef3c7;
+$text-primary:   #0f172a;
+$text-secondary: #64748b;
+$text-muted:     #94a3b8;
+$border:         #e2e8f0;
+$bg:             #f5f7fa;
+$white:          #ffffff;
+$red:            #dc2626;
+$red-light:      #fee2e2;
+$green:          #16a34a;
+$purple:         #7c3aed;
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+.form-page {
+  padding: 28px 32px;
+  background: $bg;
+  min-height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.form-header {
+// ── Breadcrumb ────────────────────────────────────────────────────────────────
+.breadcrumb {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 4px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.breadcrumb-link {
+  color: $navy;
+  cursor: pointer;
+  font-weight: 500;
+  &:hover { text-decoration: underline; }
+}
+
+.breadcrumb-sep {
+  font-size: 16px; width: 16px; height: 16px;
+  color: $text-muted;
+}
+
+.breadcrumb-current {
+  color: $text-secondary;
+}
+
+// ── Page Title ────────────────────────────────────────────────────────────────
+.page-title-row {
+  margin-bottom: 28px;
+}
+
+.page-title {
+  margin: 0 0 5px;
+  font-size: 26px;
+  font-weight: 700;
+  color: $text-primary;
+  letter-spacing: -0.4px;
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: $text-secondary;
+}
+
+// ── Two-column layout ─────────────────────────────────────────────────────────
+.form-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+// ── Form Sections ─────────────────────────────────────────────────────────────
+.form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-section {
+  background: $white;
+  border: 1.5px solid $border;
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 24px;
 }
 
-.form-title {
+.section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: $navy-light;
+  border-radius: 10px;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 20px; width: 20px; height: 20px;
+    color: $navy;
+  }
+}
+
+.section-title {
   margin: 0;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 600;
+  color: $text-primary;
 }
 
-.form-subtitle {
-  margin: 4px 0 0;
-  font-size: 14px;
-  color: #666;
-}
-
-.form-card {
-  padding: 8px;
-}
-
-.form-grid {
+// ── Field Blocks ──────────────────────────────────────────────────────────────
+.field-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.full-width {
-  width: 100%;
+  gap: 18px;
 }
 
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
 
-  mat-form-field {
-    width: 100%;
+.field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &.full { grid-column: 1 / -1; }
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-primary;
+
+  .required { color: $red; margin-left: 2px; }
+}
+
+// ── Input wrap ────────────────────────────────────────────────────────────────
+.input-wrap,
+.select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: $white;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  height: 46px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+
+  &:focus-within {
+    border-color: $navy;
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.10);
+  }
+
+  &.error {
+    border-color: $red;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
   }
 }
 
-.error-banner {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 12px;
+.input-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 18px; width: 18px; height: 18px;
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.field-input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
   font-size: 14px;
-  color: #c62828;
-  background: #ffebee;
-  border-radius: 4px;
+  color: $text-primary;
+  padding: 0 12px 0 40px;
+  font-family: inherit;
+
+  &::placeholder { color: $text-muted; }
 }
 
-.form-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  padding-top: 8px;
+// ── Select wrap ───────────────────────────────────────────────────────────────
+.field-select {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: $text-primary;
+  padding: 0 36px 0 40px;
+  font-family: inherit;
+  appearance: none;
+  cursor: pointer;
 }
 
-button[mat-raised-button] {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+.select-arrow {
+  position: absolute;
+  right: 10px;
+  font-size: 20px; width: 20px; height: 20px;
+  color: $text-muted;
+  pointer-events: none;
 }
 
-.filter-bar {
+// ── Textarea ──────────────────────────────────────────────────────────────────
+.textarea-wrap {
+  position: relative;
+}
+
+.field-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  font-size: 14px;
+  color: $text-primary;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.18s, box-shadow 0.18s;
+
+  &::placeholder { color: $text-muted; }
+
+  &:focus {
+    border-color: $navy;
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.10);
+  }
+}
+
+.char-count {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  font-size: 11px;
+  color: $text-muted;
+  pointer-events: none;
+}
+
+// ── Datepicker toggle ─────────────────────────────────────────────────────────
+.date-toggle {
+  position: absolute;
+  right: 4px;
+
+  ::ng-deep .mat-mdc-icon-button {
+    width: 36px; height: 36px;
+    color: $text-muted;
+  }
+}
+
+// ── Status options ────────────────────────────────────────────────────────────
+.status-options {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;  // ← pushes fields to opposite ends
-  padding: 20px 0 28px;
+  gap: 8px;
+}
 
-  .search-field {
-    flex: none;  // ← stops it from stretching
-    width: 320px;
+.status-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1.5px solid $border;
+  border-radius: 20px;
+  background: $white;
+  font-size: 13px;
+  font-weight: 500;
+  color: $text-secondary;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+
+  &:hover { border-color: $navy; color: $navy; background: $navy-light; }
+
+  &.selected {
+    border-color: $navy;
+    background: $navy-light;
+    color: $navy;
+    font-weight: 600;
+  }
+}
+
+// Status dots inside status-option buttons
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.dot-planned     { background: $navy;   }
+  &.dot-in_progress { background: $green;  }
+  &.dot-on_hold     { background: $gold;   }
+  &.dot-completed   { background: $purple; }
+  &.dot-cancelled   { background: $red;    }
+}
+
+// ── Field Error ───────────────────────────────────────────────────────────────
+.field-error {
+  font-size: 12px;
+  color: $red;
+  margin-top: 2px;
+}
+
+// ── Error Banner ──────────────────────────────────────────────────────────────
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: $red-light;
+  border: 1.5px solid #fca5a5;
+  border-radius: 10px;
+  font-size: 14px;
+  color: $red;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
+// ── Form Actions ──────────────────────────────────────────────────────────────
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: inherit;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+  &.btn-cancel {
+    background: $white;
+    color: $text-secondary;
+    border: 1.5px solid $border;
+    &:hover { background: #f1f5f9; border-color: #c8d0db; }
   }
 
-  .manager-filter {
-    width: 280px;
-  }
+  &.btn-submit {
+    background: $navy;
+    color: $white;
+    min-width: 180px;
+    justify-content: center;
 
-  .search-field,
-  .manager-filter {
-    .mat-mdc-form-field-infix {
-      padding-top: 18px;
-      padding-bottom: 8px;
+    &:hover:not(:disabled) {
+      background: $navy-hover;
+      box-shadow: 0 4px 16px rgba(30, 58, 95, 0.30);
     }
 
-    input,
-    .mat-mdc-select-trigger {
-      font-size: 15px;
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
+}
 
-  .clear-btn {
-    height: 52px;
-    padding: 0 24px;
-    margin-top: 4px;
+// ── Preview Column ────────────────────────────────────────────────────────────
+.preview-col {
+  position: sticky;
+  top: 24px;
+}
+
+.preview-card {
+  background: $white;
+  border: 1.5px solid $border;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid $border;
+  background: #fafbfc;
+
+  .preview-eye {
+    font-size: 20px; width: 20px; height: 20px;
+    color: $navy;
+  }
+
+  .preview-title {
+    margin: 0 0 2px;
     font-size: 14px;
-    letter-spacing: .3px;
-    border-radius: 8px;
+    font-weight: 600;
+    color: $text-primary;
   }
 
-  .result-count {
-    margin-top: 14px;
-    font-size: .9rem;
-    color: #888;
-    white-space: nowrap;
+  .preview-hint {
+    margin: 0;
+    font-size: 12px;
+    color: $text-muted;
   }
+}
+
+.preview-body {
+  padding: 20px;
+}
+
+.preview-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: $navy-light;
+  border-radius: 14px;
+  margin-bottom: 16px;
+
+  .preview-folder {
+    font-size: 28px; width: 28px; height: 28px;
+    color: $navy;
+  }
+}
+
+.preview-name {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+  color: $text-primary;
+  word-break: break-word;
+}
+
+.preview-desc {
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: $text-secondary;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.preview-divider {
+  height: 1px;
+  background: $border;
+  margin-bottom: 16px;
+}
+
+.preview-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+
+  &:last-child { margin-bottom: 0; }
+}
+
+.preview-row-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: $text-muted;
+}
+
+.preview-manager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.preview-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  background: $navy;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: $white;
+  flex-shrink: 0;
+}
+
+.preview-empty {
+  font-size: 13px;
+  color: $text-muted;
+  font-style: italic;
+}
+
+// Status dot in preview
+.preview-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  font-weight: 500;
+
+  .preview-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &.preview-status-planned     { color: $navy;   .preview-dot { background: $navy;   box-shadow: 0 0 0 3px rgba(30,58,95,.15);   } }
+  &.preview-status-in_progress { color: $green;  .preview-dot { background: $green;  box-shadow: 0 0 0 3px rgba(22,163,74,.15);  } }
+  &.preview-status-on_hold     { color: $gold;   .preview-dot { background: $gold;   box-shadow: 0 0 0 3px rgba(212,146,10,.15); } }
+  &.preview-status-completed   { color: $purple; .preview-dot { background: $purple; box-shadow: 0 0 0 3px rgba(124,58,237,.15); } }
+  &.preview-status-cancelled   { color: $red;    .preview-dot { background: $red;    box-shadow: 0 0 0 3px rgba(220,38,38,.15);  } }
+}
+
+.preview-dates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: $text-primary;
+  flex-wrap: wrap;
+
+  .preview-date-icon {
+    font-size: 14px; width: 14px; height: 14px;
+    color: $text-muted;
+  }
+
+  .preview-arrow {
+    font-size: 14px; width: 14px; height: 14px;
+    color: $text-muted;
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 960px) {
+  .form-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-col { position: static; }
+
+  .two-col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .form-page { padding: 16px; }
+  .status-options { flex-direction: column; }
 }

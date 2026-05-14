@@ -1,98 +1,232 @@
-<!-- Filter toggle -->
-<div class="filter-row">
-  <button mat-button
-          [class.active]="filter === 'PENDING'"
-          (click)="filter = 'PENDING'; load()">
-    Pending
-  </button>
-  <button mat-button
-          [class.active]="filter === 'ALL'"
-          (click)="filter = 'ALL'; load()">
-    All Requests
-  </button>
+<!-- ── Page header ──────────────────────────────────────────────────────────── -->
+<div class="page-header">
+  <h1 class="page-title">{{ pageTitle }}</h1>
+  <p class="page-subtitle">{{ pageSubtitle }}</p>
 </div>
 
-<mat-card>
-  <mat-card-content>
+<!-- ── Toolbar ───────────────────────────────────────────────────────────────── -->
+<div class="toolbar">
 
-    <div *ngIf="loading" class="loading-center">
-      <mat-spinner diameter="40"></mat-spinner>
-    </div>
+  <!-- Filter toggle: Pending / All Requests -->
+  <div class="filter-toggle">
+    <button type="button"
+            class="toggle-btn"
+            [class.active]="activeFilter === 'PENDING'"
+            (click)="setFilter('PENDING')">
+      Pending
+    </button>
+    <button type="button"
+            class="toggle-btn"
+            [class.active]="activeFilter === 'ALL'"
+            (click)="setFilter('ALL')">
+      All Requests
+    </button>
+  </div>
 
-    <div *ngIf="!loading && dataSource.data.length === 0" class="empty-state">
-      <mat-icon>inbox</mat-icon>
-      <p>No leave requests found.</p>
-    </div>
+  <!-- Search -->
+  <div class="search-wrap">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input class="search-input"
+           [(ngModel)]="searchText"
+           (input)="applySearch()"
+           placeholder="Search employee, type…">
+    <button *ngIf="hasSearch" class="clear-search" (click)="clearSearch()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
 
-    <mat-table [dataSource]="dataSource" matSort
-               *ngIf="!loading && dataSource.data.length > 0">
+  <!-- Filter button (visual only — wire to a side sheet when ready) -->
+  <button class="filter-btn">
+    <mat-icon>filter_list</mat-icon>
+    Filter
+  </button>
 
-      <ng-container matColumnDef="employee">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>Employee</mat-header-cell>
-        <mat-cell *matCellDef="let row">
+</div>
+
+<!-- ── Loading ───────────────────────────────────────────────────────────────── -->
+<div *ngIf="loading" class="loading-center">
+  <mat-spinner diameter="40"></mat-spinner>
+</div>
+
+<!-- ── Table ─────────────────────────────────────────────────────────────────── -->
+<div class="table-wrap" *ngIf="!loading">
+  <mat-table [dataSource]="dataSource" matSort class="leaves-table">
+
+    <!-- Employee ──────────────────────────────────────────────────────── -->
+    <ng-container matColumnDef="employee">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Employee</mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <div class="employee-cell">
+          <div class="avatar"
+               [style.background]="avatarColor(row.userFullName)">
+            {{ initials(row.userFullName) }}
+          </div>
           <span class="employee-name">{{ row.userFullName }}</span>
-        </mat-cell>
-      </ng-container>
+        </div>
+      </mat-cell>
+    </ng-container>
 
-      <ng-container matColumnDef="department">
-        <mat-header-cell *matHeaderCellDef>Department</mat-header-cell>
-        <mat-cell *matCellDef="let row">{{ row.userDepartment }}</mat-cell>
-      </ng-container>
+    <!-- Department ────────────────────────────────────────────────────── -->
+    <ng-container matColumnDef="department">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Department</mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span class="dept-text">{{ row.userDepartment }}</span>
+      </mat-cell>
+    </ng-container>
 
-      <ng-container matColumnDef="type">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>Type</mat-header-cell>
-        <mat-cell *matCellDef="let row">{{ typeLabel(row.leaveType) }}</mat-cell>
-      </ng-container>
-
-      <ng-container matColumnDef="dates">
-        <mat-header-cell *matHeaderCellDef>Dates</mat-header-cell>
-        <mat-cell *matCellDef="let row">
-          {{ row.startDate | date:'dd MMM' }} → {{ row.endDate | date:'dd MMM yyyy' }}
-        </mat-cell>
-      </ng-container>
-
-      <ng-container matColumnDef="days">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>Days</mat-header-cell>
-        <mat-cell *matCellDef="let row">{{ row.daysCount }}</mat-cell>
-      </ng-container>
-
-      <ng-container matColumnDef="status">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
-        <mat-cell *matCellDef="let row">
-          <span class="status-badge" [class]="'badge-' + row.status.toLowerCase()">
-            {{ row.status }}
+    <!-- Type ──────────────────────────────────────────────────────────── -->
+    <ng-container matColumnDef="type">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Type</mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <div class="type-chip">
+          <!-- Colored icon square -->
+          <span class="type-icon-wrap"
+                [style.background]="typeChipBg(row.leaveType)">
+            <mat-icon [style.color]="typeChipIconColor(row.leaveType)">
+              {{ typeChipIcon(row.leaveType) }}
+            </mat-icon>
           </span>
-        </mat-cell>
-      </ng-container>
+          <span class="type-label">{{ typeLabel(row.leaveType) }}</span>
+        </div>
+      </mat-cell>
+    </ng-container>
 
-   <ng-container matColumnDef="actions">
-  <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-  <mat-cell *matCellDef="let row">
+    <!-- Dates ─────────────────────────────────────────────────────────── -->
+    <ng-container matColumnDef="dates">
+      <mat-header-cell *matHeaderCellDef>Dates</mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <div class="dates-cell">
+          <span class="dates-range">
+            {{ row.startDate | date:'dd MMM' }} → {{ row.endDate | date:'dd MMM' }}
+          </span>
+          <span class="dates-year">{{ row.endDate | date:'yyyy' }}</span>
+        </div>
+      </mat-cell>
+    </ng-container>
 
-    <!-- Review (pending) or View details (decided) -->
-    <button mat-icon-button
-            [matTooltip]="row.status === 'PENDING' ? 'Review' : 'View Details'"
-            (click)="openDetail(row, row.status === 'PENDING')">
-      <mat-icon>{{ row.status === 'PENDING' ? 'rate_review' : 'visibility' }}</mat-icon>
-    </button>
+    <!-- Days ──────────────────────────────────────────────────────────── -->
+    <ng-container matColumnDef="days">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Days</mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span class="days-pill">{{ row.daysCount }}</span>
+      </mat-cell>
+    </ng-container>
 
-    <!-- View authorization letter — only when PDF was generated -->
-    <button mat-icon-button
-            color="primary"
-            matTooltip="View Authorization Letter"
-            *ngIf="hasDocument(row)"
-            (click)="viewDocument(row)">
-      <mat-icon>picture_as_pdf</mat-icon>
-    </button>
+    <!-- Status ────────────────────────────────────────────────────────── -->
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
+   <mat-cell *matCellDef="let row">
+  <span class="status-dot-row status-dot-row--{{ statusClass(row.status) }}">
+    <span class="status-dot"></span>
+    {{ statusLabel(row.status) }}
+  </span>
+</mat-cell>
+    </ng-container>
 
-  </mat-cell>
-</ng-container>
+    <!-- Actions ───────────────────────────────────────────────────────── -->
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <button mat-icon-button
+                class="menu-trigger"
+                [matMenuTriggerFor]="rowMenu"
+                (click)="$event.stopPropagation()">
+          <mat-icon>more_vert</mat-icon>
+        </button>
 
-      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-    </mat-table>
+        <mat-menu #rowMenu="matMenu" xPosition="before">
+          <button mat-menu-item (click)="openDetail(row)">
+            <mat-icon>{{ isPending(row.status) ? 'rate_review' : 'visibility' }}</mat-icon>
+            <span>{{ isPending(row.status) ? 'Review' : 'View Details' }}</span>
+          </button>
+          <button mat-menu-item
+                  *ngIf="hasDocument(row)"
+                  (click)="viewDocument(row)">
+            <mat-icon>picture_as_pdf</mat-icon>
+            <span>Authorization Letter</span>
+          </button>
+        </mat-menu>
+      </mat-cell>
+    </ng-container>
 
-    <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"
+             class="data-row"
+             (click)="openDetail(row)">
+    </mat-row>
 
-  </mat-card-content>
-</mat-card>
+    <!-- Empty state -->
+    <tr class="mat-row empty-row" *matNoDataRow>
+      <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+        <div class="empty-state">
+          <mat-icon>{{ hasSearch ? 'search_off' : 'inbox' }}</mat-icon>
+          <p *ngIf="!hasSearch && activeFilter === 'PENDING'">
+            No pending requests. All caught up! 🎉
+          </p>
+          <p *ngIf="!hasSearch && activeFilter === 'ALL'">No leave requests found.</p>
+          <p *ngIf="hasSearch">
+            No results for "<strong>{{ searchText }}</strong>".
+            <button mat-button color="primary" (click)="clearSearch()">Clear</button>
+          </p>
+        </div>
+      </td>
+    </tr>
+
+  </mat-table>
+
+  <!-- ── Custom pagination footer ──────────────────────────────────────── -->
+  <div class="pagination-footer">
+
+    <span class="pagination-info">
+      Showing {{ showingFrom }} to {{ showingTo }} of {{ totalFiltered }} entries
+    </span>
+
+    <div class="pagination-controls">
+      <span class="rows-label">Rows per page</span>
+
+      <!-- Rows-per-page selector -->
+      <mat-select class="rows-select"
+                  [(value)]="pageSize"
+                  (selectionChange)="paginator.pageSize = pageSize; paginator.firstPage(); pageIndex = 0">
+        <mat-option *ngFor="let n of pageSizeOptions" [value]="n">{{ n }}</mat-option>
+      </mat-select>
+
+      <!-- Hidden paginator drives the data source -->
+      <mat-paginator #paginatorRef
+                     [pageSizeOptions]="pageSizeOptions"
+                     [pageSize]="pageSize"
+                     (page)="onPage($event)"
+                     style="display:none">
+      </mat-paginator>
+
+      <!-- Page navigation -->
+      <div class="page-nav">
+        <button class="page-nav-btn" (click)="paginatorRef.firstPage()" [disabled]="pageIndex === 0">
+          <mat-icon>first_page</mat-icon>
+        </button>
+        <button class="page-nav-btn" (click)="paginatorRef.previousPage()" [disabled]="pageIndex === 0">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <!-- Page number buttons — show up to 5 around current page -->
+        <ng-container *ngFor="let p of pageNumbers">
+          <button class="page-num-btn"
+                  [class.active]="p === pageIndex + 1"
+                  (click)="paginatorRef.pageIndex = p - 1; paginatorRef.page.emit({ pageIndex: p - 1, pageSize: pageSize, length: totalFiltered }); pageIndex = p - 1">
+            {{ p }}
+          </button>
+        </ng-container>
+
+        <button class="page-nav-btn" (click)="paginatorRef.nextPage()"
+                [disabled]="showingTo >= totalFiltered">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+        <button class="page-nav-btn" (click)="paginatorRef.lastPage()"
+                [disabled]="showingTo >= totalFiltered">
+          <mat-icon>last_page</mat-icon>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

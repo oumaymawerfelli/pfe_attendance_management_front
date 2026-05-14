@@ -29,8 +29,15 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['ChromeHeadlessNoSandbox'],
+    // ✅ Chrome visible par défaut — interface Karma graphique
+    browsers: ['ChromeWithUI'],
     customLaunchers: {
+      // Interface graphique — ouvre une vraie fenêtre Chrome sur localhost:9876
+      ChromeWithUI: {
+        base: 'Chrome',
+        flags: ['--no-sandbox', '--disable-gpu', '--remote-debugging-port=9222']
+      },
+      // Sans interface — pour la CI ou les runs rapides
       ChromeHeadlessNoSandbox: {
         base: 'ChromeHeadless',
         flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=9222']

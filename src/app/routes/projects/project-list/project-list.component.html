@@ -1,216 +1,195 @@
 <div class="projects-container">
 
-  <!-- Header -->
+  <!-- ── Page Header ─────────────────────────────────────────────────────── -->
   <div class="page-header">
     <div class="header-left">
-      <h1 class="page-title">
-        <mat-icon color="primary">folder_special</mat-icon>
-        Project Management
-      </h1>
-      <p class="page-subtitle">Manage and track all company projects</p>
+      <h1>Project Management</h1>
+      <p class="page-description">Manage and track all company projects in one place.</p>
     </div>
-    <button *ngIf="isAdminOrGM$ | async" mat-raised-button color="primary" (click)="createProject()">
-      <mat-icon>add</mat-icon>
-      New Project
-    </button>
+    <div class="header-actions">
+      <button class="btn btn-primary" *ngIf="isAdminOrGM" (click)="createProject()">
+        <mat-icon>add</mat-icon>
+        <span>New Project</span>
+      </button>
+    </div>
   </div>
 
-  <!-- Stats Cards -->
-  <div class="stats-row">
-    <mat-card class="stat-card">
-      <mat-icon color="primary">folder</mat-icon>
-      <div>
-        <p class="stat-number">{{ totalElements }}</p>
+  <!-- ── Stats Cards ─────────────────────────────────────────────────────── -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon-wrapper total"><mat-icon>folder</mat-icon></div>
+      <div class="stat-info">
+        <p class="stat-value">{{ totalElements }}</p>
         <p class="stat-label">Total Projects</p>
       </div>
-    </mat-card>
-    <mat-card class="stat-card">
-      <mat-icon style="color: #4caf50">play_circle</mat-icon>
-      <div>
-        <p class="stat-number">{{ countByStatus('IN_PROGRESS') }}</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon-wrapper active"><mat-icon>play_circle</mat-icon></div>
+      <div class="stat-info">
+        <p class="stat-value">{{ countByStatus('IN_PROGRESS') }}</p>
         <p class="stat-label">In Progress</p>
       </div>
-    </mat-card>
-    <mat-card class="stat-card">
-      <mat-icon style="color: #ff9800">schedule</mat-icon>
-      <div>
-        <p class="stat-number">{{ countByStatus('PLANNED') }}</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon-wrapper planned"><mat-icon>schedule</mat-icon></div>
+      <div class="stat-info">
+        <p class="stat-value">{{ countByStatus('PLANNED') }}</p>
         <p class="stat-label">Planned</p>
       </div>
-    </mat-card>
-    <mat-card class="stat-card">
-      <mat-icon style="color: #9c27b0">check_circle</mat-icon>
-      <div>
-        <p class="stat-number">{{ countByStatus('COMPLETED') }}</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon-wrapper completed"><mat-icon>check_circle</mat-icon></div>
+      <div class="stat-info">
+        <p class="stat-value">{{ countByStatus('COMPLETED') }}</p>
         <p class="stat-label">Completed</p>
       </div>
-    </mat-card>
+    </div>
   </div>
 
-  <!-- Projects Table -->
-  <mat-card class="table-card">
-    <mat-card-content>
+  <!-- ── Filters ─────────────────────────────────────────────────────────── -->
+  <div class="filters-section">
+    <div class="search-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" class="search-input"
+             [value]="searchKeyword"
+             (input)="onSearchChange($any($event.target).value)"
+             placeholder="Search by name, code or description...">
+      <button *ngIf="searchKeyword" class="clear-search-btn" (click)="onSearchChange('')">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
 
-      <!-- Search & Filter Bar -->
-      <div class="filter-bar">
+    <div class="filter-actions">
+      <button class="filter-dropdown" [matMenuTriggerFor]="managerMenu">
+        <span>{{ selectedManager || 'All Managers' }}</span>
+        <mat-icon>keyboard_arrow_down</mat-icon>
+      </button>
+      <mat-menu #managerMenu="matMenu">
+        <button mat-menu-item (click)="selectedManager = ''; applyFilters()">All Managers</button>
+        <button mat-menu-item *ngFor="let m of managerOptions"
+                (click)="selectedManager = m; applyFilters()">{{ m }}</button>
+      </mat-menu>
 
-        <!-- LEFT: Search -->
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search projects</mat-label>
-          <input matInput
-                 [value]="searchKeyword"
-                 (input)="onSearchChange($any($event.target).value)"
-                 placeholder="Name, code or description…">
-          <mat-icon matPrefix>search</mat-icon>
-          <button *ngIf="searchKeyword" matSuffix mat-icon-button
-                  (click)="onSearchChange('')" aria-label="Clear search">
-            <mat-icon>close</mat-icon>
-          </button>
-        </mat-form-field>
+      <button class="filter-btn" *ngIf="hasActiveFilters" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        <span>Clear filters</span>
+      </button>
 
-        <!-- SPACER -->
-        <span class="filter-spacer"></span>
+      <span class="result-count" *ngIf="hasActiveFilters">
+        {{ projects.length }} result{{ projects.length !== 1 ? 's' : '' }}
+      </span>
+    </div>
+  </div>
 
-        <!-- RIGHT: Manager + Clear + Count -->
-        <div class="filter-right">
-          <mat-form-field appearance="outline" class="manager-filter">
-            <mat-label>Project Manager</mat-label>
-            <mat-select [(ngModel)]="selectedManager"
-                        (selectionChange)="onManagerFilterChange()">
-              <mat-option value="">All managers</mat-option>
-              <mat-option *ngFor="let m of managerOptions" [value]="m">{{ m }}</mat-option>
-            </mat-select>
-            <mat-icon matPrefix>person</mat-icon>
-          </mat-form-field>
+  <!-- ── Table Card ──────────────────────────────────────────────────────── -->
+  <div class="table-card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th><span class="th-content">CODE</span></th>
+            <th><span class="th-content">PROJECT NAME</span></th>
+            <th><span class="th-content">STATUS</span></th>
+            <th><span class="th-content">PROJECT MANAGER</span></th>
+            <th><span class="th-content">TIMELINE</span></th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of projects" class="project-row" (click)="viewProject(p)">
 
-          <button *ngIf="hasActiveFilters" mat-stroked-button color="warn"
-                  (click)="clearFilters()" class="clear-btn">
-            <mat-icon>filter_alt_off</mat-icon>
-            Clear filters
-          </button>
+            <!-- Code -->
+            <td><span class="project-code">{{ p.code }}</span></td>
 
-          <span class="result-count" *ngIf="hasActiveFilters">
-            {{ projects.length }} result{{ projects.length !== 1 ? 's' : '' }}
-          </span>
-        </div>
-
-      </div>
-
-      <!-- Loading -->
-      <div *ngIf="isLoading" class="loading-container">
-        <mat-spinner diameter="48"></mat-spinner>
-      </div>
-
-      <table *ngIf="!isLoading" mat-table [dataSource]="projects" class="projects-table">
-
-        <!-- Code -->
-        <ng-container matColumnDef="code">
-          <th mat-header-cell *matHeaderCellDef>Code</th>
-          <td mat-cell *matCellDef="let p">
-            <span class="project-code">{{ p.code }}</span>
-          </td>
-        </ng-container>
-
-        <!-- Name -->
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Project Name</th>
-          <td mat-cell *matCellDef="let p">
-            <div class="project-name-cell">
-              <mat-icon color="primary">folder</mat-icon>
-              <div>
-                <p class="project-name">{{ p.name }}</p>
-                <p class="project-desc">{{ p.description | slice:0:50 }}{{ p.description?.length > 50 ? '...' : '' }}</p>
+            <!-- Name -->
+            <td>
+              <div class="project-name-cell">
+                <mat-icon class="folder-icon">folder</mat-icon>
+                <div>
+                  <div class="project-name">{{ p.name }}</div>
+                  <div class="project-desc" *ngIf="p.description">
+{{ p.description | slice:0:50 }}{{ (p.description?.length ?? 0) > 50 ? '…' : '' }}                  </div>
+                </div>
               </div>
-            </div>
-          </td>
-        </ng-container>
+            </td>
 
-        <!-- Status -->
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let p">
-            <span class="status-badge" [ngClass]="'status-' + p.status.toLowerCase()">
-              {{ getStatusLabel(p.status) }}
-            </span>
-          </td>
-        </ng-container>
-
-        <!-- Manager -->
-        <ng-container matColumnDef="manager">
-          <th mat-header-cell *matHeaderCellDef>Project Manager</th>
-          <td mat-cell *matCellDef="let p">
-            <div class="manager-cell" *ngIf="p.projectManagerName">
-              <div class="manager-avatar">{{ getInitials(p.projectManagerName) }}</div>
-              <span>{{ p.projectManagerName }}</span>
-            </div>
-            <span *ngIf="!p.projectManagerName" class="no-manager">— Unassigned</span>
-          </td>
-        </ng-container>
-
-        <!-- Dates -->
-        <ng-container matColumnDef="dates">
-          <th mat-header-cell *matHeaderCellDef>Timeline</th>
-          <td mat-cell *matCellDef="let p">
-            <div class="dates-cell">
-              <span class="date-item">
-                <mat-icon>calendar_today</mat-icon>
-                {{ p.startDate | date:'MMM d, y' }}
+            <!-- Status -->
+            <td>
+              <span class="status-badge" [ngClass]="p.status.toLowerCase()">
+                <span class="status-dot"></span>
+                {{ getStatusLabel(p.status) }}
               </span>
-              <span class="date-arrow">→</span>
-              <span class="date-item" [class.overdue]="isOverdue(p)">
-                {{ p.endDate | date:'MMM d, y' }}
-              </span>
-            </div>
-          </td>
-        </ng-container>
+            </td>
 
-        <!-- Actions -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let p">
-            <div class="actions-cell">
-              <button mat-icon-button color="primary" (click)="viewProject(p)" matTooltip="View Details">
-                <mat-icon>visibility</mat-icon>
-              </button>
-              <!-- ADMIN/GM ONLY -->
-              <ng-container *ngIf="isAdminOrGM$ | async">
-                <button mat-icon-button color="accent" (click)="editProject(p)" matTooltip="Edit">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" (click)="deleteProject(p)" matTooltip="Delete">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </ng-container>
-            </div>
-          </td>
-        </ng-container>
+            <!-- Manager -->
+            <td>
+              <div class="manager-cell" *ngIf="p.projectManagerName; else unassigned">
+                <div class="manager-avatar">{{ getInitials(p.projectManagerName) }}</div>
+                <span class="manager-name">{{ p.projectManagerName }}</span>
+              </div>
+              <ng-template #unassigned>
+                <span class="no-manager">— Unassigned</span>
+              </ng-template>
+            </td>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-            class="project-row"
-            (click)="viewProject(row)"></tr>
+            <!-- Timeline -->
+            <td>
+              <div class="dates-cell">
+                <mat-icon class="date-icon">calendar_today</mat-icon>
+                <span [class.overdue-date]="isOverdue(p)">{{ p.startDate | date:'MMM d, y' }}</span>
+                <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                <span [class.overdue-date]="isOverdue(p)">
+                  {{ p.endDate ? (p.endDate | date:'MMM d, y') : '—' }}
+                </span>
+              </div>
+            </td>
+
+            <!-- Actions -->
+            <td (click)="$event.stopPropagation()">
+  <div class="actions-cell">
+    <button class="action-btn view-btn" (click)="viewProject(p)" matTooltip="View Details">
+      <mat-icon>visibility</mat-icon>
+    </button>
+    <ng-container *ngIf="isAdminOrGM">
+      <button class="action-btn edit-btn" (click)="editProject(p)" matTooltip="Edit">
+        <mat-icon>edit</mat-icon>
+      </button>
+      
+    </ng-container>
+  </div>
+</td>
+
+          </tr>
+        </tbody>
       </table>
+    </div>
 
-      <!-- Empty State -->
-      <div *ngIf="!isLoading && projects.length === 0" class="empty-state">
-        <mat-icon>folder_open</mat-icon>
-        <h3>No projects found</h3>
-        <p>Create your first project to get started</p>
-        <button mat-raised-button color="primary" (click)="createProject()">
-          <mat-icon>add</mat-icon> Create Project
+    <!-- Loading -->
+    <div class="loading-shade" *ngIf="isLoading">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="!isLoading && projects.length === 0">
+      <mat-icon>folder_open</mat-icon>
+      <p>{{ hasActiveFilters ? 'No projects match your filters.' : 'No projects found.' }}</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="!isLoading && totalElements > 0">
+      <div class="pagination-info">
+        Showing {{ pageStart }} to {{ pageEnd }} of {{ totalElements }} projects
+      </div>
+      <div class="pagination-controls">
+        <button class="page-btn" [disabled]="currentPage === 0" (click)="prevPage()">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button class="page-btn active">{{ currentPage + 1 }}</button>
+        <button class="page-btn" [disabled]="pageEnd >= totalElements" (click)="nextPage()">
+          <mat-icon>chevron_right</mat-icon>
         </button>
       </div>
-
-      <!-- Paginator -->
-      <mat-paginator
-        *ngIf="totalElements > 0"
-        [length]="totalElements"
-        [pageSize]="pageSize"
-        [pageSizeOptions]="[5, 10, 25]"
-        (page)="onPageChange($event)">
-      </mat-paginator>
-
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 
 </div>

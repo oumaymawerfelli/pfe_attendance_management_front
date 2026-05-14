@@ -81,9 +81,14 @@ export class ProfileLayoutComponent implements OnInit, OnDestroy {
       });
   }
 
-  contactUser(): void {
-    if (this.user?.email) {
-      window.location.href = `mailto:${this.user.email}`;
-    }
+contactUser(): void {
+  if (this.user?.email) {
+    this.navigate(`mailto:${this.user.email}`);
   }
+}
+
+/** Isolated for testability — never touches window.location directly in tests */
+protected navigate(url: string): void {
+  window.location.href = url;
+}
 }

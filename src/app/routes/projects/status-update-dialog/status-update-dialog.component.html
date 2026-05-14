@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>Update Project Status</h2>
+
+    <mat-dialog-content>
+      <p class="project-name">{{ data.projectName }}</p>
+
+      <div class="transition-row">
+        <span class="status-badge" [ngClass]="'status-' + data.currentStatus.toLowerCase()">
+          {{ getLabel(data.currentStatus) }}
+        </span>
+        <mat-icon class="arrow">arrow_forward</mat-icon>
+        <span class="status-badge" [ngClass]="'status-' + data.newStatus.toLowerCase()">
+          {{ data.newStatusLabel }}
+        </span>
+      </div>
+
+      <form [formGroup]="form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            Reason
+            <span *ngIf="data.requiresReason" class="required">*</span>
+          </mat-label>
+          <textarea matInput formControlName="reason" rows="3" autocomplete="off"
+  [placeholder]="data.requiresReason
+    ? 'A reason is required for this transition'
+    : 'Optional — describe why the status is changing'">
+</textarea>
+          <mat-error *ngIf="form.get('reason')?.hasError('required')">
+            Reason is required for this status transition
+          </mat-error>
+          <mat-hint align="end">{{ form.get('reason')?.value?.length || 0 }}/500</mat-hint>
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="cancel()">Cancel</button>
+      <button mat-raised-button
+              [color]="data.newStatus === 'CANCELLED' ? 'warn' : 'primary'"
+              [disabled]="form.invalid"
+              (click)="confirm()">
+        Confirm
+      </button>
+    </mat-dialog-actions>

@@ -168,7 +168,7 @@
   "register.hireDate": "Hire date",
   "register.contractType": "Contract type",
   "register.contractEndDate": "Contract end date",
-  "register.baseSalary": "Base salary",
+  
   "register.housingAllowance": "Housing allowance",
   "register.evaluationScore": "Evaluation score (0-5)",
   "register.socialSecurityNumber": "Social security number",

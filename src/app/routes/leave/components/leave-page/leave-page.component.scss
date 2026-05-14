@@ -1,19 +1,39 @@
-.page-header-clean {
+// ─────────────────────────────────────────────────────────────────────────────
+// Page header
+// ─────────────────────────────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
   padding: 1.5rem 0 1.25rem;
   margin-bottom: 1.5rem;
-  border-bottom: .5px solid rgba(0,0,0,.08);
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 599px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  &__left { flex: 1; }
 
   &__breadcrumb {
     display: flex;
-    gap: 2px;
     align-items: center;
+    gap: 2px;
     margin-bottom: 10px;
     font-size: 12px;
     color: #999;
 
-    span { color: #999; }
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: #ccc;
+    }
+
+    span       { color: #999; }
     span.active { font-weight: 500; color: #555; }
-    mat-icon { color: #ccc; }
   }
 
   &__title {
@@ -23,6 +43,8 @@
       font-weight: 500;
       line-height: 1.2;
       color: #1a1a1a;
+      // Animate when the tab changes
+      transition: opacity 0.15s ease;
     }
 
     p {
@@ -31,4 +53,38 @@
       color: #888;
     }
   }
+
+  &__actions {
+    flex-shrink: 0;
+
+    button mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+  }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tab group wrapper
+// ─────────────────────────────────────────────────────────────────────────────
+.page-card {
+  // Remove mat-card's default padding so the tab header sits flush
+  padding: 0 !important;
+
+  // Let mat-card-content inside child components handle their own padding
+  ::ng-deep .mat-mdc-card-content { padding: 0; }
+}
+
+.tab-body {
+  padding: 24px;
+
+  @media (max-width: 599px) { padding: 16px; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Spacing util (used on app-leave-balance-cards)
+// ─────────────────────────────────────────────────────────────────────────────
+.m-b-20 { margin-bottom: 20px; }

@@ -1,82 +1,298 @@
-<!-- Success message -->
-<mat-card class="success-card m-b-16" *ngIf="success">
-  <mat-card-content class="flex items-center gap-8">
-    <mat-icon color="primary">check_circle</mat-icon>
-    <span>Your leave request has been submitted successfully.</span>
-    <button mat-button color="primary" (click)="success = false">Submit another</button>
-  </mat-card-content>
-</mat-card>
+<!-- ── Loading ──────────────────────────────────────────────────────────────── -->
+<div class="loading-state" *ngIf="loading">
+  <mat-spinner diameter="36"></mat-spinner>
+</div>
 
-<!-- Error message -->
-<mat-card class="error-card m-b-16" *ngIf="error">
-  <mat-card-content class="flex items-center gap-8">
-    <mat-icon color="warn">error</mat-icon>
-    <span>{{ error }}</span>
-  </mat-card-content>
-</mat-card>
+<!-- ── Success banner ──────────────────────────────────────────────────────── -->
+<div class="status-banner success-banner" *ngIf="success">
+  <mat-icon>check_circle</mat-icon>
+  <span>Leave request submitted successfully.</span>
+  <button mat-button (click)="success = false">Submit another</button>
+</div>
 
-<form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!success">
-  <!-- Leave type -->
-  <mat-form-field appearance="outline" class="w-full m-b-16">
-    <mat-label>Leave Type</mat-label>
-    <mat-select formControlName="leaveType">
-      <mat-option *ngFor="let t of leaveTypes" [value]="t.value">
-        <mat-icon>{{ t.icon }}</mat-icon>
-        {{ t.label }}
-      </mat-option>
-    </mat-select>
-    <mat-error *ngIf="form.get('leaveType')?.hasError('required')">
-      Leave type is required
-    </mat-error>
-  </mat-form-field>
+<!-- ── Error banner ────────────────────────────────────────────────────────── -->
+<div class="status-banner error-banner" *ngIf="error">
+  <mat-icon>error_outline</mat-icon>
+  <span>{{ error }}</span>
+  <button mat-icon-button (click)="error = ''">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
 
-  <!-- Date range -->
-  <div class="date-row m-b-16">
-    <mat-form-field appearance="outline">
-      <mat-label>Start Date</mat-label>
-      <input matInput [matDatepicker]="startPicker"
-             formControlName="startDate"
-             [min]="today">
-      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-      <mat-datepicker #startPicker></mat-datepicker>
-      <mat-error *ngIf="form.get('startDate')?.hasError('required')">
-        Start date is required
-      </mat-error>
-    </mat-form-field>
+<!-- ── Main form ───────────────────────────────────────────────────────────── -->
+<form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!loading" autocomplete="off">
+  <div class="form-layout">
 
-    <mat-form-field appearance="outline">
-      <mat-label>End Date</mat-label>
-      <input matInput [matDatepicker]="endPicker"
-             formControlName="endDate"
-             [min]="minEndDate">
-      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-      <mat-datepicker #endPicker></mat-datepicker>
-      <mat-error *ngIf="form.get('endDate')?.hasError('required')">
-        End date is required
-      </mat-error>
-    </mat-form-field>
-  </div>
+    <!-- ── Left: steps ──────────────────────────────────────────────────── -->
+    <main class="form-main">
 
-  <!-- Reason -->
-  <mat-form-field appearance="outline" class="w-full m-b-16">
-    <mat-label>Reason</mat-label>
-    <textarea matInput formControlName="reason" rows="4"
-              placeholder="Please describe the reason for your leave request...">
-    </textarea>
-    <mat-hint align="end">{{ form.get('reason')?.value?.length || 0 }} / min 10</mat-hint>
-    <mat-error *ngIf="form.get('reason')?.hasError('required')">Reason is required</mat-error>
-    <mat-error *ngIf="form.get('reason')?.hasError('minlength')">
-      Minimum 10 characters required
-    </mat-error>
-  </mat-form-field>
+      <!-- Step 1 · Leave Type ─────────────────────────────────────────── -->
+      <section class="form-section">
+        <div class="step-header">
+          <span class="step-num">1</span>
+          <h3 class="step-title">Choose Leave Type</h3>
+        </div>
 
-  <!-- Submit -->
-  <div class="flex justify-end">
-    <button mat-raised-button color="primary"
-            type="submit"
-            [disabled]="form.invalid || submitting">
-      <mat-icon>send</mat-icon>
-      {{ submitting ? 'Submitting...' : 'Submit Request' }}
-    </button>
+        <div class="type-cards">
+          <button *ngFor="let opt of leaveTypeOptions"
+                  type="button"
+                  class="type-card"
+                  [class.selected]="form.value.leaveType === opt.type"
+                  (click)="selectLeaveType(opt.type)">
+
+            <div class="type-icon">
+              <mat-icon>{{ opt.icon }}</mat-icon>
+            </div>
+
+            <div class="type-info">
+              <span class="type-label">{{ opt.label }}</span>
+              <span class="type-sub">
+                {{ opt.description }}
+                <ng-container *ngIf="summary">
+                  &nbsp;·&nbsp;<strong>{{ remainingFor(opt.type) }}</strong> left
+                </ng-container>
+              </span>
+            </div>
+
+            <mat-icon class="type-check" *ngIf="form.value.leaveType === opt.type">
+              check_circle
+            </mat-icon>
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 2 · Dates ──────────────────────────────────────────────── -->
+      <section class="form-section">
+        <div class="step-header">
+          <span class="step-num">2</span>
+          <h3 class="step-title">Select Leave Dates</h3>
+          <div class="half-day-row">
+            <span class="half-day-label">Half day</span>
+            <!-- (change) fires after form value is updated by formControlName -->
+            <mat-slide-toggle formControlName="halfDay" (change)="onDateChange()">
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <div class="date-picker-row">
+          <mat-form-field appearance="outline" class="date-field">
+            <mat-label>Start Date</mat-label>
+            <input matInput
+                   [matDatepicker]="startPicker"
+                   formControlName="startDate"
+                   [min]="today"
+                   (dateChange)="onDateChange()">
+            <mat-datepicker-toggle matSuffix [for]="startPicker">
+            </mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+            <mat-error>Start date is required</mat-error>
+          </mat-form-field>
+
+          <div class="days-badge" [class.has-value]="workingDays > 0">
+            <span class="days-num">{{ workingDays > 0 ? workingDays : '—' }}</span>
+            <span class="days-lbl" *ngIf="workingDays > 0">Days</span>
+          </div>
+
+          <mat-form-field appearance="outline" class="date-field">
+            <mat-label>End Date</mat-label>
+            <input matInput
+                   [matDatepicker]="endPicker"
+                   formControlName="endDate"
+                   [min]="minEndDate"
+                   (dateChange)="onDateChange()">
+            <mat-datepicker-toggle matSuffix [for]="endPicker">
+            </mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+            <mat-error>End date is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Leave preview strip -->
+        <div class="preview-strip" *ngIf="previewDays.length">
+          <span class="preview-lbl">Leave Preview</span>
+
+          <div class="preview-chips">
+            <div *ngFor="let d of previewDays"
+                 class="day-chip"
+                 [class.is-weekend]="d.isWeekend">
+              <span class="chip-name">{{ d.dayName }}</span>
+              <span class="chip-num">{{ d.dayNum }}</span>
+            </div>
+          </div>
+
+          <div class="preview-legend">
+            <span class="dot dot-leave"></span><span>Leave Day</span>
+            <span class="dot dot-weekend"></span><span>Weekend</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 3 · Reason ─────────────────────────────────────────────── -->
+      <section class="form-section">
+        <div class="step-header">
+          <span class="step-num">3</span>
+          <h3 class="step-title">Reason for Leave</h3>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <textarea matInput
+                    formControlName="reason"
+                    rows="4"
+                    maxlength="200"
+                    placeholder="Tell us briefly why you're requesting this leave...">
+          </textarea>
+          <mat-hint align="end">{{ reasonLength }} / 200 characters</mat-hint>
+          <mat-error *ngIf="form.get('reason')?.hasError('required')">
+            Reason is required
+          </mat-error>
+          <mat-error *ngIf="form.get('reason')?.hasError('minlength')">
+            Minimum 10 characters required
+          </mat-error>
+        </mat-form-field>
+      </section>
+
+      <!-- Step 4 · Attachment ─────────────────────────────────────────── -->
+      <section class="form-section">
+        <div class="step-header">
+          <span class="step-num">4</span>
+          <h3 class="step-title">
+            Attachment
+            <span class="optional-tag">(Optional)</span>
+          </h3>
+        </div>
+
+        <!-- Drop zone (shown when no file selected) -->
+        <div *ngIf="!selectedFile"
+             class="drop-zone"
+             [class.drag-over]="isDragging"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave()"
+             (drop)="onDrop($event)">
+          <mat-icon class="upload-icon">cloud_upload</mat-icon>
+          <p class="upload-text">
+            Drag and drop files here, or
+            <label class="browse-link">
+              browse
+              <input type="file"
+                     hidden
+                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                     (change)="onFileSelected($event)">
+            </label>
+          </p>
+          <span class="upload-hint">PDF, DOC, JPG, PNG (Max 5MB)</span>
+        </div>
+
+        <!-- File chip (shown once a file is selected) -->
+        <div *ngIf="selectedFile" class="file-chip">
+          <mat-icon>insert_drive_file</mat-icon>
+          <span class="file-name">{{ selectedFile.name }}</span>
+          <span class="file-size">{{ fileSizeMB }} MB</span>
+          <button mat-icon-button type="button" (click)="removeFile()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </section>
+
+      <!-- Form actions ────────────────────────────────────────────────── -->
+      <div class="form-actions">
+        <button mat-stroked-button
+                type="button"
+                [disabled]="saving"
+                (click)="saveDraft()">
+          <mat-icon>save</mat-icon>
+          {{ saving ? 'Saving…' : 'Save Draft' }}
+        </button>
+
+        <button mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="form.invalid || submitting || workingDays === 0">
+          <mat-icon>send</mat-icon>
+          {{ submitting ? 'Submitting…' : 'Submit Request' }}
+        </button>
+      </div>
+    </main>
+
+    <!-- ── Right: sidebar ───────────────────────────────────────────────── -->
+    <aside class="form-sidebar">
+
+      <!-- Leave Summary card -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-header">
+          <mat-icon>event_note</mat-icon>
+          <span>Leave Summary</span>
+        </div>
+        <div class="sidebar-card-body">
+
+          <div class="summary-row">
+            <span class="s-key">Leave Type</span>
+            <span class="s-val s-primary">{{ selectedLeaveLabel }}</span>
+          </div>
+
+          <div class="summary-row">
+            <span class="s-key">Total Duration</span>
+            <span class="s-val s-primary">
+              {{ workingDays > 0 ? (workingDays + ' Working Days') : '—' }}
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="s-key">Used This Year</span>
+            <span class="s-val s-warn">{{ usedThisYear }} Days</span>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row">
+            <span class="s-key">Remaining Balance</span>
+            <div class="balance-stack">
+              <!-- Show impact preview when dates are selected, otherwise current balance -->
+              <span class="balance-num">
+                <ng-container *ngIf="workingDays > 0 && remainingAfter !== null">
+                  {{ remainingAfter }} Days
+                </ng-container>
+                <ng-container *ngIf="workingDays === 0 || remainingAfter === null">
+                  {{ selectedRemaining ?? '∞' }} Days
+                </ng-container>
+              </span>
+              <span class="balance-sub" *ngIf="totalForType > 0">
+                out of {{ totalForType }} days
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Approval Workflow card -->
+      <div class="sidebar-card" *ngIf="summary?.workflow?.length">
+        <div class="sidebar-card-header">
+          <mat-icon>account_tree</mat-icon>
+          <span>Approval Workflow</span>
+        </div>
+        <div class="sidebar-card-body workflow-body">
+          <div *ngFor="let step of summary!.workflow; let i = index; let last = last"
+               class="wf-step">
+            <div class="wf-indicator">
+              <div class="wf-dot" [class.active]="i === 0"></div>
+              <div class="wf-line" *ngIf="!last"></div>
+            </div>
+            <div class="wf-text">
+              <span class="wf-role" [class.active]="i === 0">
+                {{ workflowLabels[step] }}
+              </span>
+              <span class="wf-status">{{ i === 0 ? 'Pending' : 'Waiting' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info tip -->
+      <div class="info-tip">
+        <mat-icon>info</mat-icon>
+        <p>Requests are typically processed within <strong>1–2 business days.</strong></p>
+      </div>
+
+    </aside>
   </div>
 </form>

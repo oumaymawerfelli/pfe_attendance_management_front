@@ -1,167 +1,267 @@
-<div class="detail-container" *ngIf="project">
+<!-- Loading -->
+<div *ngIf="isLoading" class="page-loading">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
 
-      <!-- Header -->
-      <div class="detail-header">
-        <div class="header-left">
-          <button mat-icon-button (click)="goBack()">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-          <div>
-            <div class="title-row">
-              <span class="project-code">{{ project.code }}</span>
-              <span class="status-badge" [ngClass]="'status-' + project.status.toLowerCase()">
-                {{ getStatusLabel(project.status) }}
-              </span>
+<div class="detail-page" *ngIf="!isLoading && project">
+
+  <!-- ── Top bar: breadcrumb + actions ──────────────────────────────────── -->
+  <div class="top-bar">
+    <div class="breadcrumb">
+      <span class="breadcrumb-link" (click)="goBack()">Projects</span>
+      <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+      <span class="breadcrumb-current">Project Details</span>
+    </div>
+
+    <div class="top-actions" *ngIf="isAdminOrGM">
+      <button class="action-btn-outline edit" (click)="editProject()">
+        <mat-icon>edit</mat-icon> Edit Project
+      </button>
+      <button class="action-btn-outline delete" (click)="deleteProject()">
+        <mat-icon>delete</mat-icon> Delete Project
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Page title ──────────────────────────────────────────────────────── -->
+  <div class="page-title-row">
+    <button class="back-btn" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1 class="page-title">Project Details</h1>
+      <p class="page-subtitle">View and manage all information related to this project.</p>
+    </div>
+  </div>
+
+  <!-- ── Two-column layout ───────────────────────────────────────────────── -->
+  <div class="detail-grid">
+
+    <!-- ════════════════════════ LEFT / MAIN ════════════════════════════ -->
+    <div class="main-col">
+
+      <!-- Project Info Card -->
+      <div class="info-card">
+        <div class="info-card-left">
+          <div class="project-folder-icon">
+            <mat-icon>folder</mat-icon>
+          </div>
+          <div class="info-text">
+            <div class="info-name-row">
+              <h2 class="info-project-name">{{ project!.name }}</h2>
+              <span class="info-code">{{ project!.code }}</span>
             </div>
-            <h1 class="project-title">{{ project.name }}</h1>
+            <p class="info-description">{{ project!.description || 'No description provided.' }}</p>
+            <div class="info-meta-row">
+              <div class="meta-item">
+                <mat-icon class="meta-icon">person</mat-icon>
+                <span class="meta-label">Project Manager</span>
+                <span class="meta-value">{{ project!.projectManagerName || 'Unassigned' }}</span>
+              </div>
+              <div class="meta-divider"></div>
+              <div class="meta-item">
+                <mat-icon class="meta-icon">schedule</mat-icon>
+                <span class="meta-label">Created</span>
+                <span class="meta-value">{{ project!.createdAt | date:'MMM d, y' }}</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="header-actions" *ngIf="isAdminOrGM$ | async">
-          <button mat-stroked-button color="accent" (click)="editProject()">
-            <mat-icon>edit</mat-icon> Edit
-          </button>
-          <button mat-stroked-button color="warn" (click)="deleteProject()">
-            <mat-icon>delete</mat-icon> Delete
+
+        <div class="info-card-right">
+          <div class="date-stat">
+            <mat-icon class="date-stat-icon">calendar_today</mat-icon>
+            <div>
+              <p class="date-stat-label">START DATE</p>
+              <p class="date-stat-value">{{ project!.startDate | date:'MMM d, y' }}</p>
+            </div>
+          </div>
+          <div class="date-stat">
+            <mat-icon class="date-stat-icon" [class.overdue-icon]="isOverdue(project)">event</mat-icon>
+            <div>
+              <p class="date-stat-label">END DATE</p>
+              <p class="date-stat-value" [class.overdue]="isOverdue(project)">
+                {{ project!.endDate ? (project!.endDate | date:'MMM d, y') : '—' }}
+              </p>
+            </div>
+          </div>
+          <div class="date-stat">
+            <mat-icon class="date-stat-icon">timelapse</mat-icon>
+            <div>
+              <p class="date-stat-label">DURATION</p>
+              <p class="date-stat-value">{{ projectDuration }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Update Status -->
+      <div class="section-card" *ngIf="isAdminOrGM">
+        <div class="section-header">
+          <div class="section-icon-wrap"><mat-icon>flag</mat-icon></div>
+          <div>
+            <h3 class="section-title">Update Status</h3>
+            <p class="section-subtitle">Change the current status of this project</p>
+          </div>
+        </div>
+
+        <div class="status-grid">
+          <button *ngFor="let s of statuses"
+                  type="button"
+                  class="status-card"
+                  [class.selected]="project!.status === s.value"
+                  (click)="updateStatus(s.value)">
+            <span class="status-dot-btn" [ngClass]="'dot-' + s.value.toLowerCase()"></span>
+            <span class="status-card-label">{{ s.label }}</span>
+            <span class="status-card-desc">{{ s.description }}</span>
           </button>
         </div>
       </div>
 
-      <div class="detail-grid">
-
-        <!-- Left column -->
-        <div class="left-col">
-
-          <!-- Project Info -->
-          <mat-card class="info-card">
-            <mat-card-header>
-              <mat-icon mat-card-avatar color="primary">info</mat-icon>
-              <mat-card-title>Project Details</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <p class="description">{{ project.description || 'No description provided.' }}</p>
-
-              <div class="info-grid">
-                <div class="info-item">
-                  <mat-icon>calendar_today</mat-icon>
-                  <div>
-                    <p class="info-label">Start Date</p>
-                    <p class="info-value">{{ project.startDate | date:'longDate' }}</p>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <mat-icon [style.color]="isOverdue() ? '#f44336' : ''">event</mat-icon>
-                  <div>
-                    <p class="info-label">End Date</p>
-                    <p class="info-value" [class.overdue]="isOverdue()">
-                      {{ project.endDate | date:'longDate' }}
-                      <span *ngIf="isOverdue()" class="overdue-badge">Overdue</span>
-                    </p>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <mat-icon>person</mat-icon>
-                  <div>
-                    <p class="info-label">Project Manager</p>
-                    <p class="info-value">{{ project.projectManagerName || 'Unassigned' }}</p>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <mat-icon>schedule</mat-icon>
-                  <div>
-                    <p class="info-label">Created</p>
-                    <p class="info-value">{{ project.createdAt | date:'mediumDate' }}</p>
-                  </div>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-
-          <!-- Update Status — ADMIN/GM only -->
-          <mat-card class="status-card" *ngIf="isAdminOrGM$ | async">
-            <mat-card-header>
-              <mat-icon mat-card-avatar color="primary">flag</mat-icon>
-              <mat-card-title>Update Status</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="status-buttons">
-                <button *ngFor="let s of statuses"
-                        mat-stroked-button
-                        [class.active-status]="project.status === s.value"
-                        (click)="updateStatus(s.value)">
-                  {{ s.label }}
-                </button>
-              </div>
-            </mat-card-content>
-          </mat-card>
-
+      <!-- Status History -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-icon-wrap"><mat-icon>history</mat-icon></div>
+          <div>
+            <h3 class="section-title">Status History</h3>
+            <p class="section-subtitle">{{ statusHistory.length }} change(s)</p>
+          </div>
         </div>
 
-        <!-- Right column — Team -->
-        <div class="right-col">
-          <mat-card class="team-card">
-            <mat-card-header>
-              <mat-icon mat-card-avatar color="primary">group</mat-icon>
-              <mat-card-title>Team Members</mat-card-title>
-              <mat-card-subtitle>{{ teamMembers.length }} member(s)</mat-card-subtitle>
-            </mat-card-header>
+        <div *ngIf="isLoadingHistory" class="history-loading">
+          <mat-spinner diameter="28"></mat-spinner>
+        </div>
 
-            <!-- Assign button — ADMIN, GM, or PM -->
-            <div class="team-actions" *ngIf="canManageTeam$ | async">
-              <button mat-raised-button color="primary" (click)="openAssignDialog()">
-                <mat-icon>person_add</mat-icon>
-                Assign Member
+        <!-- Empty state -->
+        <div *ngIf="!isLoadingHistory && statusHistory.length === 0" class="history-empty">
+          <mat-icon>schedule</mat-icon>
+          <div>
+            <p class="history-empty-title">No status changes recorded yet.</p>
+            <p class="history-empty-hint">Status history will appear here once changes are made.</p>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline" *ngIf="!isLoadingHistory && statusHistory.length > 0">
+          <div *ngFor="let entry of statusHistory; let last = last" class="timeline-entry">
+            <div class="tl-left">
+              <div class="tl-dot" [ngClass]="'tl-dot-' + entry.toStatus.toLowerCase()"></div>
+              <div class="tl-line" *ngIf="!last"></div>
+            </div>
+            <div class="tl-body">
+              <div class="tl-badges">
+                <ng-container *ngIf="entry.fromStatus">
+                  <span class="tl-badge" [ngClass]="'badge-' + entry.fromStatus.toLowerCase()">
+                    {{ getStatusLabel(entry.fromStatus) }}
+                  </span>
+                  <mat-icon class="tl-arrow">arrow_forward</mat-icon>
+                </ng-container>
+                <span class="tl-badge" [ngClass]="'badge-' + entry.toStatus.toLowerCase()">
+                  {{ getStatusLabel(entry.toStatus) }}
+                </span>
+              </div>
+              <p class="tl-meta">
+                <mat-icon class="tl-meta-icon">person</mat-icon>{{ entry.changedBy }}
+                &nbsp;·&nbsp;
+                <mat-icon class="tl-meta-icon">schedule</mat-icon>
+                {{ entry.changedAt | date:'MMM d, y, h:mm a' }}
+              </p>
+              <p *ngIf="entry.reason" class="tl-reason">
+                <mat-icon class="tl-meta-icon">notes</mat-icon>{{ entry.reason }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ════════════════════════ RIGHT / SIDEBAR ═════════════════════════ -->
+    <div class="sidebar-col">
+
+      <!-- Team Members -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-header">
+          <div class="section-icon-wrap"><mat-icon>group</mat-icon></div>
+          <div>
+            <h3 class="section-title">Team Members</h3>
+            <p class="section-subtitle">{{ teamMembers.length }} member(s)</p>
+          </div>
+        </div>
+
+        <button *ngIf="canManageTeam"
+                class="assign-btn"
+                (click)="openAssignDialog()">
+          <mat-icon>person_add</mat-icon>
+          Assign Member
+        </button>
+
+        <div *ngIf="isLoadingTeam" class="team-loading">
+          <mat-spinner diameter="28"></mat-spinner>
+        </div>
+
+        <ng-container *ngIf="!isLoadingTeam">
+          <!-- Empty -->
+          <div *ngIf="teamMembers.length === 0" class="team-empty">
+            <mat-icon class="team-empty-icon">group_off</mat-icon>
+            <p class="team-empty-title">No team members assigned yet</p>
+            <p class="team-empty-hint" *ngIf="canManageTeam">
+              Click "Assign Member" to add employees to this project.
+            </p>
+          </div>
+
+          <!-- Member list -->
+          <div *ngIf="teamMembers.length > 0" class="team-list">
+            <div *ngFor="let member of teamMembers" class="team-member">
+              <div class="member-avatar">
+                {{ getInitials(member.firstName + ' ' + member.lastName) }}
+              </div>
+              <div class="member-info">
+                <p class="member-name">{{ member.firstName }} {{ member.lastName }}</p>
+                <p class="member-email">{{ member.email }}</p>
+              </div>
+              <button *ngIf="canManageTeam"
+                      class="remove-member-btn"
+                      (click)="removeMember(member)"
+                      matTooltip="Remove">
+                <mat-icon>close</mat-icon>
               </button>
             </div>
+          </div>
+        </ng-container>
+      </div>
 
-            <mat-card-content>
-
-              <div *ngIf="isLoadingTeam" class="team-loading">
-                <mat-spinner diameter="32"></mat-spinner>
-              </div>
-
-              <div *ngIf="!isLoadingTeam && teamMembers.length === 0" class="empty-team">
-                <mat-icon>group_off</mat-icon>
-                <p>No team members assigned yet</p>
-                <p class="empty-hint" *ngIf="canManageTeam$ | async">
-                  Click "Assign Member" to add employees to this project.
-                </p>
-              </div>
-
-              <div *ngIf="!isLoadingTeam && teamMembers.length > 0" class="team-list">
-                <div *ngFor="let member of teamMembers" class="team-member">
-                  <div class="member-avatar">
-                    {{ getInitials(member.firstName + ' ' + member.lastName) }}
-                  </div>
-                  <div class="member-info">
-                    <p class="member-name">{{ member.firstName }} {{ member.lastName }}</p>
-                    <p class="member-email">{{ member.email }}</p>
-                    <p class="member-assigned">
-                      Assigned {{ member.assignedDate | date:'mediumDate' }}
-                      <span *ngIf="member.assigningManager" class="assigning-manager">
-                        by {{ member.assigningManager }}
-                      </span>
-                    </p>
-                  </div>
-                  <button
-  *ngIf="true"
-  mat-icon-button
-  color="warn"
-  (click)="removeMember(member)"
-  matTooltip="Remove from project"
-  class="remove-btn">
-  <mat-icon>person_remove</mat-icon>
-</button>
-                </div>
-              </div>
-
-            </mat-card-content>
-          </mat-card>
+      <!-- Recent Activity -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-header">
+          <div class="section-icon-wrap"><mat-icon>bolt</mat-icon></div>
+          <div>
+            <h3 class="section-title">Recent Activity</h3>
+          </div>
         </div>
 
-      </div>
-    </div>
+        <div class="activity-list">
+          <div *ngFor="let a of recentActivity; let last = last" class="activity-item">
+            <div class="activity-dot-wrap">
+              <div class="activity-dot" [ngClass]="a.dotClass"></div>
+              <div class="activity-line" *ngIf="!last"></div>
+            </div>
+            <div class="activity-body">
+              <p class="activity-title">{{ a.title }}</p>
+              <p class="activity-meta">{{ a.date | date:'MMM d, y' }} • {{ a.actor }}</p>
+            </div>
+          </div>
 
-    <!-- Loading -->
-    <div *ngIf="isLoading" class="page-loading">
-      <mat-spinner diameter="56"></mat-spinner>
+          <div *ngIf="recentActivity.length === 0" class="activity-empty">
+            <div class="activity-dot dot-empty"></div>
+            <div>
+              <p class="activity-empty-title">No more activity yet</p>
+              <p class="activity-empty-hint">Project activities will appear here</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
+  </div>
+</div>

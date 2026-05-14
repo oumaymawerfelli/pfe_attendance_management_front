@@ -23,6 +23,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
 // MISSING MODULES - ADD THESE TWO LINES
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatMenuModule } from '@angular/material/menu';
 
 // Routing
 import { ProjectsRoutingModule } from './projects-routing.module';
@@ -34,6 +35,7 @@ import { ProjectDetailComponent } from './project-detail/project-detail.componen
 
 // Services
 import { ProjectService } from './project.service';
+import { StatusUpdateDialogComponent } from './status-update-dialog/status-update-dialog.component';
 
 
 @NgModule({
@@ -42,13 +44,15 @@ import { ProjectService } from './project.service';
     ProjectFormComponent,
     ProjectDetailComponent,
     ConfirmDialogComponent ,
-    TeamAssignDialogComponent
+    TeamAssignDialogComponent,
+    StatusUpdateDialogComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
     ProjectsRoutingModule,
+    MatMenuModule,
     
     // Material Modules
     MatIconModule,

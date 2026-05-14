@@ -1,31 +1,69 @@
-<!-- Clean header replacing page-header -->
-<div class="page-header-clean">
-  <div class="page-header-clean__breadcrumb">
-    <span>Home</span>
-    <mat-icon style="font-size:14px; width:14px; height:14px;">chevron_right</mat-icon>
-    <span>My Space</span>
-    <mat-icon style="font-size:14px; width:14px; height:14px;">chevron_right</mat-icon>
-    <span class="active">Leave Request</span>
+<!-- ── Page header ──────────────────────────────────────────────────────────── -->
+<div class="page-header">
+
+  <div class="page-header__left">
+    <div class="page-header__breadcrumb">
+      <span>Home</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span>My Space</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="active">Leave Request</span>
+    </div>
+
+    <div class="page-header__title">
+      <h1>{{ activeTab === 0 ? 'Request Leave' : 'My Requests' }}</h1>
+      <p>{{ activeTab === 0 ? 'Submit and track your time off requests' : 'Your leave history and request status' }}</p>
+    </div>
   </div>
-  <div class="page-header-clean__title">
-    <h1>Leave Management</h1>
-    <p>Manage your leave requests and balance</p>
+
+  <!-- Context-aware action button -->
+  <div class="page-header__actions">
+    <button mat-stroked-button
+            *ngIf="activeTab === 0"
+            (click)="goToRequests()">
+      <mat-icon>list_alt</mat-icon>
+      View My Requests
+    </button>
+
+    <button mat-stroked-button
+            *ngIf="activeTab === 1"
+            (click)="goToForm()">
+      <mat-icon>add</mat-icon>
+      New Request
+    </button>
   </div>
+
 </div>
 
-<app-leave-balance-cards class="m-b-16"></app-leave-balance-cards>
+<!-- ── Tab group ────────────────────────────────────────────────────────────── -->
+<mat-card class="page-card">
+  <mat-tab-group
+    animationDuration="200ms"
+    color="primary"
+    [(selectedIndex)]="activeTab">
 
-<mat-card>
-  <mat-tab-group animationDuration="200ms" color="primary">
+    <!-- Tab 0: Request Leave ──────────────────────────────────────────────── -->
     <mat-tab label="Request Leave">
-      <div class="p-16">
-        <app-leave-request-form></app-leave-request-form>
+      <div class="tab-body">
+        <app-leave-request-form
+          (submitted)="onLeaveSubmitted()"
+          (drafted)="onDraftSaved()">
+        </app-leave-request-form>
       </div>
     </mat-tab>
+
+    <!-- Tab 1: My Requests ───────────────────────────────────────────────── -->
     <mat-tab label="My Requests">
-      <div class="p-16">
+      <div class="tab-body">
+        <!--
+          Balance cards are shown here (not above the tabs) because the
+          request form already has a live balance sidebar.
+          Seeing them on the history tab gives context without duplication.
+        -->
+        <app-leave-balance-cards class="m-b-20"></app-leave-balance-cards>
         <app-leave-history></app-leave-history>
       </div>
     </mat-tab>
+
   </mat-tab-group>
 </mat-card>

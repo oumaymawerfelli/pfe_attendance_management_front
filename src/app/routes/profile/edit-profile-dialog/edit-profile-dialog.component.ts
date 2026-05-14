@@ -227,47 +227,53 @@ export class EditProfileDialogComponent implements OnInit {
   }
 
   private saveFormData(): void {
-    const userId = this.data.user.id;
-    const payload = {
-      firstName:     this.form.value.firstName,
-      lastName:      this.form.value.lastName,
-      phone:         this.form.value.phone,
-      address:       this.form.value.address,
-      maritalStatus: this.form.value.maritalStatus || null,
-      description:   this.form.value.description,
-      email:         this.data.user.email,
-      birthDate:     this.data.user.birthDate,
-      gender:        this.data.user.gender,
-      nationalId:    this.data.user.nationalId,
-      nationality:   this.data.user.nationality,
-      department:    this.data.user.department,
-      hireDate:      this.data.user.hireDate,
-      contractType:  this.data.user.contractType,
-      baseSalary:    this.data.user.baseSalary,
-    };
+  const userId = this.data.user.id;
+
+  // helper: turn "" or whitespace-only into null
+  const n = (v: any) => (v === '' || v === undefined ? null : v);
+
+  const payload = {
+    firstName:    this.form.value.firstName,
+    lastName:     this.form.value.lastName,
+    email:        this.data.user.email,
+
+    // optional strings → null when empty
+    phone:        n(this.form.value.phone),
+    address:      n(this.form.value.address),
+    description:  n(this.form.value.description),
+    maritalStatus: n(this.form.value.maritalStatus),
+
+    // pass-through fields — also guard against undefined
+    birthDate:    n(this.data.user.birthDate),
+    gender:       n(this.data.user.gender),
+    nationalId:   n(this.data.user.nationalId),
+    nationality:  n(this.data.user.nationality),
+    department:   n(this.data.user.department),
+    hireDate:     n(this.data.user.hireDate),
+    contractType: n(this.data.user.contractType),
+   
+
+  };
+
+  console.log('PUT payload:', JSON.stringify(payload, null, 2)); // ← remove after fix confirmed
 
   this.http.put(`/api/users/${userId}`, payload).subscribe({
-      next: () => {
-        this.saving = false;
-        this.snackBar.open('Profile updated successfully!', 'Close', { duration: 3000 });
-        
-        // ✅ 3. METTRE À JOUR LE USERSERVICE AVANT DE FERMER LA DIALOG
-        const updatedUser = {
-          ...this.data.user,
-          ...payload,
-          avatar: (this.data.user as any).avatar
-        };
-        this.userService.setUser(updatedUser);  // ← Ceci met à jour TOUS les composants
-        
-        this.dialogRef.close({ ...this.form.value, avatar: (this.data.user as any).avatar });
-      },
+    next: () => {
+      this.saving = false;
+      this.snackBar.open('Profile updated successfully!', 'Close', { duration: 3000 });
+      const updatedUser = { ...this.data.user, ...payload, avatar: (this.data.user as any).avatar };
+      this.userService.setUser(updatedUser);
+      this.dialogRef.close({ ...this.form.value, avatar: (this.data.user as any).avatar });
+    },
+    
       error: (err) => {
-        this.saving = false;
-        this.snackBar.open('Failed to update profile. Please try again.', 'Close', { duration: 4000 });
-        console.error(err);
-      }
-    });
-  }
+  this.saving = false;
+  console.error('Validation errors:', JSON.stringify(err.error?.errors, null, 2));
+      console.error('Backend error body:', err.error); // ← tells you exactly which field failed
+      this.snackBar.open('Failed to update profile. Please try again.', 'Close', { duration: 4000 });
+    }
+  });
+}
 
   // ── Validation ────────────────────────────────────────────
 

@@ -37,6 +37,7 @@ export class ActivateAccountComponent implements OnInit {
     private fb: FormBuilder,
     private loginService: LoginService,
     private snackBar: MatSnackBar
+    
   ) {
     this.activationForm = this.fb.group(
       {
@@ -57,88 +58,69 @@ export class ActivateAccountComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('🔑 ActivateAccount component loaded!');
-    console.log('🔑 Full URL:', window.location.href);
-    console.log('🔑 Hash:', window.location.hash);
-    console.log('🔑 Search:', window.location.search);
+  // With hash routing (#/auth/activate?token=...), 
+  // Angular's ActivatedRoute reads query params from the hash correctly
+  this.route.queryParams.subscribe(params => {
+    this.token = params['token'];
 
-    // Try to get token from query params first
-    this.route.queryParams.subscribe(params => {
-      console.log('🔑 Query params:', params);
-      this.token = params['token'];
-      
-      if (!this.token) {
-        // Try to get from URL path if not in query params
-        const urlParts = window.location.pathname.split('/');
-        const possibleToken = urlParts[urlParts.length - 1];
-        if (possibleToken && possibleToken.length > 50) { // JWT tokens are long
-          this.token = possibleToken;
-          console.log('🔑 Token extracted from path:', this.token);
+    console.log('Token found:', this.token ? this.token.substring(0, 20) + '...' : 'NONE');
+
+    if (!this.token) {
+      // Fallback: manually parse hash query string
+      const hash = window.location.hash; // e.g. "#/auth/activate?token=eyJ..."
+      const hashQuery = hash.includes('?') ? hash.split('?')[1] : '';
+      const hashParams = new URLSearchParams(hashQuery);
+      this.token = hashParams.get('token') || '';
+    }
+
+    if (!this.token) {
+      this.isLoading = false;
+      this.isValidToken = false;
+      this.showError('No activation token provided');
+      setTimeout(() => this.router.navigate(['/auth/login']), 3000);
+      return;
+    }
+
+    this.validateToken();
+  });
+}
+private tokenValidated = false;
+
+ validateToken(): void {
+  if (this.tokenValidated) return; // ← prevent duplicate calls
+  this.tokenValidated = true;
+
+  this.isLoading = true;
+  
+  this.loginService.validateActivationToken(this.token).subscribe({
+    next: (response: any) => {
+      this.isLoading = false;
+      if (response.valid) {
+        this.isValidToken = true;
+        this.email = response.email || '';
+        this.firstName = response.firstName || '';
+        this.lastName = response.lastName || '';
+        if (this.email) {
+          this.activationForm.patchValue({ 
+            username: this.email.split('@')[0] 
+          });
         }
-      }
-      
-      console.log('🔑 Final token:', this.token ? this.token.substring(0, 20) + '...' : 'No token');
-
-      if (!this.token) {
-        this.showError('No activation token provided');
-        setTimeout(() => {
-          this.router.navigate(['/auth/login']);
-        }, 3000);
-        return;
-      }
-
-      // Validate the token
-      this.validateToken();
-    });
-  }
-
-  validateToken(): void {
-    this.isLoading = true;
-    console.log('🔍 Validating token:', this.token.substring(0, 20) + '...');
-    
-    this.loginService.validateActivationToken(this.token).subscribe({
-      next: (response: any) => {
-        console.log('✅ Token validation response:', response);
-        this.isLoading = false;
-
-        if (response.valid) {
-          this.isValidToken = true;
-          this.email = response.email || '';
-          this.firstName = response.firstName || '';
-          this.lastName = response.lastName || '';
-
-          // Pre-fill username suggestion based on email
-          if (this.email) {
-            const suggestedUsername = this.email.split('@')[0];
-            this.activationForm.patchValue({ username: suggestedUsername });
-          }
-
-          this.showSuccess('Token validated successfully! Please set your credentials.');
-        } else {
-          this.isValidToken = false;
-          this.errorMessage = response.message || 'Invalid or expired token';
-          this.showError(this.errorMessage);
-          
-          // Redirect to login after 5 seconds
-          setTimeout(() => {
-            this.router.navigate(['/auth/login']);
-          }, 5000);
-        }
-      },
-      error: (error) => {
-        console.error('❌ Token validation error:', error);
-        this.isLoading = false;
+      } else {
         this.isValidToken = false;
-        this.errorMessage = error.error?.message || 'Failed to validate token';
+        this.errorMessage = response.message || 'Invalid or expired token';
         this.showError(this.errorMessage);
-        
-        // Redirect to login after 5 seconds
-        setTimeout(() => {
-          this.router.navigate(['/auth/login']);
-        }, 5000);
-      },
-    });
-  }
+        setTimeout(() => this.router.navigate(['/auth/login']), 5000);
+      }
+    },
+    error: (error) => {
+      this.isLoading = false;
+      this.isValidToken = false;
+      this.errorMessage = error.error?.message || 'Failed to validate token';
+      this.showError(this.errorMessage);
+      setTimeout(() => this.router.navigate(['/auth/login']), 5000);
+    }
+  });
+}
 
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password')?.value;

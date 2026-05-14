@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LeaveService } from '../../services/leave.service';
-import { LeaveBalance } from '../../models/leave.model';
+import { LeaveSummary } from '../../models/leave.model';
 
 @Component({
   selector: 'app-leave-balance-cards',
@@ -8,15 +8,44 @@ import { LeaveBalance } from '../../models/leave.model';
   styleUrls: ['./leave-balance-cards.component.scss'],
 })
 export class LeaveBalanceCardsComponent implements OnInit {
-  balance: LeaveBalance | null = null;
+  summary: LeaveSummary | null = null;
   loading = true;
 
   constructor(private leaveService: LeaveService) {}
 
   ngOnInit(): void {
-    this.leaveService.getMyBalance().subscribe({
-      next: (data) => { this.balance = data; this.loading = false; },
+    this.load();
+  }
+
+  /**
+   * Public so leave-page can call this via @ViewChild after a leave is
+   * submitted, keeping the cards in sync without a full page reload.
+   *
+   * Usage in leave-page:
+   *   @ViewChild(LeaveBalanceCardsComponent) balanceCards?: LeaveBalanceCardsComponent;
+   *   this.balanceCards?.refresh();
+   */
+  refresh(): void {
+    this.load();
+  }
+
+  private load(): void {
+    this.loading = true;
+    this.leaveService.getSummary().subscribe({
+      next:  s  => { this.summary = s; this.loading = false; },
       error: () => { this.loading = false; },
     });
+  }
+
+  // ── Template helpers ──────────────────────────────────────────────────────
+
+  annualPct(): number {
+    if (!this.summary || this.summary.annualTotal === 0) return 0;
+    return (this.summary.annualRemaining / this.summary.annualTotal) * 100;
+  }
+
+  sickPct(): number {
+    if (!this.summary || this.summary.sickTotal === 0) return 0;
+    return (this.summary.sickRemaining / this.summary.sickTotal) * 100;
   }
 }

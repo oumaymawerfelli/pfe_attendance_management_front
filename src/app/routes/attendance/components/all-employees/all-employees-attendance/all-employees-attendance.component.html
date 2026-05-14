@@ -1,153 +1,212 @@
-<!-- all-employees-attendance.component.html -->
-<div class="page-header-clean">
-  <div class="page-header-clean__breadcrumb">
-    <span>Home</span>
-    <mat-icon>chevron_right</mat-icon>
-    <span>Management</span>
-    <mat-icon>chevron_right</mat-icon>
-    <span class="active">All Employees Attendance</span>
+<div class="attendance-page">
+
+  <!-- ── Page Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <p class="page-subtitle">{{ pageSubtitle }}</p>
+    </div>
+    <div class="page-header-meta" *ngIf="!loading && records.length > 0">
+      <span class="record-count">
+        <mat-icon>bar_chart</mat-icon>
+        {{ records.length }} record{{ records.length !== 1 ? 's' : '' }}
+      </span>
+    </div>
   </div>
-  <div class="page-header-clean__title">
-    <h1>Attendance Management</h1>
-    <p>View attendance records for all employees</p>
+
+  <!-- ── Filters Card ─────────────────────────────────────────────────────── -->
+  <div class="filters-card">
+    <div class="filters-label">
+      <mat-icon>tune</mat-icon>
+      <span>Filters</span>
+    </div>
+
+    <div class="filters-row">
+      <!-- Month -->
+      <div class="filter-group">
+        <label class="filter-label">Month</label>
+        <div class="select-wrap">
+          <mat-icon class="select-icon">calendar_today</mat-icon>
+          <select class="filter-select"
+                  [(ngModel)]="selectedMonth"
+                  (ngModelChange)="onFilterChange()">
+            <option [ngValue]="null">All months</option>
+            <option *ngFor="let m of months" [ngValue]="m.value">{{ m.label }}</option>
+          </select>
+          <mat-icon class="select-arrow">keyboard_arrow_down</mat-icon>
+        </div>
+      </div>
+
+      <!-- Year -->
+      <div class="filter-group">
+        <label class="filter-label">Year</label>
+        <div class="select-wrap">
+          <mat-icon class="select-icon">calendar_today</mat-icon>
+          <select class="filter-select"
+                  [(ngModel)]="selectedYear"
+                  (ngModelChange)="onFilterChange()">
+            <option *ngFor="let y of years" [ngValue]="y">{{ y }}</option>
+          </select>
+          <mat-icon class="select-arrow">keyboard_arrow_down</mat-icon>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="filter-group search-group">
+        <label class="filter-label">Search</label>
+        <div class="search-wrap" [class.active]="searchEmail">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input class="search-input"
+                 [(ngModel)]="searchEmail"
+                 (ngModelChange)="onEmailSearch()"
+                 placeholder="Search by email or name..."
+                 autocomplete="off">
+          <button *ngIf="searchEmail" class="clear-btn" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- Filters row -->
-<div class="filters-row">
+  <!-- ── Loading ─────────────────────────────────────────────────────────── -->
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading attendance records...</p>
+  </div>
 
-  <!-- Month -->
-  <mat-form-field appearance="outline">
-    <mat-label>Month</mat-label>
-    <mat-select [(ngModel)]="selectedMonth" (ngModelChange)="onFilterChange()">
-      <mat-option [value]="null">All months</mat-option>
-      <mat-option *ngFor="let m of months" [value]="m.value">{{ m.label }}</mat-option>
-    </mat-select>
-  </mat-form-field>
+  <!-- ── Error ───────────────────────────────────────────────────────────── -->
+  <div *ngIf="error" class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error }}</p>
+  </div>
 
-  <!-- Year -->
-  <mat-form-field appearance="outline">
-    <mat-label>Year</mat-label>
-    <mat-select [(ngModel)]="selectedYear" (ngModelChange)="onFilterChange()">
-      <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
-    </mat-select>
-  </mat-form-field>
+  <!-- ── Table Card ──────────────────────────────────────────────────────── -->
+  <div class="table-card" *ngIf="!loading && !error">
 
-  <!-- Email search -->
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Search by email</mat-label>
-    <mat-icon matPrefix>search</mat-icon>
-    <input
-      matInput
-      type="text"
-      placeholder="employee@company.com"
-      [(ngModel)]="searchEmail"
-      (ngModelChange)="onEmailSearch()"/>
-    <button
-      *ngIf="searchEmail"
-      matSuffix
-      mat-icon-button
-      aria-label="Clear"
-      (click)="clearSearch()">
-      <mat-icon>close</mat-icon>
-    </button>
-  </mat-form-field>
+    <!-- Active search indicator -->
+    <div class="search-indicator" *ngIf="searchEmail">
+      <mat-icon>filter_list</mat-icon>
+      Showing <strong>{{ records.length }}</strong> result{{ records.length !== 1 ? 's' : '' }} for
+      <strong>"{{ searchEmail }}"</strong>
+      <button class="clear-search-link" (click)="clearSearch()">Clear</button>
+    </div>
 
-</div>
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="pagedRecords" class="attendance-table">
 
-<!-- Results badge -->
-<div class="results-badge" *ngIf="searchEmail && !loading">
-  <mat-icon>filter_list</mat-icon>
-  {{ records.length }} record{{ records.length !== 1 ? 's' : '' }} matching
-  <strong>"{{ searchEmail }}"</strong>
-</div>
-
-<!-- Loading -->
-<div *ngIf="loading" class="loading-container">
-  <mat-spinner diameter="36"></mat-spinner>
-</div>
-
-<!-- Error -->
-<div *ngIf="error" class="error-message">{{ error }}</div>
-
-<!-- Table -->
-<mat-card *ngIf="!loading && !error">
-  <mat-card-content>
-    <div class="table-container">
-      <table mat-table [dataSource]="records" class="full-width-table">
-
-        <!-- Employee -->
+        <!-- Employee ──────────────────────────────────────────────────── -->
         <ng-container matColumnDef="employee">
           <th mat-header-cell *matHeaderCellDef>Employee</th>
-          <td mat-cell *matCellDef="let record">
-            <div class="employee-info">
-              <strong>{{ record.userFullName }}</strong>
-              <span class="department">{{ record.userDepartment }}</span>
-              <span class="email">{{ record.userEmail }}</span>
+          <td mat-cell *matCellDef="let r">
+            <div class="employee-cell">
+              <div class="emp-avatar" [style.background]="avatarColor(r.userFullName)">
+                {{ initials(r.userFullName) }}
+              </div>
+              <div class="emp-info">
+                <span class="emp-name">{{ r.userFullName }}</span>
+                <span class="emp-dept">{{ r.userDepartment }}</span>
+                <span class="emp-email">{{ r.userEmail }}</span>
+              </div>
             </div>
           </td>
         </ng-container>
 
-        <!-- Date -->
+        <!-- Date ──────────────────────────────────────────────────────── -->
         <ng-container matColumnDef="date">
           <th mat-header-cell *matHeaderCellDef>Date</th>
-          <td mat-cell *matCellDef="let record">{{ record.date | date:'dd/MM/yyyy' }}</td>
+          <td mat-cell *matCellDef="let r">
+            <div class="date-cell">
+              <span class="date-main">{{ r.date | date:'dd MMM yyyy' }}</span>
+              <span class="date-day">{{ r.date | date:'EEEE' }}</span>
+            </div>
+          </td>
         </ng-container>
 
-        <!-- Check In -->
+        <!-- Check In ──────────────────────────────────────────────────── -->
         <ng-container matColumnDef="checkIn">
           <th mat-header-cell *matHeaderCellDef>Check In</th>
-          <td mat-cell *matCellDef="let record">
-            {{ record.checkIn ? (record.checkIn | date:'HH:mm') : '—' }}
+          <td mat-cell *matCellDef="let r">
+            <span class="time-value" [class.absent-time]="!r.checkIn">
+              {{ r.checkIn ? (r.checkIn | date:'HH:mm') : '—' }}
+            </span>
           </td>
         </ng-container>
 
-        <!-- Check Out -->
+        <!-- Check Out ─────────────────────────────────────────────────── -->
         <ng-container matColumnDef="checkOut">
           <th mat-header-cell *matHeaderCellDef>Check Out</th>
-          <td mat-cell *matCellDef="let record">
-            {{ record.checkOut ? (record.checkOut | date:'HH:mm') : '—' }}
+          <td mat-cell *matCellDef="let r">
+            <span class="time-value" [class.absent-time]="!r.checkOut">
+              {{ r.checkOut ? (r.checkOut | date:'HH:mm') : '—' }}
+            </span>
           </td>
         </ng-container>
 
-        <!-- Status -->
+        <!-- Status ────────────────────────────────────────────────────── -->
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let record">
-            <mat-chip [color]="getStatusColor(record.status)" selected>
-              {{ formatStatus(record.status) }}
-            </mat-chip>
+          <td mat-cell *matCellDef="let r">
+            <span class="status-dot-row" [ngClass]="statusClass(r.status)">
+              <span class="status-dot"></span>
+              {{ formatStatus(r.status) }}
+            </span>
           </td>
         </ng-container>
 
-        <!-- Worked Hours -->
+        <!-- Worked Hours ───────────────────────────────────────────────── -->
         <ng-container matColumnDef="workedHours">
           <th mat-header-cell *matHeaderCellDef>Worked Hours</th>
-          <td mat-cell *matCellDef="let record">
-            {{ record.workDuration ? (record.workDuration | number:'1.1-1') + 'h' : '—' }}
+          <td mat-cell *matCellDef="let r">
+            <span class="hours-value" [class.no-value]="!r.workDuration">
+              {{ r.workDuration ? (r.workDuration | number:'1.1-1') + 'h' : '—' }}
+            </span>
           </td>
         </ng-container>
 
-        <!-- Overtime -->
+        <!-- Overtime ───────────────────────────────────────────────────── -->
         <ng-container matColumnDef="overtime">
           <th mat-header-cell *matHeaderCellDef>Overtime</th>
-          <td mat-cell *matCellDef="let record">
-            {{ record.overtimeHours > 0 ? (record.overtimeHours | number:'1.1-1') + 'h' : '—' }}
+          <td mat-cell *matCellDef="let r">
+            <span class="overtime-value" [class.has-ot]="r.overtimeHours > 0">
+              {{ r.overtimeHours > 0 ? (r.overtimeHours | number:'1.1-1') + 'h' : '—' }}
+            </span>
           </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="data-row"></tr>
 
-        <!-- No data -->
+        <!-- Empty state -->
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns.length">
-            <mat-icon>inbox</mat-icon>
-            <span>No records found{{ searchEmail ? ' matching "' + searchEmail + '"' : ' for the selected period' }}.</span>
+            <div class="empty-state">
+              <mat-icon>inbox</mat-icon>
+              <p class="empty-title">No records found</p>
+              <p class="empty-hint">
+                {{ searchEmail ? 'Try a different search term or clear the filter.' : 'No attendance records for the selected period.' }}
+              </p>
+            </div>
           </td>
         </tr>
 
       </table>
     </div>
-  </mat-card-content>
-</mat-card>
+
+    <!-- ── Pagination footer ─────────────────────────────────────────── -->
+    <div class="pagination-footer">
+      <span class="pagination-info">
+        Showing {{ pageStart }} to {{ pageEnd }} of {{ records.length }} entries
+      </span>
+      <mat-paginator
+        [length]="records.length"
+        [pageSizeOptions]="[10, 25, 50]"
+        [pageSize]="10"
+        showFirstLastButtons
+        (page)="onPageChange($event)">
+      </mat-paginator>
+    </div>
+
+  </div>
+
+</div>

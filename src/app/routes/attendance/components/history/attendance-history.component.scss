@@ -1,6 +1,372 @@
+// attendance-history.component.scss
+// ── Design tokens ─────────────────────────────────────────────────────────────
+$navy:        #1a2e5a;
+$navy-hover:  #142348;
+$orange:      #f59e0b;
+$border:      #e5e7eb;
+$text-main:   #1e293b;
+$text-muted:  #64748b;
+$text-light:  #94a3b8;
+
+$ontime-color:  #1a6fe3;
+$late-color:    #f59e0b;
+$half-color:    #8b5cf6;
+$absent-color:  #ef4444;
+
+// ── Kill Angular Material purple ──────────────────────────────────────────────
+::ng-deep .mat-mdc-form-field.mat-focused {
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing { border-color: $navy !important; }
+  .mdc-floating-label,
+  .mat-mdc-floating-label         { color: $navy !important; }
+}
+::ng-deep .mat-mdc-select-arrow                { color: $navy !important; }
+::ng-deep .mat-primary .mat-mdc-select-arrow   { color: $navy !important; }
+::ng-deep .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+  color: $navy !important;
+  .mdc-list-item__primary-text { color: $navy !important; }
+}
+::ng-deep .mat-primary .mat-mdc-option.mat-mdc-option-active {
+  background: rgba($navy, 0.08) !important;
+}
+::ng-deep .mat-mdc-progress-spinner circle,
+::ng-deep .mat-progress-spinner circle { stroke: $navy !important; }
+::ng-deep .mat-mdc-menu-item:hover     { background: rgba($navy, 0.06) !important; }
+
+// ── Page header ───────────────────────────────────────────────────────────────
+.page-header {
+  margin-bottom: 24px;
+}
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: $navy;
+  margin: 0 0 6px;
+}
+.page-subtitle {
+  font-size: 15px;
+  color: $text-muted;
+  margin: 0;
+}
+
+// ── Filter card ───────────────────────────────────────────────────────────────
+.filter-card {
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+}
+.m-b-24 { margin-bottom: 24px; }
+
 .filter-row {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.filter-field {
+  width: 180px;
+  .prefix-icon { color: #9e9e9e; font-size: 18px; width: 18px; height: 18px; margin-right: 4px; }
+}
+.search-field { flex: 1; min-width: 220px; }
+.filter-btn {
+  height: 56px;
+  padding: 0 20px;
+  border-radius: 8px;
+  border-color: $border;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+// ── Summary bar ───────────────────────────────────────────────────────────────
+.summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.summary-range {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-muted;
+}
+.summary-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #f8fafc;
+  border: 1px solid $border;
+
+  .chip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &.chip-ontime { color: $ontime-color; .chip-dot { background: $ontime-color; } }
+  &.chip-late   { color: $late-color;   .chip-dot { background: $late-color;   } }
+  &.chip-half   { color: $half-color;   .chip-dot { background: $half-color;   } }
+  &.chip-absent { color: $absent-color; .chip-dot { background: $absent-color; } }
+}
+
+// ── Cards grid ────────────────────────────────────────────────────────────────
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  mat-form-field { width: 160px; }
+  margin-bottom: 24px;
+  align-items: start;        // important so expanding card doesn't stretch siblings
+
+  @media (max-width: 1280px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 900px)  { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 560px)  { grid-template-columns: 1fr; }
+}
+
+// ── Attendance card ───────────────────────────────────────────────────────────
+.attendance-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid $border;
+  border-left: 4px solid $border;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  will-change: transform;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.09);
+    transform: translateY(-2px);
+  }
+
+  &.is-expanded {
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  &.card-ontime  { border-left-color: $ontime-color; }
+  &.card-late    { border-left-color: $late-color; }
+  &.card-half    { border-left-color: $half-color; }
+  &.card-absent  { border-left-color: $absent-color; }
+}
+
+// ── Card header ───────────────────────────────────────────────────────────────
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.card-date {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-main;
+  white-space: nowrap;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.expand-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: $text-light;
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+.is-expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+// ── Status dot badge ──────────────────────────────────────────────────────────
+.status-dot-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &.dot-ontime { color: $ontime-color; .dot { background: $ontime-color; } }
+  &.dot-late   { color: $late-color;   .dot { background: $late-color;   } }
+  &.dot-half   { color: $half-color;   .dot { background: $half-color;   } }
+  &.dot-absent { color: $absent-color; .dot { background: $absent-color; } }
+}
+
+// ── Times row ─────────────────────────────────────────────────────────────────
+.card-times {
+  display: flex;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
+}
+.time-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.time-label {
+  font-size: 12px;
+  color: $text-light;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.time-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-main;
+  font-variant-numeric: tabular-nums;
+}
+.time-total {
+  font-weight: 800;
+  color: $navy;
+}
+
+// ── Notes ─────────────────────────────────────────────────────────────────────
+.card-notes {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+  min-height: 26px;
+}
+.notes-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-light;
+  flex-shrink: 0;
+}
+.notes-value {
+  font-size: 13px;
+  color: $text-muted;
+  font-style: italic;
+}
+
+// ── Expanded section ──────────────────────────────────────────────────────────
+.card-expanded {
+  overflow: hidden;
+}
+.expanded-inner {
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+// Progress bar
+.progress-section { display: flex; flex-direction: column; gap: 7px; }
+.progress-header  { display: flex; align-items: center; justify-content: space-between; }
+.progress-label   { font-size: 12px; font-weight: 600; color: $text-muted; text-transform: uppercase; letter-spacing: 0.4px; }
+.progress-value   { font-size: 13px; font-weight: 700; color: $text-main; }
+.progress-track   {
+  height: 7px;
+  background: #f1f5f9;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.5s ease;
+  max-width: 100%;
+
+  &.card-ontime { background: $ontime-color; }
+  &.card-late   { background: $late-color;   }
+  &.card-half   { background: $half-color;   }
+  &.card-absent { background: $absent-color; }
+}
+
+// Extra stats
+.extra-stats {
+  display: flex;
+  gap: 0;
+}
+.extra-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.extra-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-light;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.extra-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: $text-main;
+
+  &.positive  { color: $ontime-color; }
+  &.over      { color: $ontime-color; }
+  &.under     { color: $absent-color; }
+  &.exact     { color: $text-muted; }
+}
+
+// ── Records footer ────────────────────────────────────────────────────────────
+.records-footer {
+  text-align: center;
+  font-size: 14px;
+  color: $text-light;
+  padding: 8px 0 16px;
+}
+
+// ── Loading / no data ─────────────────────────────────────────────────────────
+.spinner-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+}
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+  color: $text-light;
+  gap: 12px;
+  mat-icon { font-size: 52px; width: 52px; height: 52px; }
+  p { font-size: 15px; margin: 0; }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .filter-row  { flex-direction: column; align-items: stretch; }
+  .filter-field,
+  .search-field { width: 100%; }
+  .filter-btn  { width: 100%; justify-content: center; }
+  .summary-bar { flex-direction: column; align-items: flex-start; }
 }

@@ -32,7 +32,7 @@ export class DefaultInterceptor implements HttpInterceptor {
       mergeMap((event: HttpEvent<any>) => {
         if (event instanceof HttpResponse) {
           const body: any = event.body;
-          if (body && 'code' in body && body.code !== 0) {
+          if (body && typeof body.code === 'number' && body.code !== 0) {
             if (body.msg) {
               this.toast.error(body.msg);
             }

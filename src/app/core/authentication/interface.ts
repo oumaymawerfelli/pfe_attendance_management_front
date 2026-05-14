@@ -10,7 +10,7 @@ export interface User {
   service?: string;
   hireDate?: Date;
   contractType?: string;
-  baseSalary?: number;
+ 
   active?: boolean;
   enabled?: boolean;
   roles?: string[];

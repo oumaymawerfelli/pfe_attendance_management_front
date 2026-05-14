@@ -1,27 +1,25 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, throwError } from 'rxjs';
-import { RouterTestingModule } from '@angular/router/testing';
 import { ActivateAccountComponent } from './activate-account.component';
 import { LoginService } from '@core/authentication';
 
 describe('ActivateAccountComponent', () => {
   let component: ActivateAccountComponent;
-  let fixture: ComponentFixture<ActivateAccountComponent>;
+  let fixture:   ComponentFixture<ActivateAccountComponent>;
 
   const mockLoginService = {
     validateActivationToken: jasmine.createSpy('validateActivationToken'),
-    activateAccount: jasmine.createSpy('activateAccount'),
-    resendActivationEmail: jasmine.createSpy('resendActivationEmail'),
+    activateAccount:         jasmine.createSpy('activateAccount'),
+    resendActivationEmail:   jasmine.createSpy('resendActivationEmail'),
   };
 
   const mockSnackBar = { open: jasmine.createSpy('open') };
 
   beforeEach(async () => {
-    // 👇 Reset all spies to default before each test
     mockLoginService.validateActivationToken.and.returnValue(
       of({ valid: true, email: 'test@test.com', firstName: 'John', lastName: 'Doe' })
     );
@@ -31,23 +29,24 @@ describe('ActivateAccountComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [ActivateAccountComponent],
-      imports: [ReactiveFormsModule, RouterTestingModule],
-      schemas: [NO_ERRORS_SCHEMA],
+      imports:      [ReactiveFormsModule],   // no RouterTestingModule needed
+      schemas:      [NO_ERRORS_SCHEMA],
       providers: [
         {
-          provide: ActivatedRoute,
+          provide:  ActivatedRoute,
           useValue: {
             queryParams: of({
               token: 'fake-token-123456789012345678901234567890123456789012345678901234',
             }),
           },
         },
-        { provide: MatSnackBar, useValue: mockSnackBar },
+        { provide: MatSnackBar,  useValue: mockSnackBar    },
         { provide: LoginService, useValue: mockLoginService },
+        { provide: Router,       useValue: jasmine.createSpyObj('Router', ['navigate']) },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ActivateAccountComponent);
+    fixture   = TestBed.createComponent(ActivateAccountComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -62,7 +61,7 @@ describe('ActivateAccountComponent', () => {
     expect(component.activationForm.contains('confirmPassword')).toBeTrue();
   });
 
-  it('should navigate back to login on invalid token', () => {
+  it('should have a valid token after successful validation', () => {
     expect(component.isValidToken).toBeTrue();
   });
 
@@ -89,18 +88,20 @@ describe('ActivateAccountComponent', () => {
   });
 
   it('should not submit if form is invalid', () => {
-    mockLoginService.activateAccount.calls.reset(); // 👈 reset call count
+    mockLoginService.activateAccount.calls.reset();
     component.activationForm.get('username')?.setValue('');
     component.onSubmit();
     expect(mockLoginService.activateAccount).not.toHaveBeenCalled();
   });
 
-  it('should handle token validation failure', () => {
-    // 👇 Only affects this test, reset happens in next beforeEach
+  it('should handle token validation failure', fakeAsync(() => {
     mockLoginService.validateActivationToken.and.returnValue(
       throwError(() => ({ error: { message: 'Token expired' } }))
     );
+    (component as any).tokenValidated = false;
     component.validateToken();
+    tick();
     expect(component.isValidToken).toBeFalse();
-  });
+    tick(5000);   // drain the setTimeout(() => router.navigate(...), 5000)
+  }));
 });

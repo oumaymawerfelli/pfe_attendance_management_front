@@ -1,72 +1,386 @@
-.loading-center {
-  display: flex;
-  justify-content: center;
-  padding: 2rem;
+// ─────────────────────────────────────────────────────────────────────────────
+// Brand tokens
+// ─────────────────────────────────────────────────────────────────────────────
+$navy:        #1a237e;
+$navy-light:  #e8eaf6;
+$navy-mid:    #c5cae9;
+$orange:      #e67e22;
+$orange-light:#fef0e0;
+
+$text-primary:   #1e293b;
+$text-secondary: #64748b;
+$text-muted:     #94a3b8;
+$border:         #e2e8f0;
+$bg-white:       #ffffff;
+$bg-page:        #f8fafc;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Loading
+// ─────────────────────────────────────────────────────────────────────────────
+.loading-center { display: flex; justify-content: center; padding: 40px 0; }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Filter bar — search · chips · filter button all in one row
+// ─────────────────────────────────────────────────────────────────────────────
+.filter-bar {
+  display:       flex;
+  align-items:   center;
+  gap:           16px;
+  margin-bottom: 24px;
+  flex-wrap:     wrap;
+}
+
+// Search
+.search-wrap {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  width:         320px;
+  height:        44px;
+  padding:       0 14px;
+  background:    $bg-white;
+  border:        1px solid $border;
+  border-radius: 10px;
+  transition:    border-color .15s, box-shadow .15s;
+  flex-shrink:   0;
+
+  &.focused {
+    border-color: $navy;
+    box-shadow:   0 0 0 3px rgba($navy, .08);
+  }
+
+  .search-icon {
+    font-size: 18px; width: 18px; height: 18px;
+    color: $text-muted; flex-shrink: 0;
+  }
+}
+
+.search-input {
+  flex: 1; border: none; outline: none;
+  font-size: 14px; color: $text-primary; background: transparent;
+  &::placeholder { color: $text-muted; }
+}
+
+.clear-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border: none; border-radius: 50%;
+  background: rgba(0,0,0,.06); cursor: pointer; padding: 0; flex-shrink: 0;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; color: $text-secondary; }
+  &:hover { background: $navy-light; mat-icon { color: $navy; } }
+}
+
+// Status chips
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+
+.chip {
+  height:        38px;
+  padding:       0 20px;
+  border:        1.5px solid $border;
+  border-radius: 20px;
+  background:    $bg-white;
+  font-size:     14px;
+  font-weight:   500;
+  color:         $text-secondary;
+  cursor:        pointer;
+  transition:    background .12s, border-color .12s, color .12s;
+  white-space:   nowrap;
+
+  &:hover:not(.active) {
+    border-color: $navy-mid;
+    color:        $navy;
+    background:   $navy-light;
+  }
+
+  &.active {
+    background:   $navy;
+    border-color: $navy;
+    color:        #fff;
+    font-weight:  600;
+  }
+}
+
+// Filter button
+.filter-btn {
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  height:        44px;
+  padding:       0 20px;
+  border:        1px solid $border;
+  border-radius: 10px;
+  background:    $bg-white;
+  font-size:     14px;
+  font-weight:   500;
+  color:         $text-secondary;
+  cursor:        pointer;
+  flex-shrink:   0;
+  transition:    background .15s, color .15s, border-color .15s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover {
+    background:   $navy-light;
+    color:        $navy;
+    border-color: $navy-mid;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Table wrapper
+// ─────────────────────────────────────────────────────────────────────────────
+.table-wrap {
+  background:    $bg-white;
+  border:        1px solid $border;
+  border-radius: 14px;
+  overflow:      hidden;
+}
+
+.history-table {
+  width: 100%;
+
+  .mat-mdc-header-row { background: $bg-page; }
+
+  .mat-mdc-header-cell {
+    font-size:      11px;
+    font-weight:    600;
+    color:          $text-muted;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    border-bottom:  1px solid $border;
+    padding:        16px 20px;
+  }
+
+  // Spacious rows
+  .mat-mdc-row,
+  .mat-mdc-header-row { min-height: 72px; }
+
+  .mat-mdc-cell {
+    font-size:     14px;
+    color:         $text-primary;
+    border-bottom: 1px solid $bg-page;
+    padding:       20px 20px;
+  }
+
+  .data-row {
+    cursor:     pointer;
+    transition: background .1s;
+    &:hover { background: $navy-light; }
+    &:last-child .mat-mdc-cell { border-bottom: none; }
+  }
+}
+
+// Column widths
+::ng-deep .mat-column-leaveType { min-width: 180px; width: 25%; }
+::ng-deep .mat-column-startDate { min-width: 120px; width: 15%; }
+::ng-deep .mat-column-endDate   { min-width: 120px; width: 15%; }
+::ng-deep .mat-column-daysCount { min-width:  70px; width:  9%; }
+::ng-deep .mat-column-status    { min-width: 140px; width: 18%; }
+::ng-deep .mat-column-decidedAt { min-width: 120px; width: 13%; }
+::ng-deep .mat-column-actions   { min-width:  50px; width:  5%; }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cell contents
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Type
+.type-cell {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
 }
 
 .type-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 6px;
-  font-size: 16px;
-  color: #9ca3af;
-  vertical-align: middle;
+  font-size: 18px;
+  width:     18px;
+  height:    18px;
+  color:     $navy;
+  flex-shrink: 0;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  font-size: .75rem;
-  font-weight: 600;
-  letter-spacing: .04em;
+.type-label {
+  font-size:   14px;
+  font-weight: 500;
+  color:       $text-primary;
+}
+
+// Days — outline circle, no fill
+.days-pill {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  width:           36px;
+  height:          36px;
+  border-radius:   50%;
+  border:          1.5px solid $border;
+  background:      transparent;
+  font-size:       14px;
+  font-weight:     600;
+  color:           $text-secondary;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Status pills — outlined style matching the screenshot
+// ─────────────────────────────────────────────────────────────────────────────
+.status-cell {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+}
+
+.status-pill {
+  display:       inline-flex;
+  align-items:   center;
+  padding:       5px 16px;
   border-radius: 20px;
+  font-size:     13px;
+  font-weight:   600;
+  border:        1.5px solid transparent;
+  white-space:   nowrap;
 
-  &.badge-pending {
-    color: #92400e;
-    background: #fef3c7;
+  // Draft → navy outlined
+  &--gray {
+    background:   $navy-light;
+    border-color: $navy-mid;
+    color:        $navy;
   }
 
-  &.badge-approved {
-    color: #065f46;
-    background: #d1fae5;
+  // Pending → orange outlined
+  &--amber {
+    background:   $orange-light;
+    border-color: lighten($orange, 15%);
+    color:        darken($orange, 8%);
   }
 
-  &.badge-rejected {
-    color: #991b1b;
-    background: #fee2e2;
+  // Approved → green outlined (matches screenshot)
+  &--green {
+    background:   #f0fdf4;
+    border-color: #86efac;
+    color:        #16a34a;
+  }
+
+  // Rejected → red outlined (matches screenshot)
+  &--red {
+    background:   #fff1f2;
+    border-color: #fda4af;
+    color:        #e11d48;
   }
 }
 
 .info-icon {
-  width: 14px;
-  height: 14px;
-  margin-left: 6px;
-  font-size: 14px;
-  color: #9ca3af;
-  vertical-align: middle;
-  cursor: help;
+  font-size:   16px;
+  width:       16px;
+  height:      16px;
+  color:       $text-muted;
+  cursor:      help;
+  flex-shrink: 0;
+
+  &:hover { color: $navy; }
 }
+
+// Three-dot menu trigger
+.menu-trigger {
+  color:      $text-muted;
+  transition: color .1s;
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+  &:hover { color: $navy; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Empty state
+// ─────────────────────────────────────────────────────────────────────────────
+.empty-row { border: none !important; }
 
 .empty-state {
-  padding: 2rem;
-  font-size: .88rem;
-  color: #9ca3af;
-  text-align: center;
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            8px;
+  padding:        56px 16px;
+  color:          $text-muted;
+
+  mat-icon { font-size: 40px; width: 40px; height: 40px; opacity: .4; color: $navy; }
+  p        { margin: 0; font-size: 14px; text-align: center; }
 }
 
-.mat-mdc-header-cell {
-  font-size: .75rem;
-  font-weight: 600;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: .06em;
+// ─────────────────────────────────────────────────────────────────────────────
+// Pagination footer — identical style to admin-leaves
+// ─────────────────────────────────────────────────────────────────────────────
+.pagination-footer {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  flex-wrap:       wrap;
+  gap:             12px;
+  padding:         14px 24px;
+  border-top:      1px solid $border;
 }
 
-.mat-mdc-cell {
-  font-size: .85rem;
-  color: #374151;
+.pagination-info { font-size: 13px; color: $text-secondary; }
+
+.pagination-controls { display: flex; align-items: center; gap: 10px; }
+
+.rows-label { font-size: 13px; color: $text-secondary; white-space: nowrap; }
+
+.rows-select {
+  width: 72px !important;
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    border: 1px solid $border; border-radius: 8px;
+    background: $bg-white; padding: 0 8px; height: 36px;
+  }
+  ::ng-deep .mat-mdc-select-trigger { font-size: 13px; }
 }
 
-.mat-mdc-row:hover {
-  background: #f9fafb;
+.page-nav { display: flex; align-items: center; gap: 4px; }
+
+.page-nav-btn {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           34px;
+  height:          34px;
+  border:          1px solid $border;
+  border-radius:   8px;
+  background:      $bg-white;
+  cursor:          pointer;
+  color:           $text-secondary;
+  transition:      background .12s, color .12s, border-color .12s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:disabled { opacity: .35; cursor: not-allowed; }
+  &:not(:disabled):hover {
+    background:   $navy-light;
+    border-color: $navy-mid;
+    color:        $navy;
+  }
+}
+
+.page-num-btn {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  min-width:       34px;
+  height:          34px;
+  padding:         0 6px;
+  border:          1px solid $border;
+  border-radius:   8px;
+  background:      $bg-white;
+  font-size:       13px;
+  font-weight:     500;
+  color:           $text-secondary;
+  cursor:          pointer;
+  transition:      background .12s, color .12s, border-color .12s;
+
+  &:hover:not(.active) {
+    background:   $navy-light;
+    border-color: $navy-mid;
+    color:        $navy;
+  }
+
+  &.active {
+    background:   $navy;
+    border-color: $navy;
+    color:        #fff;
+    font-weight:  700;
+  }
 }

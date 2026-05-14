@@ -13,7 +13,7 @@ describe('OvertimeDialogComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [OvertimeDialogComponent],
       imports: [HttpClientTestingModule],
-      schemas: [NO_ERRORS_SCHEMA], // 👈 add this
+      schemas: [NO_ERRORS_SCHEMA], // 
       providers: [
         {
           provide: MatDialogRef,

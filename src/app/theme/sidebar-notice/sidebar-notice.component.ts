@@ -101,35 +101,56 @@ export class SidebarNoticeComponent implements OnInit {
     }
   }
 
-  submitLeave(): void {
-    if (this.leaveForm.invalid) return;
-    this.submitting = true;
-    this.submitError = '';
-    const v = this.leaveForm.value;
-    this.leaveService
-      .requestLeave({
-        leaveType: v.leaveType,
-        startDate: this.fmt(v.startDate),
-        endDate: this.fmt(v.endDate),
-        reason: v.reason,
-      })
-      .subscribe({
-        next: () => {
-          this.submitting = false;
-          this.submitSuccess = true;
-          this.leaveForm.reset({ leaveType: 'ANNUAL' });
-          this.loadLeaves();
-          setTimeout(() => {
-            this.showLeaveForm = false;
-            this.submitSuccess = false;
-          }, 2000);
-        },
-        error: err => {
-          this.submitting = false;
-          this.submitError = err?.error?.message || 'Failed to submit. Please try again.';
-        },
-      });
-  }
+ submitLeave(): void {
+  if (this.leaveForm.invalid) return;
+
+  this.submitting = true;
+  this.submitError = '';
+
+  const v = this.leaveForm.value;
+
+  const start = new Date(v.startDate);
+  const end = new Date(v.endDate);
+
+  // Calculate number of days
+  const duration =
+    Math.floor(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+    ) + 1;
+
+  this.leaveService
+    .requestLeave({
+      leaveType: v.leaveType,
+      startDate: this.fmt(start),
+      endDate: this.fmt(end),
+      duration,
+      reason: v.reason,
+    })
+    .subscribe({
+      next: () => {
+        this.submitting = false;
+        this.submitSuccess = true;
+
+        this.leaveForm.reset({
+          leaveType: 'ANNUAL',
+        });
+
+        this.loadLeaves();
+
+        setTimeout(() => {
+          this.showLeaveForm = false;
+          this.submitSuccess = false;
+        }, 2000);
+      },
+
+      error: err => {
+        this.submitting = false;
+        this.submitError =
+          err?.error?.message ||
+          'Failed to submit. Please try again.';
+      },
+    });
+}
 
   statusColor(status: string): string {
     return status === 'APPROVED' ? 'primary' : status === 'REJECTED' ? 'warn' : 'accent';

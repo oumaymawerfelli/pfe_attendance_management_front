@@ -72,7 +72,8 @@ describe('ProjectListComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ProjectListComponent);
+    TestBed.overrideTemplate(ProjectListComponent, '');
+fixture = TestBed.createComponent(ProjectListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,6 +1,7 @@
 @use 'style/reboot';
 @use 'style/colors';
 @use 'style/scrollbar';
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
 
 .scrollbar-thin {
   @include scrollbar.thin();

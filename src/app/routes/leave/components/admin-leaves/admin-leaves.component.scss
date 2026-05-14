@@ -1,91 +1,404 @@
-.filter-row {
-  display: flex;
-  gap: 4px;
+// ─────────────────────────────────────────────────────────────────────────────
+// Brand tokens — two colors only
+// ─────────────────────────────────────────────────────────────────────────────
+// ── Brand tokens ──────────────────────────────────────────────────────────────
+$navy:         #1e3a5f;
+$navy-light:   #e8eef6;
+$navy-mid:     #c5cae9;
+$gold:         #d4920a;
+$gold-light:   #fef3c7;
+
+// ── Neutrals — these were missing ────────────────────────────────────────────
+$text-primary:   #1e293b;
+$text-secondary: #64748b;
+$text-muted:     #94a3b8;
+$border:         #e2e8f0;
+$bg-white:       #ffffff;
+$bg-page:        #f8fafc;
+// ─────────────────────────────────────────────────────────────────────────────
+// Page header
+// ─────────────────────────────────────────────────────────────────────────────
+.page-header   { margin-bottom: 24px; }
+.page-title    { margin: 0 0 4px; font-size: 26px; font-weight: 600; color: $navy; letter-spacing: -.3px; }
+.page-subtitle { margin: 0; font-size: 14px; color: $text-secondary; }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Toolbar
+// ─────────────────────────────────────────────────────────────────────────────
+.toolbar {
+  display:       flex;
+  align-items:   center;
+  gap:           12px;
   margin-bottom: 20px;
+  flex-wrap:     wrap;
+}
 
-  button {
-    padding: 0 18px;
-    font-size: .82rem;
-    font-weight: 500;
-    color: #6b7280;
-    border-radius: 20px;
-    transition: all .15s;
+// Pending / All Requests toggle
+.filter-toggle {
+  display:       flex;
+  border:        1px solid $border;
+  border-radius: 8px;
+  overflow:      hidden;
+  flex-shrink:   0;
+}
 
-    &.active {
-      font-weight: 600;
-      color: #3b82f6;
-      background: #f0f4ff;
-    }
+.toggle-btn {
+  padding:     8px 20px;
+  border:      none;
+  background:  transparent;
+  font-size:   14px;
+  font-weight: 500;
+  color:       $text-secondary;
+  cursor:      pointer;
+  white-space: nowrap;
+  transition:  background .15s, color .15s;
+
+  & + & { border-left: 1px solid $border; }
+
+  &:hover:not(.active) {
+    background: $navy-light;
+    color:      $navy;
+  }
+
+  &.active {
+    background:  $navy;
+    color:       #fff;
+    font-weight: 600;
   }
 }
 
-.loading-center {
-  display: flex;
-  justify-content: center;
-  padding: 2rem;
+// Search input
+.search-wrap {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  flex:          1;
+  min-width:     200px;
+  max-width:     440px;
+  height:        42px;
+  padding:       0 14px;
+  background:    $bg-white;
+  border:        1px solid $border;
+  border-radius: 8px;
+  transition:    border-color .15s, box-shadow .15s;
+
+  &:focus-within {
+    border-color: $navy;
+    box-shadow:   0 0 0 3px rgba($navy, .08);
+  }
+
+  .search-icon {
+    font-size: 18px; width: 18px; height: 18px;
+    color: $text-muted; flex-shrink: 0;
+  }
 }
+
+.search-input {
+  flex: 1; border: none; outline: none;
+  font-size: 14px; color: $text-primary; background: transparent;
+  &::placeholder { color: $text-muted; }
+}
+
+.clear-search {
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px;
+  border: none; border-radius: 50%;
+  background: rgba(0,0,0,.06); cursor: pointer;
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; color: $text-secondary; }
+
+  &:hover {
+    background: $navy-light;
+    mat-icon { color: $navy; }
+  }
+}
+
+// Filter button
+.filter-btn {
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  height:        42px;
+  padding:       0 18px;
+  border:        1px solid $border;
+  border-radius: 8px;
+  background:    $bg-white;
+  font-size:     14px;
+  font-weight:   500;
+  color:         $text-secondary;
+  cursor:        pointer;
+  flex-shrink:   0;
+  transition:    background .15s, color .15s, border-color .15s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover {
+    background:   $navy-light;
+    color:        $navy;
+    border-color: $navy-mid;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Loading / empty
+// ─────────────────────────────────────────────────────────────────────────────
+.loading-center {
+  display: flex; justify-content: center; padding: 48px 0;
+}
+
+.empty-row { border: none !important; }
 
 .empty-state {
-  padding: 3rem;
-  color: #94a3b8;
-  text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; padding: 56px 16px; color: $text-muted;
 
-  mat-icon {
-    width: 48px;
-    height: 48px;
-    font-size: 48px;
+  mat-icon { font-size: 40px; width: 40px; height: 40px; opacity: .5; color: $navy; }
+  p { margin: 0; font-size: 14px; text-align: center; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Table
+// ─────────────────────────────────────────────────────────────────────────────
+.table-wrap {
+  background:    $bg-white;
+  border:        1px solid $border;
+  border-radius: 12px;
+  overflow:      hidden;
+}
+
+.leaves-table {
+  width: 100%;
+
+  .mat-mdc-header-row { background: $bg-page; }
+
+  .mat-mdc-header-cell {
+    font-size:      11px;
+    font-weight:    600;
+    color:          $text-muted;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    border-bottom:  1px solid $border;
+    padding:        16px 20px;
   }
 
-  p {
-    margin-top: 8px;
-    font-size: .9rem;
+  // Tall rows — the main fix for the compact look
+  .mat-mdc-row,
+  .mat-mdc-header-row { min-height: 76px; }
+
+  .mat-mdc-cell {
+    font-size:     14px;
+    color:         $text-primary;
+    border-bottom: 1px solid $bg-page;
+    padding:       20px 20px;
   }
+
+  .data-row {
+    cursor: pointer;
+    transition: background .1s;
+
+    &:hover { background: $navy-light; }
+    &:last-child .mat-mdc-cell { border-bottom: none; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cell contents
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Avatar + name
+.employee-cell {
+  display:     flex;
+  align-items: center;
+  gap:         14px;
+  min-width:   0;   // allow flex children to shrink correctly
+}
+
+.avatar {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           44px;
+  height:          44px;
+  border-radius:   50%;
+  font-size:       15px;
+  font-weight:     700;
+  color:           #fff;
+  flex-shrink:     0;   // avatar never shrinks
+  letter-spacing:  .5px;
 }
 
 .employee-name {
-  font-size: .88rem;
+  font-size:     14px;
+  font-weight:   500;
+  color:         $text-primary;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+// Give the employee column a guaranteed minimum width so Material
+// never crushes it when other columns compete for space
+::ng-deep .mat-column-employee   { min-width: 200px; width: 22%; }
+::ng-deep .mat-column-department { min-width: 100px; width: 12%; }
+::ng-deep .mat-column-type       { min-width: 160px; width: 18%; }
+::ng-deep .mat-column-dates      { min-width: 160px; width: 18%; }
+::ng-deep .mat-column-days       { min-width:  60px; width:  7%; }
+::ng-deep .mat-column-status     { min-width: 130px; width: 14%; }
+::ng-deep .mat-column-actions    { min-width:  72px; width:  8%; text-align: right; }
+
+.dept-text { font-size: 14px; color: $text-secondary; }
+
+// Leave type chip
+.type-chip { display: flex; align-items: center; gap: 10px; }
+
+.type-icon-wrap {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           40px;
+  height:          40px;
+  border-radius:   10px;
+  flex-shrink:     0;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
+.type-label { font-size: 14px; font-weight: 500; color: $text-primary; white-space: nowrap; }
+
+// Two-line date
+.dates-cell  { display: flex; flex-direction: column; gap: 3px; }
+.dates-range { font-size: 14px; font-weight: 500; color: $text-primary; white-space: nowrap; }
+.dates-year  { font-size: 12px; color: $text-muted; }
+
+// Days circle
+.days-pill {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  width:           40px;
+  height:          40px;
+  border-radius:   50%;
+  background:      $navy-light;
+  font-size:       15px;
+  font-weight:     600;
+  color:           $navy;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Status pills — semantic colors kept (green/red) as they are UX conventions
+// only the Pending / Draft variants use brand navy
+// ─────────────────────────────────────────────────────────────────────────────
+.status-dot-row {
+  display:     inline-flex;
+  align-items: center;
+  gap:         7px;
+  font-size:   13px;
   font-weight: 500;
+  color:       $text-primary;
+
+  &--gray  { color: $navy;    .status-dot { background: $navy;    box-shadow: 0 0 0 3px rgba(30,58,95,.15);  } }
+  &--amber { color: $gold;    .status-dot { background: $gold;    box-shadow: 0 0 0 3px rgba(212,146,10,.15); } }
+  &--green { color: #166534;  .status-dot { background: #22c55e;  box-shadow: 0 0 0 3px rgba(34,197,94,.15);  } }
+  &--red   { color: #991b1b;  .status-dot { background: #ef4444;  box-shadow: 0 0 0 3px rgba(239,68,68,.15);  } }
 }
 
-// ── Status badges ─────────────────────────────────────────
-.status-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  font-size: .75rem;
-  font-weight: 600;
-  letter-spacing: .04em;
-  border-radius: 20px;
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
 
-  &.badge-pending  {
-    color: #92400e;
-    background: #fef3c7;
+// ─────────────────────────────────────────────────────────────────────────────
+// Three-dot menu trigger
+// ─────────────────────────────────────────────────────────────────────────────
+.menu-trigger {
+  color: $text-muted;
+  transition: color .1s;
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+  &:hover { color: $navy; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pagination footer
+// ─────────────────────────────────────────────────────────────────────────────
+.pagination-footer {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  flex-wrap:       wrap;
+  gap:             12px;
+  padding:         14px 20px;
+  border-top:      1px solid $border;
+  background:      $bg-white;
+}
+
+.pagination-info { font-size: 13px; color: $text-secondary; }
+
+.pagination-controls {
+  display: flex; align-items: center; gap: 12px;
+}
+
+.rows-label { font-size: 13px; color: $text-secondary; white-space: nowrap; }
+
+.rows-select {
+  width: 72px !important; height: 36px;
+
+  ::ng-deep .mat-mdc-select-trigger { height: 36px; font-size: 13px; }
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    border: 1px solid $border; border-radius: 8px;
+    background: $bg-white; padding: 0 8px;
+  }
+}
+
+.page-nav { display: flex; align-items: center; gap: 4px; }
+
+.page-nav-btn {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           34px;
+  height:          34px;
+  border:          1px solid $border;
+  border-radius:   8px;
+  background:      $bg-white;
+  cursor:          pointer;
+  color:           $text-secondary;
+  transition:      background .12s, border-color .12s, color .12s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:disabled { opacity: .35; cursor: not-allowed; }
+  &:not(:disabled):hover {
+    background:   $navy-light;
+    border-color: $navy-mid;
+    color:        $navy;
+  }
+}
+
+.page-num-btn {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  min-width:       34px;
+  height:          34px;
+  padding:         0 6px;
+  border:          1px solid $border;
+  border-radius:   8px;
+  background:      $bg-white;
+  font-size:       13px;
+  font-weight:     500;
+  color:           $text-secondary;
+  cursor:          pointer;
+  transition:      background .12s, border-color .12s, color .12s;
+
+  &:hover:not(.active) {
+    background:   $navy-light;
+    border-color: $navy-mid;
+    color:        $navy;
   }
 
-  &.badge-approved {
-    color: #065f46;
-    background: #d1fae5;
+  &.active {
+    background:   $navy;
+    border-color: $navy;
+    color:        #fff;
+    font-weight:  700;
   }
-
-  &.badge-rejected {
-    color: #991b1b;
-    background: #fee2e2;
-  }
-}
-
-// ── Table ─────────────────────────────────────────────────
-.mat-mdc-row:hover {
-  background: #f9fafb;
-}
-
-.mat-mdc-header-cell {
-  font-size: .75rem;
-  font-weight: 600;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
-
-.mat-mdc-cell {
-  font-size: .85rem;
-  color: #374151;
 }

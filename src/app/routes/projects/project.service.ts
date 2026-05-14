@@ -1,9 +1,10 @@
 // src/app/routes/projects/project.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError, timer } from 'rxjs';
+import { map, retry } from 'rxjs/operators';
 import { environment } from '@env/environment';
+import { tap } from 'rxjs/operators';
 
 export interface Project {
   id: number;
@@ -31,6 +32,14 @@ export interface ProjectResponse {
   empty: boolean;
   pageable: any;
   sort: any;
+}
+export interface StatusHistory {
+  id: number;
+  fromStatus: string | null;
+  toStatus: string;
+  changedBy: string;
+  changedAt: string;
+  reason: string | null;
 }
 
 export interface TeamMember {
@@ -86,10 +95,10 @@ export class ProjectService {
     return this.http.get<ProjectResponse>(this.apiUrl, { params });
   }
 
-  getById(id: number): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/${id}`);
-  }
-
+ // In ProjectService.getById()
+getById(id: number): Observable<Project> {
+  return this.http.get<Project>(`${this.apiUrl}/${id}`);
+}
   getWithTeam(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}/with-team`);
   }
@@ -108,9 +117,15 @@ export class ProjectService {
 
   // ==================== Status Management ====================
 
-  updateStatus(id: number, status: string): Observable<Project> {
-    return this.http.put<Project>(`${this.apiUrl}/${id}/status?status=${status}`, {});
-  }
+ updateStatus(id: number, status: string, reason: string): Observable<Project> {
+  return this.http.put<Project>(
+    `${this.apiUrl}/${id}/status`,
+    { status, reason }
+  );
+}
+getStatusHistory(id: number): Observable<StatusHistory[]> {
+  return this.http.get<StatusHistory[]>(`${this.apiUrl}/${id}/status-history`);
+}
 
   // ==================== Team Management ====================
 

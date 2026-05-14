@@ -1,24 +1,27 @@
-<!-- leave-detail-dialog.component.html -->
-
-<!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════════════════════
      STEP 1 — REVIEW
-══════════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════════════════════ -->
 <ng-container *ngIf="step === 'review'">
 
   <div class="dialog-header">
     <mat-icon class="dialog-header__icon">description</mat-icon>
-    <div>
+    <div class="dialog-header__text">
       <h2 mat-dialog-title>Leave Request</h2>
-      <p class="dialog-header__sub">Review details before taking action</p>
+      <p class="dialog-header__sub">
+        {{ mode === 'decide' ? 'Review details before taking action' : 'Your leave request details' }}
+      </p>
     </div>
-    <mat-chip [color]="statusColor(leave.status)" selected class="status-chip">
-      {{ leave.status }}
-    </mat-chip>
+
+    <!-- Status pill — replaces mat-chip, supports all 6 LeaveStatus values -->
+    <span class="status-pill status-pill--{{ statusClass(leave.status) }}">
+      <span class="pulse-dot" *ngIf="isPending(leave.status)"></span>
+      {{ statusLabel(leave.status) }}
+    </span>
   </div>
 
   <mat-dialog-content class="dialog-content">
 
-    <!-- Employee -->
+    <!-- Employee ──────────────────────────────────────────────────────── -->
     <div class="info-section">
       <span class="section-label">Employee</span>
       <div class="info-grid">
@@ -30,10 +33,14 @@
           <span class="info-label">Department</span>
           <span class="info-value">{{ leave.userDepartment || '—' }}</span>
         </div>
+        <div class="info-item" *ngIf="leave.userJobTitle">
+          <span class="info-label">Job Title</span>
+          <span class="info-value">{{ leave.userJobTitle }}</span>
+        </div>
       </div>
     </div>
 
-    <!-- Leave details -->
+    <!-- Leave details ──────────────────────────────────────────────────── -->
     <div class="info-section">
       <span class="section-label">Leave Details</span>
       <div class="info-grid">
@@ -51,26 +58,56 @@
         </div>
         <div class="info-item">
           <span class="info-label">Working Days</span>
-          <span class="info-value days-badge">
-            {{ leave.daysCount }} day{{ leave.daysCount !== 1 ? 's' : '' }}
+          <span class="info-value">
+            <span class="days-badge">
+              {{ leave.daysCount }} day{{ leave.daysCount !== 1 ? 's' : '' }}
+            </span>
           </span>
         </div>
       </div>
     </div>
 
-    <!-- Reason -->
+    <!-- Reason ─────────────────────────────────────────────────────────── -->
     <div class="info-section">
       <span class="section-label">Reason</span>
       <p class="reason-text">{{ leave.reason || 'No reason provided.' }}</p>
     </div>
 
-    <!-- Rejection input -->
+    <!-- Decision info (already-decided records) ─────────────────────────── -->
+    <div class="info-section"
+         *ngIf="leave.status === LeaveStatus.APPROVED || leave.status === LeaveStatus.REJECTED">
+      <span class="section-label">Decision</span>
+      <div class="info-grid">
+        <div class="info-item" *ngIf="leave.approvedByFullName">
+          <span class="info-label">Decided By</span>
+          <span class="info-value">{{ leave.approvedByFullName }}</span>
+        </div>
+        <div class="info-item" *ngIf="leave.approvedByRole">
+          <span class="info-label">Role</span>
+          <span class="info-value">{{ leave.approvedByRole }}</span>
+        </div>
+        <div class="info-item" *ngIf="leave.decidedAt">
+          <span class="info-label">Date</span>
+          <span class="info-value">{{ leave.decidedAt | date:'dd MMMM yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="rejection-block"
+           *ngIf="leave.status === LeaveStatus.REJECTED && leave.rejectionReason">
+        <mat-icon>block</mat-icon>
+        <p>{{ leave.rejectionReason }}</p>
+      </div>
+    </div>
+
+    <!-- Rejection reason input (manager entering reason) ────────────────── -->
     <div class="info-section" *ngIf="rejecting">
       <span class="section-label">Rejection Reason</span>
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Explain why this request is rejected</mat-label>
         <textarea matInput [formControl]="rejectionReason" rows="3"></textarea>
-        <mat-error *ngIf="rejectionReason.invalid">Rejection reason is required.</mat-error>
+        <mat-error *ngIf="rejectionReason.invalid">
+          Rejection reason is required
+        </mat-error>
       </mat-form-field>
     </div>
 
@@ -84,48 +121,67 @@
   <mat-dialog-actions class="dialog-actions" align="end">
     <button mat-button (click)="cancel()" [disabled]="saving">Close</button>
 
-    <ng-container *ngIf="mode === 'decide'">
+    <!-- Decide buttons — guarded by canDecide getter -->
+    <ng-container *ngIf="canDecide">
       <ng-container *ngIf="!rejecting">
-        <button mat-stroked-button color="warn" (click)="showRejectForm()" [disabled]="saving">
-          <mat-icon>close</mat-icon> Reject
+        <button mat-stroked-button color="warn"
+                (click)="showRejectForm()"
+                [disabled]="saving">
+          <mat-icon>close</mat-icon>
+          Reject
         </button>
-        <button mat-raised-button color="primary" (click)="goToSign()" [disabled]="saving">
-          <mat-icon>draw</mat-icon> Approve &amp; Sign
+        <button mat-raised-button color="primary"
+                (click)="goToSign()"
+                [disabled]="saving">
+          <mat-icon>draw</mat-icon>
+          Approve &amp; Sign
         </button>
       </ng-container>
 
       <ng-container *ngIf="rejecting">
-        <button mat-button (click)="rejecting = false" [disabled]="saving">Cancel</button>
+        <button mat-button (click)="rejecting = false" [disabled]="saving">
+          Cancel
+        </button>
         <button mat-raised-button color="warn"
                 (click)="confirmReject()"
                 [disabled]="saving || rejectionReason.invalid">
-          <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
-          <mat-icon *ngIf="!saving">cancel</mat-icon>
+          <mat-spinner *ngIf="saving"  diameter="18" class="btn-spinner"></mat-spinner>
+          <mat-icon   *ngIf="!saving">cancel</mat-icon>
           Confirm Rejection
         </button>
       </ng-container>
     </ng-container>
+
+    <!-- View-only: PDF download (if letter was already generated) -->
+    <button mat-stroked-button
+            *ngIf="mode === 'view' && leave.documentPath"
+            (click)="downloadLetter()">
+      <mat-icon>picture_as_pdf</mat-icon>
+      Download Letter
+    </button>
+
   </mat-dialog-actions>
 
 </ng-container>
 
 
-<!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════════════════════
      STEP 2 — SIGNATURE
-══════════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════════════════════ -->
 <ng-container *ngIf="step === 'sign'">
 
   <div class="dialog-header">
     <mat-icon class="dialog-header__icon dialog-header__icon--sign">edit</mat-icon>
-    <div>
+    <div class="dialog-header__text">
       <h2 mat-dialog-title>Authorize &amp; Sign</h2>
-      <p class="dialog-header__sub">Your signature will be embedded in the official PDF letter</p>
+      <p class="dialog-header__sub">
+        Your signature will be embedded in the official PDF letter
+      </p>
     </div>
   </div>
 
   <mat-dialog-content class="dialog-content">
 
-    <!-- Summary pill -->
     <div class="approval-summary">
       <mat-icon>person</mat-icon>
       <span><strong>{{ leave.userFullName }}</strong> — {{ typeLabel(leave.leaveType) }}</span>
@@ -135,13 +191,14 @@
       <span><strong>{{ leave.daysCount }}</strong> day{{ leave.daysCount !== 1 ? 's' : '' }}</span>
     </div>
 
-    <!-- Approver info -->
     <div class="approver-info">
       <mat-icon>badge</mat-icon>
-      <span>Approving as <strong>{{ approverFullName }}</strong> · {{ approverRole }}</span>
+      <span>
+        Approving as <strong>{{ approverFullName }}</strong>
+        <span *ngIf="approverRole"> · {{ approverRole }}</span>
+      </span>
     </div>
 
-    <!-- Signature canvas -->
     <div class="signature-section">
       <p class="signature-label">
         <mat-icon>draw</mat-icon>
@@ -152,13 +209,13 @@
         <div class="sig-watermark">Sign here</div>
       </div>
       <div class="signature-actions">
-        <button mat-button color="warn" (click)="clearSignature()" type="button">
-          <mat-icon>refresh</mat-icon> Clear
+        <button mat-button color="warn" type="button" (click)="clearSignature()">
+          <mat-icon>refresh</mat-icon>
+          Clear
         </button>
       </div>
     </div>
 
-    <!-- PDF notice -->
     <div class="pdf-notice">
       <mat-icon>picture_as_pdf</mat-icon>
       <span>
@@ -176,14 +233,15 @@
 
   <mat-dialog-actions class="dialog-actions" align="end">
     <button mat-button (click)="backToReview()" [disabled]="saving">
-      <mat-icon>arrow_back</mat-icon> Back
+      <mat-icon>arrow_back</mat-icon>
+      Back
     </button>
     <button mat-raised-button color="primary"
             (click)="confirmApprove()"
             [disabled]="saving">
-      <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
-      <mat-icon *ngIf="!saving">check_circle</mat-icon>
-      {{ saving ? 'Approving…' : 'Confirm & Download PDF' }}
+      <mat-spinner *ngIf="saving"  diameter="18" class="btn-spinner"></mat-spinner>
+      <mat-icon   *ngIf="!saving">check_circle</mat-icon>
+      {{ saving ? 'Approving…' : 'Confirm &amp; Download PDF' }}
     </button>
   </mat-dialog-actions>
 

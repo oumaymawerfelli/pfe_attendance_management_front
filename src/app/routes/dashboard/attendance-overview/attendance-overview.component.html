@@ -1,0 +1,255 @@
+<!-- attendance-overview.component.html -->
+<div class="ao-wrap">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="ao-header">
+    <div class="ao-header-left">
+      <h2 class="ao-title">Attendance Overview</h2>
+      <div class="ao-live-row">
+        <span class="live-dot"></span>
+        <span class="live-txt">Live · Updated just now</span>
+      </div>
+    </div>
+    <div class="ao-header-right">
+      <div class="period-tabs">
+        <button class="ptab" [class.active]="activePeriod==='day'"   (click)="setPeriod('day')">Day</button>
+        <button class="ptab" [class.active]="activePeriod==='week'"  (click)="setPeriod('week')">Week</button>
+        <button class="ptab" [class.active]="activePeriod==='month'" (click)="setPeriod('month')">Month</button>
+        <button class="ptab" [class.active]="activePeriod==='year'"  (click)="setPeriod('year')">Year</button>
+      </div>
+      <button class="icon-btn"><mat-icon>more_vert</mat-icon></button>
+    </div>
+  </div>
+
+  <!-- ── Skeleton ───────────────────────────────────────── -->
+  <div *ngIf="loading" class="sk-wrap">
+    <div class="sk-hero"></div>
+    <div class="sk-right">
+      <div class="sk-row">
+        <div class="sk-stat" *ngFor="let i of [1,2,3,4]"></div>
+      </div>
+      <div class="sk-trend"></div>
+    </div>
+  </div>
+
+  <!-- ── Error ──────────────────────────────────────────── -->
+  <div *ngIf="!loading && error" class="error-state">
+    <mat-icon>error_outline</mat-icon><span>Failed to load data</span>
+  </div>
+
+  <!-- ── Content ────────────────────────────────────────── -->
+  <ng-container *ngIf="!loading && !error && data">
+
+    <div class="ao-main">
+
+      <!-- ── Hero card ──────────────────────────────────── -->
+      <div class="hero-card">
+
+        <!-- background decoration -->
+        <div class="hero-glow"></div>
+        <svg class="hero-pattern" viewBox="0 0 480 480" preserveAspectRatio="xMidYMid slice" fill="none">
+          <line x1="0"   y1="120" x2="480" y2="120" stroke="rgba(147,197,253,0.07)" stroke-width="1"/>
+          <line x1="0"   y1="240" x2="480" y2="240" stroke="rgba(147,197,253,0.07)" stroke-width="1"/>
+          <line x1="0"   y1="360" x2="480" y2="360" stroke="rgba(147,197,253,0.07)" stroke-width="1"/>
+          <line x1="120" y1="0"   x2="120" y2="480" stroke="rgba(147,197,253,0.05)" stroke-width="1"/>
+          <line x1="240" y1="0"   x2="240" y2="480" stroke="rgba(147,197,253,0.05)" stroke-width="1"/>
+          <line x1="360" y1="0"   x2="360" y2="480" stroke="rgba(147,197,253,0.05)" stroke-width="1"/>
+          <circle cx="120" cy="120" r="3" fill="rgba(147,197,253,0.18)"/>
+          <circle cx="240" cy="120" r="3" fill="rgba(147,197,253,0.12)"/>
+          <circle cx="360" cy="120" r="3" fill="rgba(147,197,253,0.18)"/>
+          <circle cx="120" cy="240" r="3" fill="rgba(147,197,253,0.12)"/>
+          <circle cx="240" cy="240" r="3" fill="rgba(147,197,253,0.18)"/>
+          <circle cx="360" cy="240" r="3" fill="rgba(147,197,253,0.12)"/>
+          <circle cx="120" cy="360" r="3" fill="rgba(147,197,253,0.12)"/>
+          <circle cx="240" cy="360" r="3" fill="rgba(147,197,253,0.18)"/>
+          <circle cx="360" cy="360" r="3" fill="rgba(147,197,253,0.12)"/>
+          <line x1="120" y1="120" x2="240" y2="240" stroke="rgba(147,197,253,0.06)" stroke-width="1"/>
+          <line x1="240" y1="120" x2="360" y2="240" stroke="rgba(147,197,253,0.06)" stroke-width="1"/>
+          <line x1="120" y1="240" x2="240" y2="360" stroke="rgba(147,197,253,0.06)" stroke-width="1"/>
+          <line x1="240" y1="240" x2="360" y2="360" stroke="rgba(147,197,253,0.06)" stroke-width="1"/>
+        </svg>
+
+        <!-- Top section: info + donut -->
+        <div class="hero-top">
+          <div class="hero-info">
+            <span class="rate-lbl">ATTENDANCE RATE</span>
+            <div class="rate-row">
+              <span class="rate-val">{{ data.attendanceRate }}%</span>
+              <span class="rate-trend"
+                    [class.up]="trendUp(data.attendanceRateTrend)"
+                    [class.down]="trendDown(data.attendanceRateTrend)">
+                <mat-icon>{{ trendUp(data.attendanceRateTrend) ? 'arrow_upward' : trendDown(data.attendanceRateTrend) ? 'arrow_downward' : 'remove' }}</mat-icon>
+                {{ Math.abs(data.attendanceRateTrend) }}%
+              </span>
+            </div>
+            <span class="rate-vs">{{ compareLabel }}</span>
+            <div class="emp-row">
+              <mat-icon class="emp-icon">group</mat-icon>
+              <span class="emp-num">{{ data.onTime }}</span>
+              <span class="emp-lbl">Employees on time</span>
+            </div>
+          </div>
+          <div class="hero-donut-wrap">
+            <canvas #gaugeCanvas width="160" height="160"></canvas>
+            <div class="donut-center-icon"><mat-icon>groups</mat-icon></div>
+          </div>
+        </div>
+
+        <!-- Line chart -->
+        <div class="hero-chart-wrap">
+          <canvas #lineCanvas></canvas>
+        </div>
+
+      </div>
+
+      <!-- ── Right column ───────────────────────────────── -->
+      <div class="ao-right">
+
+        <!-- 4 stat cards -->
+        <div class="stat-row">
+
+          <div class="scard sc-orange">
+            <div class="scard-top">
+              <div class="scard-icon-wrap ic-orange"><mat-icon>schedule</mat-icon></div>
+              <mat-icon class="scard-dots">more_vert</mat-icon>
+            </div>
+            <div class="scard-label">LATE</div>
+            <div class="scard-num">{{ data.late }}</div>
+            <div class="scard-trend"
+                 [class.trend-good]="trendDown(data.lateTrend)"
+                 [class.trend-bad]="trendUp(data.lateTrend)">
+              <mat-icon>{{ trendUp(data.lateTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+              {{ Math.abs(data.lateTrend) }}%
+              <span class="scard-vs">{{ compareLabel }}</span>
+            </div>
+            <div class="spark-box"><canvas #spark1></canvas></div>
+          </div>
+
+          <div class="scard sc-red">
+            <div class="scard-top">
+              <div class="scard-icon-wrap ic-red"><mat-icon>person_off</mat-icon></div>
+              <mat-icon class="scard-dots">more_vert</mat-icon>
+            </div>
+            <div class="scard-label">ABSENT</div>
+            <div class="scard-num">{{ data.absent }}</div>
+            <div class="scard-trend"
+                 [class.trend-good]="trendDown(data.absentTrend)"
+                 [class.trend-bad]="trendUp(data.absentTrend)">
+              <mat-icon>{{ trendUp(data.absentTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+              {{ Math.abs(data.absentTrend) }}%
+              <span class="scard-vs">{{ compareLabel }}</span>
+            </div>
+            <div class="spark-box"><canvas #spark2></canvas></div>
+          </div>
+
+          <div class="scard sc-purple">
+            <div class="scard-top">
+              <div class="scard-icon-wrap ic-purple"><mat-icon>event_available</mat-icon></div>
+              <mat-icon class="scard-dots">more_vert</mat-icon>
+            </div>
+            <div class="scard-label">ON LEAVE</div>
+            <div class="scard-num">{{ data.onLeave }}</div>
+            <div class="scard-trend"
+                 [class.trend-good]="trendDown(data.onLeaveTrend)"
+                 [class.trend-bad]="trendUp(data.onLeaveTrend)">
+              <mat-icon>{{ trendUp(data.onLeaveTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+              {{ Math.abs(data.onLeaveTrend) }}%
+              <span class="scard-vs">{{ compareLabel }}</span>
+            </div>
+            <div class="spark-box"><canvas #spark3></canvas></div>
+          </div>
+
+          <div class="scard sc-teal">
+            <div class="scard-top">
+              <div class="scard-icon-wrap ic-teal"><mat-icon>home_work</mat-icon></div>
+              <mat-icon class="scard-dots">more_vert</mat-icon>
+            </div>
+            <div class="scard-label">REMOTE</div>
+            <div class="scard-num">{{ data.remote }}</div>
+            <div class="scard-trend"
+                 [class.trend-good]="trendUp(data.remoteTrend)"
+                 [class.trend-bad]="trendDown(data.remoteTrend)">
+              <mat-icon>{{ trendUp(data.remoteTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+              {{ Math.abs(data.remoteTrend) }}%
+              <span class="scard-vs">{{ compareLabel }}</span>
+            </div>
+            <div class="spark-box"><canvas #spark4></canvas></div>
+          </div>
+
+        </div>
+
+        <!-- Attendance Trend chart -->
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-title-block">
+              <span class="trend-title">Attendance Trend</span>
+              <mat-icon class="trend-info-icon">info_outline</mat-icon>
+              <div class="trend-legend">
+                <div class="leg-item">
+                  <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/></svg>
+                  <span>This {{ activePeriod }}</span>
+                </div>
+                <div class="leg-item leg-prev">
+                  <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3" stroke-linecap="round"/></svg>
+                  <span>Last {{ activePeriod }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="trend-period-chip">
+              <span>This {{ activePeriod }}</span>
+              <mat-icon>expand_more</mat-icon>
+            </div>
+          </div>
+          <div class="trend-canvas-wrap">
+            <canvas #trendCanvas></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Insight bar ─────────────────────────────────── -->
+    <div class="insight-bar">
+
+      <div class="ins-left">
+        <div class="ins-icon-box"><mat-icon>lightbulb</mat-icon></div>
+        <div class="ins-body">
+          <span class="ins-label">Insight</span>
+          <p class="ins-text" [innerHTML]="insightText"></p>
+        </div>
+      </div>
+
+      <div class="ins-divider"></div>
+
+      <div class="ins-stats">
+        <div class="ins-stat">
+          <mat-icon class="is-icon ic-navy">group</mat-icon>
+          <div class="is-text">
+            <span class="is-label">Total Employees</span>
+            <span class="is-val">{{ data.totalEmployees }}</span>
+          </div>
+        </div>
+        <div class="ins-stat">
+          <mat-icon class="is-icon ic-green">check_circle</mat-icon>
+          <div class="is-text">
+            <span class="is-label">On Time</span>
+            <span class="is-val">{{ data.onTime }} <small>({{ data.attendanceRate }}%)</small></span>
+          </div>
+        </div>
+        <div class="ins-stat">
+          <mat-icon class="is-icon ic-red">person_off</mat-icon>
+          <div class="is-text">
+            <span class="is-label">Need Attention</span>
+            <span class="is-val">{{ needAttention }} <small>({{ needAttentionPct }}%)</small></span>
+          </div>
+        </div>
+      </div>
+
+      <button class="ins-cta">
+        Full report <mat-icon>arrow_forward</mat-icon>
+      </button>
+
+    </div>
+
+  </ng-container>
+</div>
