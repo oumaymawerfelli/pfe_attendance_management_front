@@ -250,7 +250,7 @@ describe('LeaveHistoryComponent', () => {
   // ── openDetail ────────────────────────────────────────────────────────────
 
   it('should open detail dialog with view mode', () => {
-    component.openDetail(mockLeaves[0] as any);
+    component.openDetail(mockLeaves[0] );
     expect(dialogSpy.open).toHaveBeenCalledWith(
       jasmine.any(Function),
       jasmine.objectContaining({ data: jasmine.objectContaining({ mode: 'view' }) })
@@ -258,9 +258,9 @@ describe('LeaveHistoryComponent', () => {
   });
 
   it('should pass the leave record to the dialog', () => {
-    component.openDetail(mockLeaves[0] as any);
+    component.openDetail(mockLeaves[0] );
  const args = dialogSpy.open.calls.mostRecent().args[1] as any;
-expect(args?.data?.leave).toEqual(mockLeaves[0] as any);
+expect(args?.data?.leave).toEqual(mockLeaves[0] );
   });
 
   // ── typeLabel ─────────────────────────────────────────────────────────────

@@ -61,7 +61,7 @@ export class ActivateAccountComponent implements OnInit {
   // With hash routing (#/auth/activate?token=...), 
   // Angular's ActivatedRoute reads query params from the hash correctly
   this.route.queryParams.subscribe(params => {
-    this.token = params['token'];
+    this.token = params.token;
 
     console.log('Token found:', this.token ? this.token.substring(0, 20) + '...' : 'NONE');
 
@@ -187,9 +187,9 @@ private tokenValidated = false;
     const control = this.activationForm.get('password');
 
     if (control?.errors) {
-      if (control.errors['required']) errors.push('Password is required');
-      if (control.errors['minlength']) errors.push('Password must be at least 8 characters');
-      if (control.errors['pattern'])
+      if (control.errors.required) errors.push('Password is required');
+      if (control.errors.minlength) errors.push('Password must be at least 8 characters');
+      if (control.errors.pattern)
         errors.push('Password must contain at least one letter, one number, and one special character');
     }
 

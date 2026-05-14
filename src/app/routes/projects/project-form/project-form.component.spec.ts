@@ -121,17 +121,17 @@ describe('ProjectFormComponent (create mode)', () => {
 
   it('should set dateInvalid when endDate is before startDate', () => {
     component.projectForm.patchValue({ startDate: '2026-06-01', endDate: '2026-01-01' });
-    expect(component.projectForm.errors?.['dateInvalid']).toBeTrue();
+    expect(component.projectForm.errors?.dateInvalid).toBeTrue();
   });
 
   it('should have no dateInvalid error when endDate is after startDate', () => {
     component.projectForm.patchValue({ startDate: '2026-01-01', endDate: '2026-06-01' });
-    expect(component.projectForm.errors?.['dateInvalid']).toBeFalsy();
+    expect(component.projectForm.errors?.dateInvalid).toBeFalsy();
   });
 
   it('should have no dateInvalid error when endDate is empty', () => {
     component.projectForm.patchValue({ startDate: '2026-01-01', endDate: '' });
-    expect(component.projectForm.errors?.['dateInvalid']).toBeFalsy();
+    expect(component.projectForm.errors?.dateInvalid).toBeFalsy();
   });
 
   // ── Managers loading ────────────────────────────────────────────────────

@@ -424,7 +424,7 @@ describe('LeaveDetailDialogComponent', () => {
 
     it('should return the color from LEAVE_STATUS_CONFIG', () => {
       const expected = LEAVE_STATUS_CONFIG[LeaveStatus.APPROVED]?.color;
-      expect(component.statusClass(LeaveStatus.APPROVED)).toBe(expected!);
+      expect(component.statusClass(LeaveStatus.APPROVED)).toBe(expected);
     });
 
     it('should return "gray" for unknown status', () => {
@@ -437,7 +437,7 @@ describe('LeaveDetailDialogComponent', () => {
 
     it('should return the label from LEAVE_STATUS_CONFIG', () => {
       const expected = LEAVE_STATUS_CONFIG[LeaveStatus.REJECTED]?.label;
-      expect(component.statusLabel(LeaveStatus.REJECTED)).toBe(expected!);
+      expect(component.statusLabel(LeaveStatus.REJECTED)).toBe(expected);
     });
 
     it('should return the raw string for unknown status', () => {

@@ -94,7 +94,7 @@ export class AttendanceOverviewComponent
   ngOnDestroy(): void { this.destroyCharts(); }
 
   ngOnChanges(c: SimpleChanges): void {
-    if (c['period'] && !c['period'].firstChange) {
+    if (c.period && !c.period.firstChange) {
       this.activePeriod = toPeriod(this.period);
     }
     const keys = ['period', 'department', 'specificDate'];

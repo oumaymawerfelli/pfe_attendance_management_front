@@ -144,8 +144,8 @@ getStatusHistory(id: number): Observable<StatusHistory[]> {
 }
   assignTeamMember(projectId: number, employeeId: number): Observable<any> {
     const payload = {
-      projectId: projectId,
-      employeeId: employeeId
+      projectId,
+      employeeId
     };
     return this.http.post(`${this.apiUrl}/team/assign`, payload);
   }

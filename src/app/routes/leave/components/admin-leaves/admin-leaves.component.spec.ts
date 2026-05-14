@@ -243,7 +243,7 @@ describe('AdminLeavesComponent', () => {
   // ── openDetail ────────────────────────────────────────────────────────────
 
   it('should open the detail dialog', () => {
-    component.openDetail(mockLeaves[0] as any);
+    component.openDetail(mockLeaves[0] );
     expect(dialogSpy.open).toHaveBeenCalled();
   });
 
@@ -251,14 +251,14 @@ describe('AdminLeavesComponent', () => {
     const result = { action: 'approved', leave: mockLeaves[0] };
     dialogSpy.open.and.returnValue({ afterClosed: () => of(result) } as any);
     leaveSpy.getAllLeaves.calls.reset();
-    component.openDetail(mockLeaves[0] as any);
+    component.openDetail(mockLeaves[0] );
     expect(leaveSpy.getAllLeaves).toHaveBeenCalled();
   });
 
   it('should show snackbar with approved message', () => {
     const result = { action: 'approved', leave: mockLeaves[0] };
     dialogSpy.open.and.returnValue({ afterClosed: () => of(result) } as any);
-    component.openDetail(mockLeaves[0] as any);
+    component.openDetail(mockLeaves[0] );
     expect(snackSpy.open).toHaveBeenCalledWith(
       jasmine.stringContaining('approved'), 'Close', jasmine.any(Object)
     );
@@ -267,7 +267,7 @@ describe('AdminLeavesComponent', () => {
   it('should show snackbar with rejected message', () => {
     const result = { action: 'rejected', leave: mockLeaves[0] };
     dialogSpy.open.and.returnValue({ afterClosed: () => of(result) } as any);
-    component.openDetail(mockLeaves[0] as any);
+    component.openDetail(mockLeaves[0] );
     expect(snackSpy.open).toHaveBeenCalledWith(
       jasmine.stringContaining('rejected'), 'Close', jasmine.any(Object)
     );
@@ -276,22 +276,22 @@ describe('AdminLeavesComponent', () => {
   it('should not reload when dialog closes with null', () => {
     dialogSpy.open.and.returnValue({ afterClosed: () => of(null) } as any);
     leaveSpy.getAllLeaves.calls.reset();
-    component.openDetail(mockLeaves[0] as any);
+    component.openDetail(mockLeaves[0] );
     expect(leaveSpy.getAllLeaves).not.toHaveBeenCalled();
   });
 
   // ── hasDocument / viewDocument ────────────────────────────────────────────
 
   it('hasDocument should return false when documentPath is null', () => {
-    expect(component.hasDocument(makeLeave({ documentPath: null }) as any)).toBeFalse();
+    expect(component.hasDocument(makeLeave({ documentPath: null }) )).toBeFalse();
   });
 
   it('hasDocument should return true when documentPath is set', () => {
-    expect(component.hasDocument(makeLeave({ documentPath: '/files/doc.pdf' }) as any)).toBeTrue();
+    expect(component.hasDocument(makeLeave({ documentPath: '/files/doc.pdf' }) )).toBeTrue();
   });
 
   it('viewDocument should call openDocument with leave id', () => {
-    component.viewDocument(makeLeave({ id: 7 }) as any);
+    component.viewDocument(makeLeave({ id: 7 }) );
     expect(leaveSpy.openDocument).toHaveBeenCalledWith(7);
   });
 

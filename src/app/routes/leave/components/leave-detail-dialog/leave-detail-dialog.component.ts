@@ -118,7 +118,7 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
   get canDecide(): boolean {
     return (
       this.mode === 'decide' &&
-      this.PENDING_STATUSES.has(this.leave.status as LeaveStatus)
+      this.PENDING_STATUSES.has(this.leave.status )
     );
   }
 

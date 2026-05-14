@@ -220,7 +220,7 @@ TestBed.overrideTemplate(RegisterComponent, '');
 
   describe('matchValidator()', () => {
     it('should return { mismatch: true } when source and target differ', () => {
-      const group = component['fb'].group(
+      const group = component.fb.group(
         { a: ['hello'], b: ['world'] },
         { validators: component.matchValidator('a', 'b') }
       );
@@ -228,7 +228,7 @@ TestBed.overrideTemplate(RegisterComponent, '');
     });
 
     it('should return null when source and target match', () => {
-      const group = component['fb'].group(
+      const group = component.fb.group(
         { a: ['same'], b: ['same'] },
         { validators: component.matchValidator('a', 'b') }
       );
@@ -236,7 +236,7 @@ TestBed.overrideTemplate(RegisterComponent, '');
     });
 
     it('should set mismatch error on the target control', () => {
-      const group = component['fb'].group(
+      const group = component.fb.group(
         { a: ['hello'], b: ['world'] },
         { validators: component.matchValidator('a', 'b') }
       );
@@ -244,7 +244,7 @@ TestBed.overrideTemplate(RegisterComponent, '');
     });
 
     it('should clear target errors when values match', () => {
-      const group = component['fb'].group(
+      const group = component.fb.group(
         { a: ['same'], b: ['same'] },
         { validators: component.matchValidator('a', 'b') }
       );

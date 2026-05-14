@@ -77,7 +77,7 @@ describe('AttendanceOverviewComponent', () => {
   let httpMock:  HttpTestingController;
 
   beforeEach(async () => {
-    spyOn(HTMLCanvasElement.prototype, 'getContext').and.returnValue(mockCtx as any);
+    spyOn(HTMLCanvasElement.prototype, 'getContext').and.returnValue(mockCtx );
     // ← Spy on the real Chart prototype so destroy() is tracked
     spyOn(Chart.prototype, 'destroy').and.callFake(() => {});
 

@@ -280,8 +280,8 @@ export class EditProfileDialogComponent implements OnInit {
   getError(field: string): string {
     const c = this.form.get(field);
     if (c?.hasError('required'))  return 'This field is required';
-    if (c?.hasError('minlength')) return `Minimum ${c.errors?.['minlength'].requiredLength} characters`;
-    if (c?.hasError('maxlength')) return `Maximum ${c.errors?.['maxlength'].requiredLength} characters`;
+    if (c?.hasError('minlength')) return `Minimum ${c.errors?.minlength.requiredLength} characters`;
+    if (c?.hasError('maxlength')) return `Maximum ${c.errors?.maxlength.requiredLength} characters`;
     if (c?.hasError('pattern'))   return 'Must be exactly 8 digits';
     return '';
   }
