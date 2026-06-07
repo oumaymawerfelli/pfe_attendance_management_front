@@ -1,192 +1,194 @@
-<div class="activate-container">
-  <mat-card class="activate-card">
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-state">
-      <mat-spinner diameter="60"></mat-spinner>
-      <h2>Validating your activation link...</h2>
-      <p>Please wait while we verify your token</p>
-    </div>
+<div class="activate-page">
+  <!-- Background -->
+  <div class="activate-bg"></div>
+  <div class="activate-overlay"></div>
 
-    <!-- Invalid Token State -->
-    <div *ngIf="!isLoading && !isValidToken" class="error-state">
-      <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
-      <h2>Invalid or Expired Link</h2>
-      <p>The activation link you clicked is invalid or has expired.</p>
-      
-      <div class="error-actions">
-        <button mat-raised-button color="primary" routerLink="/auth/register">
-          <mat-icon>app_registration</mat-icon>
-          Register Again
-        </button>
-        <button mat-button routerLink="/auth/login">
-          <mat-icon>login</mat-icon>
-          Back to Login
-        </button>
+  <!-- Centered split card -->
+  <div class="activate-card">
+
+    <!-- LEFT: brand panel -->
+    <div class="brand-panel">
+      <div class="brand-dots"></div>
+
+     
+
+      <img src="assets/images/logo1.webp" alt="Arab Soft" class="brand-logo">
+
+      <div class="brand-tagline">
+        <span class="tagline-strong">Smart Solutions. Stronger Teams.</span>
+        <div class="tagline-underline"></div>
+      </div>
+
+      <div class="brand-support">
+        <mat-icon>support_agent</mat-icon>
+        <div>
+          <div class="support-title">Need help?</div>
+          <div class="support-sub">Contact our support team</div>
+        </div>
       </div>
     </div>
 
-    <!-- Valid Token - Activation Form -->
-    <div *ngIf="!isLoading && isValidToken" class="form-state">
-      <mat-card-header>
-        <div mat-card-avatar class="header-icon">
-          <mat-icon color="primary">verified_user</mat-icon>
+    <!-- RIGHT: content panel -->
+    <div class="content-panel">
+
+      <!-- ── Loading State ───────────────────────────── -->
+      <div *ngIf="isLoading" class="state-block">
+        <div class="state-icon-wrap loading">
+          <mat-spinner diameter="48"></mat-spinner>
         </div>
-        <mat-card-title>Activate Your Account</mat-card-title>
-        <mat-card-subtitle>
-          Welcome {{ firstName }} {{ lastName }}! Please set up your account
-        </mat-card-subtitle>
-      </mat-card-header>
+        <h2 class="content-title">Validating your activation link…</h2>
+        <p class="content-subtitle">Please wait while we verify your token</p>
+      </div>
 
-      <mat-card-content>
-        <!-- User Info Summary -->
-        <mat-card class="info-card" appearance="outlined">
-          <mat-card-content>
-            <div class="info-row">
-              <mat-icon color="primary">email</mat-icon>
-              <span>{{ email }}</span>
+      <!-- ── Invalid Token State ─────────────────────── -->
+      <div *ngIf="!isLoading && !isValidToken" class="state-block">
+        <div class="state-icon-wrap error">
+          <mat-icon>error_outline</mat-icon>
+        </div>
+        <h2 class="content-title">Invalid or Expired Link</h2>
+        <p class="content-subtitle">The activation link you clicked is invalid or has expired.</p>
+
+        <div class="actions-row">
+          <a class="back-btn" routerLink="/auth/login">
+            <mat-icon>login</mat-icon> Back to Login
+          </a>
+          <a class="next-btn" routerLink="/auth/register">
+            <mat-icon>app_registration</mat-icon> Register Again
+          </a>
+        </div>
+      </div>
+
+      <!-- ── Activation Form ─────────────────────────── -->
+      <div *ngIf="!isLoading && isValidToken" class="state-block form-block">
+        <div class="state-icon-wrap success">
+          <mat-icon>verified_user</mat-icon>
+        </div>
+
+        <h2 class="content-title">Activate Your Account</h2>
+        <p class="content-subtitle">Welcome {{ firstName }} {{ lastName }}! Please set up your account.</p>
+
+        <!-- User info badge -->
+        <div class="info-box">
+          <div class="info-row">
+            <mat-icon>email</mat-icon>
+            <span>{{ email }}</span>
+          </div>
+          <div class="info-row">
+            <mat-icon>person</mat-icon>
+            <span>{{ firstName }} {{ lastName }}</span>
+          </div>
+        </div>
+
+        <form [formGroup]="activationForm" *ngIf="activationForm" class="activate-form">
+
+          <!-- Username -->
+          <div class="field-group">
+            <label class="field-label">Username<span class="req">*</span></label>
+            <div class="field-input"
+                 [class.has-error]="activationForm.get('username')?.invalid && activationForm.get('username')?.touched">
+              <mat-icon class="field-icon">person</mat-icon>
+              <input type="text" placeholder="Choose a username"
+                     formControlName="username" autocomplete="off">
+              <mat-icon class="field-check"
+                        *ngIf="activationForm.get('username')?.valid && activationForm.get('username')?.touched">
+                check_circle
+              </mat-icon>
             </div>
-            <div class="info-row">
-              <mat-icon color="primary">person</mat-icon>
-              <span>{{ firstName }} {{ lastName }}</span>
+            <div class="field-hint">Choose a unique username (min. 3 characters)</div>
+            <div class="field-error" *ngIf="activationForm.get('username')?.invalid && activationForm.get('username')?.touched">
+              <span *ngIf="activationForm.get('username')?.hasError('required')">Username is required</span>
+              <span *ngIf="activationForm.get('username')?.hasError('minlength')">
+                Min 3 characters (currently {{ activationForm.get('username')?.value?.length }})
+              </span>
+              <span *ngIf="activationForm.get('username')?.hasError('maxlength')">Username cannot exceed 50 characters</span>
             </div>
-          </mat-card-content>
-        </mat-card>
+          </div>
 
-        <!-- Activation Form - no ngSubmit, no native form submission -->
-        <form [formGroup]="activationForm" *ngIf="activationForm">
+          <!-- Password -->
+          <div class="field-group">
+            <label class="field-label">Password<span class="req">*</span></label>
+            <div class="field-input"
+                 [class.has-error]="activationForm.get('password')?.invalid && activationForm.get('password')?.touched">
+              <mat-icon class="field-icon">lock_outline</mat-icon>
+              <input [type]="hidePassword ? 'password' : 'text'"
+                     placeholder="Create a strong password"
+                     formControlName="password">
+              <button type="button" class="field-toggle" (click)="hidePassword = !hidePassword">
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <div class="field-error" *ngIf="activationForm.get('password')?.invalid && activationForm.get('password')?.touched">
+              <span *ngIf="activationForm.get('password')?.hasError('required')">Password is required</span>
+              <span *ngIf="activationForm.get('password')?.hasError('minlength')">
+                Min 8 characters (currently {{ activationForm.get('password')?.value?.length }})
+              </span>
+              <span *ngIf="activationForm.get('password')?.hasError('pattern')">
+                Must contain a letter, a number, and a special character (&#64;$!%*#?&amp;)
+              </span>
+            </div>
+          </div>
 
-          <!-- Username Field -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Username</mat-label>
-            <input 
-              matInput 
-              formControlName="username" 
-              placeholder="Choose a username"
-              autocomplete="off">
-            <mat-icon matPrefix>person</mat-icon>
-            <mat-icon 
-              matSuffix 
-              *ngIf="activationForm.get('username')?.valid && activationForm.get('username')?.touched" 
-              color="primary">check_circle</mat-icon>
-            
-            <mat-error *ngIf="activationForm.get('username')?.hasError('required')">
-              Username is required
-            </mat-error>
-            <mat-error *ngIf="activationForm.get('username')?.hasError('minlength')">
-              Username must be at least 3 characters (currently {{ activationForm.get('username')?.value?.length }})
-            </mat-error>
-            <mat-error *ngIf="activationForm.get('username')?.hasError('maxlength')">
-              Username cannot exceed 50 characters
-            </mat-error>
-            
-            <mat-hint>Choose a unique username (min. 3 characters)</mat-hint>
-          </mat-form-field>
-
-          <!-- Password Field -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Password</mat-label>
-            <input 
-              matInput 
-              [type]="hidePassword ? 'password' : 'text'" 
-              formControlName="password"
-              placeholder="Create a strong password">
-            <mat-icon matPrefix>lock</mat-icon>
-            <button 
-              type="button"
-              mat-icon-button 
-              matSuffix 
-              (click)="hidePassword = !hidePassword"
-              [attr.aria-label]="'Hide password'">
-              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
-            
-            <mat-error *ngIf="activationForm.get('password')?.hasError('required')">
-              Password is required
-            </mat-error>
-            <mat-error *ngIf="activationForm.get('password')?.hasError('minlength')">
-              Password must be at least 8 characters (currently {{ activationForm.get('password')?.value?.length }})
-            </mat-error>
-            <mat-error *ngIf="activationForm.get('password')?.hasError('pattern')">
-              Password must contain at least one letter, one number, and one special character (@$!%*#?&)
-            </mat-error>
-          </mat-form-field>
-
-          <!-- Password Strength Indicator -->
+          <!-- Password strength -->
           <div class="password-strength" *ngIf="activationForm.get('password')?.value">
             <div class="strength-text">
               <span>Password strength:</span>
               <span [ngClass]="getPasswordStrengthClass()">{{ getPasswordStrength() }}</span>
             </div>
-            <mat-progress-bar
-              mode="determinate"
-              [value]="getPasswordStrengthValue()"
-              [color]="getPasswordStrengthColor()">
+            <mat-progress-bar mode="determinate"
+                              [value]="getPasswordStrengthValue()"
+                              [color]="getPasswordStrengthColor()">
             </mat-progress-bar>
           </div>
 
-          <!-- Confirm Password Field -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Confirm Password</mat-label>
-            <input 
-              matInput 
-              [type]="hideConfirmPassword ? 'password' : 'text'" 
-              formControlName="confirmPassword"
-              placeholder="Re-enter your password">
-            <mat-icon matPrefix>lock</mat-icon>
-            <button 
-              type="button"
-              mat-icon-button 
-              matSuffix 
-              (click)="hideConfirmPassword = !hideConfirmPassword"
-              [attr.aria-label]="'Hide password'">
-              <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
-            <mat-icon 
-              matSuffix 
-              *ngIf="activationForm.get('confirmPassword')?.valid && activationForm.get('confirmPassword')?.touched && !activationForm.hasError('passwordMismatch')" 
-              color="primary">check_circle</mat-icon>
-            
-            <mat-error *ngIf="activationForm.get('confirmPassword')?.hasError('required')">
-              Please confirm your password
-            </mat-error>
-            <mat-error *ngIf="activationForm.hasError('passwordMismatch')">
-              ⚠️ Passwords do not match
-            </mat-error>
-          </mat-form-field>
+          <!-- Confirm password -->
+          <div class="field-group">
+            <label class="field-label">Confirm Password<span class="req">*</span></label>
+            <div class="field-input"
+                 [class.has-error]="(activationForm.get('confirmPassword')?.touched && activationForm.get('confirmPassword')?.invalid) || activationForm.hasError('passwordMismatch')">
+              <mat-icon class="field-icon">lock_outline</mat-icon>
+              <input [type]="hideConfirmPassword ? 'password' : 'text'"
+                     placeholder="Re-enter your password"
+                     formControlName="confirmPassword">
+              <button type="button" class="field-toggle" (click)="hideConfirmPassword = !hideConfirmPassword">
+                <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-icon class="field-check"
+                        *ngIf="activationForm.get('confirmPassword')?.valid && activationForm.get('confirmPassword')?.touched && !activationForm.hasError('passwordMismatch')">
+                check_circle
+              </mat-icon>
+            </div>
+            <div class="field-error" *ngIf="activationForm.get('confirmPassword')?.touched">
+              <span *ngIf="activationForm.get('confirmPassword')?.hasError('required')">Please confirm your password</span>
+              <span *ngIf="activationForm.hasError('passwordMismatch') && !activationForm.get('confirmPassword')?.hasError('required')">
+                Passwords do not match
+              </span>
+            </div>
+          </div>
 
-          <!-- Form Actions -->
-          <div class="form-actions">
-            <button 
-              mat-raised-button 
-              color="primary" 
-              type="button"
-              (click)="onSubmit()"
-              [disabled]="activationForm.invalid"
-              class="submit-button">
-              <mat-icon>check_circle</mat-icon>
-              Activate Account
-            </button>
-
-            <button 
-              mat-button 
-              type="button" 
-              routerLink="/auth/login">
-              <mat-icon>arrow_back</mat-icon>
-              Back to Login
+          <!-- Actions -->
+          <div class="actions-row">
+            <a class="back-btn" routerLink="/auth/login">
+              <mat-icon>arrow_back</mat-icon> Back to Login
+            </a>
+            <button class="next-btn"
+                    type="button"
+                    (click)="onSubmit()"
+                    [disabled]="activationForm.invalid">
+              <mat-icon>check_circle</mat-icon> Activate Account
             </button>
           </div>
 
+          <!-- Resend -->
+          <div class="resend-row">
+            Didn't receive the email?
+            <a href="javascript:void(0)" (click)="resendActivation()">Click here to resend</a>
+          </div>
         </form>
+      </div>
 
-        <!-- Resend Link -->
-        <div class="resend-section">
-          <p>Didn't receive the email? 
-            <a href="javascript:void(0)" (click)="resendActivation()">
-              Click here to resend
-            </a>
-          </p>
-        </div>
-      </mat-card-content>
+      <p class="footer-text">
+        © 2026 <span class="brand-accent">Arab Soft</span>. All rights reserved.
+      </p>
     </div>
-  </mat-card>
+  </div>
 </div>

@@ -1,0 +1,117 @@
+<!-- wellbeing-overview.component.html — floating panel like chatbot -->
+
+<!-- ── Floating trigger button ───────────────────────────── -->
+<button class="wb-fab" (click)="toggle()" [class.wb-fab--open]="isOpen"
+        [matTooltip]="isOpen ? '' : 'Workforce Wellbeing'" matTooltipPosition="left">
+  <mat-icon class="wb-fab-icon">{{ isOpen ? 'close' : 'favorite' }}</mat-icon>
+  <span class="wb-fab-badge" *ngIf="!isOpen && data && data.totalResponses > 0">
+    {{ data.totalResponses }}
+  </span>
+</button>
+
+<!-- ── Panel ─────────────────────────────────────────────── -->
+<div class="wb-panel" [class.wb-panel--open]="isOpen">
+
+  <!-- Panel header -->
+  <div class="wb-panel-header">
+    <div class="wb-panel-header-left">
+      <div class="wb-panel-icon"><mat-icon>favorite</mat-icon></div>
+      <div>
+        <span class="wb-panel-title">Workforce Wellbeing</span>
+        <span class="wb-panel-sub">Anonymous · Today</span>
+      </div>
+    </div>
+    <button class="wb-panel-close" (click)="toggle()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="wb-panel-loading" *ngIf="loading">
+    <mat-spinner diameter="28"></mat-spinner>
+  </div>
+
+  <!-- Content -->
+  <div class="wb-panel-body" *ngIf="!loading && data">
+
+    <!-- KPI row -->
+    <div class="wb-kpis">
+      <div class="wb-kpi">
+        <span class="wb-kpi-val">{{ data.participationRate | number:'1.0-0' }}%</span>
+        <span class="wb-kpi-lbl">Participation</span>
+      </div>
+      <div class="wb-kpi-sep"></div>
+      <div class="wb-kpi">
+        <span class="wb-kpi-val">{{ avgEmoji }} {{ data.averageScore | number:'1.1-1' }}</span>
+        <span class="wb-kpi-lbl">Avg Score</span>
+      </div>
+      <div class="wb-kpi-sep"></div>
+      <div class="wb-kpi">
+        <span class="wb-kpi-val">{{ data.totalResponses }}</span>
+        <span class="wb-kpi-lbl">Responses</span>
+      </div>
+      <div class="wb-kpi-sep" *ngIf="data.byDepartment?.length"></div>
+      <div class="wb-kpi" *ngIf="data.byDepartment?.length">
+        <span class="wb-kpi-val" style="font-size:12px">{{ topDept }}</span>
+        <span class="wb-kpi-lbl">Top Dept</span>
+      </div>
+    </div>
+
+    <!-- Mood distribution -->
+    <div class="wb-section-label">Mood Distribution</div>
+    <div class="wb-dist">
+      <div class="wb-dist-row" *ngFor="let m of moods">
+        <span class="wb-dist-emoji">{{ m.emoji }}</span>
+        <div class="wb-dist-track">
+          <div class="wb-dist-fill"
+               [style.width.%]="distPct(m.score)"
+               [style.background]="m.color">
+          </div>
+        </div>
+        <span class="wb-dist-n">{{ data.distribution[m.score] || 0 }}</span>
+      </div>
+    </div>
+
+    <!-- Sparkline -->
+    <div class="wb-section-label" *ngIf="(data.trend?.length ?? 0) > 1">14-day trend</div>
+    <div class="wb-spark-wrap" *ngIf="(data.trend?.length ?? 0) > 1">
+      <svg class="wb-spark" viewBox="0 0 260 40" preserveAspectRatio="none">
+        <polyline
+          [attr.points]="sparklinePoints"
+          fill="none" stroke="#3b82f6"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="wb-spark-labels">
+        <span>{{ data.trend[0].date }}</span>
+        <span>{{ data.trend[data.trend.length-1].date }}</span>
+      </div>
+    </div>
+
+    <!-- By department -->
+    <div class="wb-section-label" *ngIf="data.byDepartment?.length">By Department</div>
+    <div class="wb-depts" *ngIf="data.byDepartment?.length">
+      <div class="wb-dept-row" *ngFor="let d of data.byDepartment">
+        <span class="wb-dept-name">{{ d.department }}</span>
+        <div class="wb-dept-track">
+          <div class="wb-dept-fill"
+               [style.width.%]="(d.averageScore / 5) * 100"
+               [style.background]="scoreColor(d.averageScore)">
+          </div>
+        </div>
+        <span class="wb-dept-score" [style.color]="scoreColor(d.averageScore)">
+          {{ d.averageScore | number:'1.1-1' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Anonymous notes -->
+    <ng-container *ngIf="data.recentNotes && data.recentNotes.length > 0">
+      <div class="wb-section-label">Anonymous Notes</div>
+      <div class="wb-note" *ngFor="let n of data.recentNotes">
+        "{{ n }}"
+      </div>
+    </ng-container>
+
+  </div>
+
+</div>

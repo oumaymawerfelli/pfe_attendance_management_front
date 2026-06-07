@@ -1,23 +1,46 @@
-<div class="register-wrapper">
-  <mat-card class="register-card">
+<div class="register-page">
+  <!-- Background -->
+  <div class="register-bg"></div>
+  <div class="register-overlay"></div>
 
-    <!-- Card Header -->
-    <mat-card-header class="register-header">
-      <div class="header-icon">
-        <mat-icon>person_add</mat-icon>
+  <!-- Centered split card -->
+  <div class="register-card">
+
+    <!-- LEFT: brand panel -->
+    <div class="brand-panel">
+      <div class="brand-dots"></div>
+
+      <div class="brand-welcome">
+        <h1>WELCOME</h1>
+        <p>to <span class="brand-accent">Arab Soft</span> Platform</p>
       </div>
-      <mat-card-title>{{ 'register_welcome' | translate }}</mat-card-title>
-      <mat-card-subtitle>{{ 'register_title' | translate }}</mat-card-subtitle>
-    </mat-card-header>
 
-    <mat-card-content>
+      <img src="assets/images/logo1.webp" alt="Arab Soft" class="brand-logo">
+
+      <div class="brand-tagline">
+        <span class="tagline-strong">Smart Solutions. Stronger Teams.</span>
+        <div class="tagline-underline"></div>
+      </div>
+
+      <div class="brand-support">
+        <mat-icon>support_agent</mat-icon>
+        <div>
+          <div class="support-title">Need help?</div>
+          <div class="support-sub">Contact our support team</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: form panel -->
+    <div class="form-panel">
+      <h2 class="form-title">Create your account</h2>
+      <p class="form-subtitle">Join us and get started in just a few steps.</p>
+
       <form [formGroup]="registerForm">
-        <mat-stepper #stepper linear class="custom-stepper">
+        <mat-stepper #stepper linear class="custom-stepper" labelPosition="bottom">
 
-          <!-- ══════════════════════════════════════════
-               STEP 1 — Personal Information
-          ══════════════════════════════════════════ -->
-          <mat-step [stepControl]="personal" label="Personal">
+          <!-- ── STEP 1 — Personal ──────────────────── -->
+          <mat-step [stepControl]="personal">
             <ng-template matStepLabel>Personal</ng-template>
 
             <div class="step-content" formGroupName="personal">
@@ -26,115 +49,109 @@
               <div class="form-grid">
 
                 <!-- First Name -->
-                <mat-form-field appearance="outline">
-                  <mat-label>First Name</mat-label>
-                  <mat-icon matPrefix>person</mat-icon>
-                  <input matInput formControlName="firstName" />
-                  <mat-error *ngIf="personal.get('firstName')?.invalid">
-                    <span *ngIf="personal.get('firstName')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
-                    <span *ngIf="personal.get('firstName')?.errors?.['minlength']">{{ 'validations.minlength' | translate:{ number: 2 } }}</span>
-                    <span *ngIf="personal.get('firstName')?.errors?.['maxlength']">{{ 'validations.maxlength' | translate:{ number: 50 } }}</span>
-                  </mat-error>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">First Name<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="personal.get('firstName')?.invalid && personal.get('firstName')?.touched">
+                    <mat-icon class="field-icon">person</mat-icon>
+                    <input type="text" placeholder="Enter your first name" formControlName="firstName">
+                  </div>
+                </div>
 
                 <!-- Last Name -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Last Name</mat-label>
-                  <mat-icon matPrefix>person_outline</mat-icon>
-                  <input matInput formControlName="lastName" />
-                  <mat-error *ngIf="personal.get('lastName')?.invalid">
-                    <span *ngIf="personal.get('lastName')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
-                    <span *ngIf="personal.get('lastName')?.errors?.['minlength']">{{ 'validations.minlength' | translate:{ number: 2 } }}</span>
-                  </mat-error>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Last Name<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="personal.get('lastName')?.invalid && personal.get('lastName')?.touched">
+                    <mat-icon class="field-icon">person_outline</mat-icon>
+                    <input type="text" placeholder="Enter your last name" formControlName="lastName">
+                  </div>
+                </div>
 
-                <!-- Birth Date — calendar picker -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Date of Birth</mat-label>
-                  <mat-icon matPrefix>cake</mat-icon>
-                  <input matInput [matDatepicker]="birthPicker" formControlName="birthDate" readonly />
-                  <mat-datepicker-toggle matSuffix [for]="birthPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #birthPicker startView="multi-year"></mat-datepicker>
-                  <mat-error *ngIf="personal.get('birthDate')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-                </mat-form-field>
+                <!-- Birth Date -->
+                <div class="field-group">
+                  <label class="field-label">Date of Birth<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="personal.get('birthDate')?.invalid && personal.get('birthDate')?.touched"
+                       (click)="birthPicker.open()">
+                    <mat-icon class="field-icon">calendar_today</mat-icon>
+                    <input matInput [matDatepicker]="birthPicker" formControlName="birthDate"
+                           placeholder="MM / DD / YYYY" readonly>
+                    <mat-datepicker #birthPicker startView="multi-year"></mat-datepicker>
+                  </div>
+                </div>
 
                 <!-- Gender -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Gender</mat-label>
-                  <mat-icon matPrefix>wc</mat-icon>
-                  <mat-select formControlName="gender">
-                    <mat-option value="MALE">Male</mat-option>
-                    <mat-option value="FEMALE">Female</mat-option>
-                    
-                  </mat-select>
-                  <mat-error *ngIf="personal.get('gender')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Gender<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="personal.get('gender')?.invalid && personal.get('gender')?.touched">
+                    <mat-icon class="field-icon">wc</mat-icon>
+                    <mat-select formControlName="gender" placeholder="Select gender" panelClass="custom-select-panel">
+                      <mat-option value="MALE">Male</mat-option>
+                      <mat-option value="FEMALE">Female</mat-option>
+                    </mat-select>
+                  </div>
+                </div>
 
                 <!-- National ID -->
-                <mat-form-field appearance="outline">
-                  <mat-label>National ID</mat-label>
-                  <mat-icon matPrefix>badge</mat-icon>
-                  <input matInput formControlName="nationalId" maxlength="8" />
-                  <mat-hint>8 digits</mat-hint>
-                  <mat-error *ngIf="personal.get('nationalId')?.invalid">
-                    <span *ngIf="personal.get('nationalId')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
-                    <span *ngIf="personal.get('nationalId')?.errors?.['pattern']">Must be 8 digits</span>
-                  </mat-error>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">National ID<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="personal.get('nationalId')?.invalid && personal.get('nationalId')?.touched">
+                    <mat-icon class="field-icon">badge</mat-icon>
+                    <input type="text" placeholder="Enter your national ID" formControlName="nationalId" maxlength="8">
+                  </div>
+                </div>
 
-                <!-- Nationality — dropdown list -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Nationality</mat-label>
-                  <mat-icon matPrefix>flag</mat-icon>
-                  <mat-select formControlName="nationality">
-                    <mat-option value="Tunisian">Tunisian</mat-option>
-                    <mat-option value="Algerian">Algerian</mat-option>
-                    <mat-option value="Moroccan">Moroccan</mat-option>
-                    <mat-option value="Egyptian">Egyptian</mat-option>
-                    <mat-option value="Libyan">Libyan</mat-option>
-                    <mat-option value="French">French</mat-option>
-                    <mat-option value="German">German</mat-option>
-                    <mat-option value="British">British</mat-option>
-                    <mat-option value="American">American</mat-option>
-                    <mat-option value="Canadian">Canadian</mat-option>
-                    <mat-option value="Italian">Italian</mat-option>
-                    <mat-option value="Spanish">Spanish</mat-option>
-                    <mat-option value="Turkish">Turkish</mat-option>
-                    <mat-option value="Saudi">Saudi</mat-option>
-                    <mat-option value="Emirati">Emirati</mat-option>
-                    <mat-option value="Other">Other</mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="personal.get('nationality')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-                </mat-form-field>
+                <!-- Nationality -->
+                <div class="field-group">
+                  <label class="field-label">Nationality<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="personal.get('nationality')?.invalid && personal.get('nationality')?.touched">
+                    <mat-icon class="field-icon">flag</mat-icon>
+                    <mat-select formControlName="nationality" placeholder="Select nationality" panelClass="custom-select-panel">
+                      <mat-option value="Tunisian">Tunisian</mat-option>
+                      <mat-option value="Algerian">Algerian</mat-option>
+                      <mat-option value="Moroccan">Moroccan</mat-option>
+                      <mat-option value="Egyptian">Egyptian</mat-option>
+                      <mat-option value="Libyan">Libyan</mat-option>
+                      <mat-option value="French">French</mat-option>
+                      <mat-option value="German">German</mat-option>
+                      <mat-option value="British">British</mat-option>
+                      <mat-option value="American">American</mat-option>
+                      <mat-option value="Canadian">Canadian</mat-option>
+                      <mat-option value="Italian">Italian</mat-option>
+                      <mat-option value="Spanish">Spanish</mat-option>
+                      <mat-option value="Turkish">Turkish</mat-option>
+                      <mat-option value="Saudi">Saudi</mat-option>
+                      <mat-option value="Emirati">Emirati</mat-option>
+                      <mat-option value="Other">Other</mat-option>
+                    </mat-select>
+                  </div>
+                </div>
 
-                <!-- Marital Status — full width -->
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Marital Status</mat-label>
-                  <mat-icon matPrefix>favorite</mat-icon>
-                  <mat-select formControlName="maritalStatus">
-                    <mat-option value="SINGLE">Single</mat-option>
-                    <mat-option value="MARRIED">Married</mat-option>
-                    <mat-option value="DIVORCED">Divorced</mat-option>
-                    <mat-option value="WIDOWED">Widowed</mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="personal.get('maritalStatus')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-                </mat-form-field>
+                <!-- Marital Status (full width) -->
+                <div class="field-group full-width">
+                  <label class="field-label">Marital Status<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="personal.get('maritalStatus')?.invalid && personal.get('maritalStatus')?.touched">
+                    <mat-icon class="field-icon">favorite</mat-icon>
+                    <mat-select formControlName="maritalStatus" placeholder="Select marital status" panelClass="custom-select-panel">
+                      <mat-option value="SINGLE">Single</mat-option>
+                      <mat-option value="MARRIED">Married</mat-option>
+                      <mat-option value="DIVORCED">Divorced</mat-option>
+                      <mat-option value="WIDOWED">Widowed</mat-option>
+                    </mat-select>
+                  </div>
+                </div>
 
               </div>
             </div>
 
             <div class="step-actions">
               <span></span>
-              <button mat-flat-button color="primary" matStepperNext type="button">
-                Next <mat-icon>arrow_forward</mat-icon>
+              <button class="next-btn" matStepperNext type="button">
+                <mat-icon>arrow_forward</mat-icon> Next
               </button>
             </div>
           </mat-step>
 
-          <!-- ══════════════════════════════════════════
-               STEP 2 — Professional Information
-          ══════════════════════════════════════════ -->
-          <mat-step [stepControl]="professional" label="Professional">
+          <!-- ── STEP 2 — Professional ──────────────────── -->
+          <mat-step [stepControl]="professional">
             <ng-template matStepLabel>Professional</ng-template>
 
             <div class="step-content" formGroupName="professional">
@@ -142,122 +159,119 @@
 
               <div class="form-grid">
 
-                <!-- Email -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Email Address</mat-label>
-                  <mat-icon matPrefix>email</mat-icon>
-                  <input matInput type="email" formControlName="email" />
-                  <mat-error *ngIf="professional.get('email')?.invalid">
-                    <span *ngIf="professional.get('email')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
-                    <span *ngIf="professional.get('email')?.errors?.['email']">Invalid email format</span>
-                  </mat-error>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Email Address<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="professional.get('email')?.invalid && professional.get('email')?.touched">
+                    <mat-icon class="field-icon">mail_outline</mat-icon>
+                    <input type="email" placeholder="Enter your email" formControlName="email">
+                  </div>
+                </div>
 
-                <!-- Phone -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Phone Number</mat-label>
-                  <mat-icon matPrefix>phone</mat-icon>
-                  <input matInput formControlName="phone" maxlength="8" />
-                  <mat-hint>8 digits</mat-hint>
-                  <mat-error *ngIf="professional.get('phone')?.invalid">
-                    <span *ngIf="professional.get('phone')?.errors?.['required']">{{ 'validations.required' | translate }}</span>
-                    <span *ngIf="professional.get('phone')?.errors?.['pattern']">Must be 8 digits</span>
-                  </mat-error>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Phone Number<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="professional.get('phone')?.invalid && professional.get('phone')?.touched">
+                    <mat-icon class="field-icon">phone</mat-icon>
+                    <input type="text" placeholder="8 digits" formControlName="phone" maxlength="8">
+                  </div>
+                </div>
 
-                <!-- Address — full width -->
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Address</mat-label>
-                  <mat-icon matPrefix>home</mat-icon>
-                  <input matInput formControlName="address" />
-                </mat-form-field>
+                <div class="field-group full-width">
+                  <label class="field-label">Address</label>
+                  <div class="field-input">
+                    <mat-icon class="field-icon">home</mat-icon>
+                    <input type="text" placeholder="Enter your address" formControlName="address">
+                  </div>
+                </div>
 
-                <!-- Job Title -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Job Title</mat-label>
-                  <mat-icon matPrefix>work</mat-icon>
-                  <input matInput formControlName="jobTitle" />
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Job Title</label>
+                  <div class="field-input">
+                    <mat-icon class="field-icon">work</mat-icon>
+                    <input type="text" placeholder="Your job title" formControlName="jobTitle">
+                  </div>
+                </div>
 
-                <!-- Department -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Department</mat-label>
-                  <mat-icon matPrefix>business</mat-icon>
-                  <mat-select formControlName="department">
-                    <mat-option *ngFor="let d of departments" [value]="d">{{ d }}</mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="professional.get('department')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Department<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="professional.get('department')?.invalid && professional.get('department')?.touched">
+                    <mat-icon class="field-icon">business</mat-icon>
+                    <mat-select formControlName="department" placeholder="Select department" panelClass="custom-select-panel">
+                      <mat-option *ngFor="let d of departments" [value]="d">{{ d }}</mat-option>
+                    </mat-select>
+                  </div>
+                </div>
 
-                <!-- Service -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Service</mat-label>
-                  <mat-icon matPrefix>category</mat-icon>
-                  <input matInput formControlName="service" />
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Service</label>
+                  <div class="field-input">
+                    <mat-icon class="field-icon">category</mat-icon>
+                    <input type="text" placeholder="Service" formControlName="service">
+                  </div>
+                </div>
 
-                <!-- Hire Date — calendar picker -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Hire Date</mat-label>
-                  <mat-icon matPrefix>event</mat-icon>
-                  <input matInput [matDatepicker]="hirePicker" formControlName="hireDate" readonly />
-                  <mat-datepicker-toggle matSuffix [for]="hirePicker"></mat-datepicker-toggle>
-                  <mat-datepicker #hirePicker></mat-datepicker>
-                  <mat-error *ngIf="professional.get('hireDate')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Hire Date<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="professional.get('hireDate')?.invalid && professional.get('hireDate')?.touched"
+                       (click)="hirePicker.open()">
+                    <mat-icon class="field-icon">event</mat-icon>
+                    <input matInput [matDatepicker]="hirePicker" formControlName="hireDate"
+                           placeholder="MM / DD / YYYY" readonly>
+                    <mat-datepicker #hirePicker></mat-datepicker>
+                  </div>
+                </div>
 
-                <!-- Contract Type -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Contract Type</mat-label>
-                  <mat-icon matPrefix>description</mat-icon>
-                  <mat-select formControlName="contractType">
-                    <mat-option *ngFor="let c of contractTypes" [value]="c">{{ c }}</mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="professional.get('contractType')?.invalid">{{ 'validations.required' | translate }}</mat-error>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Contract Type<span class="req">*</span></label>
+                  <div class="field-input" [class.has-error]="professional.get('contractType')?.invalid && professional.get('contractType')?.touched">
+                    <mat-icon class="field-icon">description</mat-icon>
+                    <mat-select formControlName="contractType" placeholder="Select contract type" panelClass="custom-select-panel">
+                      <mat-option *ngFor="let c of contractTypes" [value]="c">{{ c }}</mat-option>
+                    </mat-select>
+                  </div>
+                </div>
 
-                <!-- Contract End Date — calendar picker -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Contract End Date</mat-label>
-                  <mat-icon matPrefix>event_busy</mat-icon>
-                  <input matInput [matDatepicker]="contractEndPicker" formControlName="contractEndDate" readonly />
-                  <mat-datepicker-toggle matSuffix [for]="contractEndPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #contractEndPicker></mat-datepicker>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Contract End Date</label>
+                  <div class="field-input" (click)="contractEndPicker.open()">
+                    <mat-icon class="field-icon">event_busy</mat-icon>
+                    <input matInput [matDatepicker]="contractEndPicker" formControlName="contractEndDate"
+                           placeholder="MM / DD / YYYY" readonly>
+                    <mat-datepicker #contractEndPicker></mat-datepicker>
+                  </div>
+                </div>
 
-               
-                <!-- Housing Allowance -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Housing Allowance</mat-label>
-                  <mat-icon matPrefix>house</mat-icon>
-                  <input matInput type="number" formControlName="housingAllowance" min="0" step="0.01" />
-                  <span matSuffix>TND</span>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Housing Allowance (TND)</label>
+                  <div class="field-input">
+                    <mat-icon class="field-icon">house</mat-icon>
+                    <input type="number" placeholder="0.00" formControlName="housingAllowance" min="0" step="0.01">
+                  </div>
+                </div>
 
-                <!-- Evaluation Score -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Evaluation Score</mat-label>
-                  <mat-icon matPrefix>star</mat-icon>
-                  <input matInput type="number" formControlName="evaluationScore" min="0" max="5" />
-                  <mat-hint>0 – 5</mat-hint>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Evaluation Score</label>
+                  <div class="field-input">
+                    <mat-icon class="field-icon">star</mat-icon>
+                    <input type="number" placeholder="0 – 5" formControlName="evaluationScore" min="0" max="5">
+                  </div>
+                </div>
 
-                <!-- Social Security Number -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Social Security Number</mat-label>
-                  <mat-icon matPrefix>security</mat-icon>
-                  <input matInput formControlName="socialSecurityNumber" maxlength="10" />
-                  <mat-hint>10 digits</mat-hint>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Social Security Number</label>
+                  <div class="field-input">
+                    <mat-icon class="field-icon">security</mat-icon>
+                    <input type="text" placeholder="10 digits" formControlName="socialSecurityNumber" maxlength="10">
+                  </div>
+                </div>
 
-                <!-- Children Count -->
-                <mat-form-field appearance="outline">
-                  <mat-label>Children Count</mat-label>
-                  <mat-icon matPrefix>child_care</mat-icon>
-                  <input matInput type="number" formControlName="childrenCount" min="0" />
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Children Count</label>
+                  <div class="field-input">
+                    <mat-icon class="field-icon">child_care</mat-icon>
+                    <input type="number" placeholder="0" formControlName="childrenCount" min="0">
+                  </div>
+                </div>
 
-                <!-- Active toggle — full width -->
                 <div class="toggle-row full-width">
                   <mat-icon class="toggle-icon">toggle_on</mat-icon>
                   <span class="toggle-label">Active Employee</span>
@@ -268,25 +282,22 @@
             </div>
 
             <div class="step-actions">
-              <button mat-stroked-button matStepperPrevious type="button">
+              <button class="back-btn" matStepperPrevious type="button">
                 <mat-icon>arrow_back</mat-icon> Back
               </button>
-              <button mat-flat-button color="primary" matStepperNext type="button">
-                Next <mat-icon>arrow_forward</mat-icon>
+              <button class="next-btn" matStepperNext type="button">
+                <mat-icon>arrow_forward</mat-icon> Next
               </button>
             </div>
           </mat-step>
 
-          <!-- ══════════════════════════════════════════
-               STEP 3 — Confirmation
-          ══════════════════════════════════════════ -->
-          <mat-step [stepControl]="account" label="Confirm">
+          <!-- ── STEP 3 — Confirm ──────────────────── -->
+          <mat-step [stepControl]="account">
             <ng-template matStepLabel>Confirm</ng-template>
 
             <div class="step-content" formGroupName="account">
               <p class="step-subtitle">Review and submit your registration</p>
 
-              <!-- Summary card -->
               <div class="summary-grid">
                 <div class="summary-block">
                   <p class="summary-label">Full Name</p>
@@ -314,31 +325,24 @@
                 </div>
               </div>
 
-              <!-- Terms checkbox -->
               <div class="terms-row">
                 <mat-checkbox formControlName="agreeTerms" color="primary">
                   I have read and agree to the
                   <a href="#" class="terms-link">Terms of Service</a>
                 </mat-checkbox>
-                <mat-error *ngIf="account.get('agreeTerms')?.invalid && account.get('agreeTerms')?.touched">
-                  You must accept the terms to continue.
-                </mat-error>
               </div>
             </div>
 
             <div class="step-actions">
-              <button mat-stroked-button matStepperPrevious type="button">
+              <button class="back-btn" matStepperPrevious type="button">
                 <mat-icon>arrow_back</mat-icon> Back
               </button>
-              <button
-                mat-flat-button
-                color="primary"
-                type="submit"
-                class="submit-btn"
-                [disabled]="registerForm.invalid || isSubmitting"
-                (click)="onSubmit()">
+              <button class="next-btn submit-btn"
+                      type="submit"
+                      [disabled]="registerForm.invalid || isSubmitting"
+                      (click)="onSubmit()">
                 <mat-icon *ngIf="!isSubmitting">check_circle</mat-icon>
-                <mat-spinner *ngIf="isSubmitting" diameter="18" class="btn-spinner"></mat-spinner>
+                <mat-spinner *ngIf="isSubmitting" diameter="16" class="btn-spinner"></mat-spinner>
                 {{ isSubmitting ? 'Submitting...' : 'Submit Registration' }}
               </button>
             </div>
@@ -347,10 +351,14 @@
         </mat-stepper>
       </form>
 
-      <div class="login-link">
+      <p class="signin-link">
         Already have an account?
         <a routerLink="/auth/login">Sign in</a>
-      </div>
-    </mat-card-content>
-  </mat-card>
+      </p>
+
+      <p class="footer-text">
+        © 2026 <span class="brand-accent">Arab Soft</span>. All rights reserved.
+      </p>
+    </div>
+  </div>
 </div>

@@ -44,13 +44,18 @@ export class LeavePageComponent {
    * Shows a non-intrusive snack bar — the user stays on the form
    * so they can keep editing or submit later.
    */
-  onDraftSaved(): void {
-    this.snackBar.open(
-      'Draft saved — you can continue anytime from My Requests.',
-      'OK',
-      { duration: 5000, horizontalPosition: 'right', verticalPosition: 'bottom' },
-    );
-  }
+ onDraftSaved(): void {
+  this.snackBar.open(
+    'Draft saved — you can continue anytime from My Requests.',
+    'OK',
+    { duration: 5000, horizontalPosition: 'right', verticalPosition: 'bottom' },
+  );
+
+  // Refresh history so the draft shows up
+  setTimeout(() => {
+    this.leaveHistory?.refresh();   // ← add this
+  }, 0);
+}
 
   // ── Tab navigation helpers (used by header buttons) ───────────────────────
 

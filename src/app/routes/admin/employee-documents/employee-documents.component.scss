@@ -1,0 +1,670 @@
+// employee-documents.component.scss
+// ── Design tokens ──────────────────────────────────────────────
+$navy:        #1e3a5f;
+$navy-dark:   #152c4a;
+$navy-light:  #2a4f7c;
+$gold:        #d4920a;
+$gold-light:  #f5a623;
+$gold-pale:   #fef3d7;
+$bg:          #f2f5f9;
+$surface:     #ffffff;
+$border:      #dde3ec;
+$border-soft: #eef1f6;
+$text-1:      #0d1f35;
+$text-2:      #4a5568;
+$text-3:      #8fa3bc;
+$radius:      10px;
+$radius-sm:   6px;
+$shadow:      0 1px 3px rgba(30,58,95,.08), 0 4px 12px rgba(30,58,95,.06);
+$shadow-md:   0 4px 20px rgba(30,58,95,.12);
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Page wrapper ───────────────────────────────────────────────
+.page-wrapper {
+  padding: 28px 32px;
+  background: $bg;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: fadeIn .3s ease both;
+}
+
+// ── Header ─────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, $navy 0%, $navy-light 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(30,58,95,.25);
+
+  mat-icon {
+    color: #fff;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.header-text {
+  h1 {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+    color: $text-1;
+    letter-spacing: -.3px;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 3px 0 0;
+    font-size: 13px;
+    color: $text-3;
+  }
+}
+
+.progress-bar {
+  height: 3px !important;
+  border-radius: 2px;
+
+  ::ng-deep .mdc-linear-progress__bar-inner {
+    border-color: $gold !important;
+  }
+}
+
+// ── Toolbar ────────────────────────────────────────────────────
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 40px;
+  padding: 0 14px;
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+  transition: border-color .2s, box-shadow .2s;
+
+  &:focus-within {
+    border-color: $navy;
+    box-shadow: 0 0 0 3px rgba(30,58,95,.1);
+  }
+
+  mat-icon {
+    font-size: 17px;
+    color: $text-3;
+    flex-shrink: 0;
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: $text-1;
+    background: transparent;
+
+    &::placeholder { color: $text-3; }
+  }
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+// ── Select dropdowns ───────────────────────────────────────────
+.select-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 10px 0 12px;
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: border-color .2s;
+
+  &:focus-within {
+    border-color: $navy;
+  }
+
+  .select-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: $text-3;
+    flex-shrink: 0;
+  }
+
+  select {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13px;
+    color: $text-2;
+    cursor: pointer;
+    appearance: none;
+    padding-right: 2px;
+    min-width: 80px;
+  }
+
+  .chevron {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: $text-3;
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+}
+
+// ── Archive toggle ─────────────────────────────────────────────
+.archive-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  cursor: pointer;
+  font-size: 13px;
+  color: $text-2;
+  user-select: none;
+  transition: border-color .2s;
+
+  &.checked {
+    border-color: $navy;
+    background: rgba(30,58,95,.04);
+  }
+
+  input[type="checkbox"] { display: none; }
+
+  .toggle-track {
+    width: 34px;
+    height: 18px;
+    background: $border;
+    border-radius: 9px;
+    position: relative;
+    transition: background .2s;
+    flex-shrink: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+  }
+
+  &.checked .toggle-track {
+    background: $navy;
+    &::after { transform: translateX(16px); }
+  }
+
+  .toggle-label { white-space: nowrap; }
+}
+
+// ── Reset button ───────────────────────────────────────────────
+.btn-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  background: transparent;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  font-size: 13px;
+  color: $text-3;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover {
+    border-color: $text-2;
+    color: $text-1;
+    background: $surface;
+  }
+}
+
+// ── Table card ─────────────────────────────────────────────────
+.table-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px 10px;
+  border-bottom: 1px solid $border-soft;
+
+  .card-title {
+    font-size: 13px;
+    color: $text-3;
+
+    strong {
+      color: $navy;
+      font-weight: 600;
+    }
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+// ── Table styles ───────────────────────────────────────────────
+table {
+  width: 100%;
+
+  th.mat-header-cell {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .7px;
+    color: $text-3;
+    padding: 12px 20px;
+    border-bottom: 1px solid $border;
+    background: $surface;
+    white-space: nowrap;
+  }
+
+td.mat-cell {
+  padding: 80px 70px;   
+  border-bottom: 1px solid $border-soft;
+  font-size: 13px;
+  color: $text-2;
+  vertical-align: middle;
+}
+
+  tr.mat-row:last-child td { border-bottom: none; }
+
+  .table-row {
+    height: 72px;
+    transition: background .12s;
+
+    &:hover td {
+      background: rgba(30,58,95,.025);
+    }
+  }
+}
+
+// ── Document cell ──────────────────────────────────────────────
+.doc-cell {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 240px;
+}
+
+.file-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 21px;
+    width: 21px;
+    height: 21px;
+  }
+
+  &.fi-pdf   { background: #fde8e8; color: #c0392b; }
+  &.fi-image { background: #e8f8ee; color: #1e7e34; }
+  &.fi-doc   { background: #e8f0fe; color: #1a56db; }
+  &.fi-other { background: #f0f4f8; color: #64748b; }
+}
+
+.doc-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.doc-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-1;
+  line-height: 1.3;
+}
+
+.doc-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: $text-3;
+
+  .meta-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .dot-sep {
+    color: $border;
+  }
+}
+
+// ── Type chip ──────────────────────────────────────────────────
+.type-chip {
+  display: inline-block;
+  font-size: 12.5px;
+  color: $text-2;
+  white-space: nowrap;
+}
+
+// ── Leave period cell ──────────────────────────────────────────
+.period-cell {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  font-size: 13px;
+
+  .period-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: $text-3;
+    flex-shrink: 0;
+  }
+
+  .arrow {
+    color: $text-3;
+    margin: 0 2px;
+  }
+}
+
+// ── Category badge ─────────────────────────────────────────────
+.cat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: $radius-sm;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  mat-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+  }
+
+  &.generated {
+    background: rgba(30,58,95,.08);
+    color: $navy;
+  }
+
+  &.uploaded {
+    background: $gold-pale;
+    color: darken($gold, 10%);
+  }
+}
+
+// ── Status badge ───────────────────────────────────────────────
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &.s-pending {
+    color: #b7530a;
+    .status-dot { background: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,.15); }
+  }
+
+  &.s-approved {
+    color: #166534;
+    .status-dot { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
+  }
+
+  &.s-rejected {
+    color: #991b1b;
+    .status-dot { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.15); }
+  }
+
+  &.s-archived {
+    color: $text-3;
+    .status-dot { background: $text-3; }
+  }
+}
+
+// ── View button ────────────────────────────────────────────────
+.view-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1.5px solid $border;
+  background: $surface;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .18s;
+
+  mat-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+    color: $text-3;
+    transition: color .18s;
+  }
+
+  &:hover {
+    background: $navy;
+    border-color: $navy;
+    box-shadow: 0 4px 10px rgba(30,58,95,.3);
+    transform: translateY(-1px);
+
+    mat-icon { color: #fff; }
+  }
+}
+
+// ── Empty state ────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 24px;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(30,58,95,.06);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: $text-3;
+  }
+}
+
+.empty-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: $text-2;
+}
+
+.empty-sub {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: $text-3;
+}
+
+// ── Paginator row ──────────────────────────────────────────────
+.paginator-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px 6px 20px;
+  border-top: 1px solid $border-soft;
+
+  .showing-text {
+    font-size: 13px;
+    color: $text-3;
+  }
+
+  // Override paginator colors
+  ::ng-deep {
+    .mat-mdc-paginator {
+      background: transparent;
+      color: $text-2;
+      font-size: 13px;
+    }
+
+    .mat-mdc-icon-button {
+      color: $text-2;
+
+      &:hover { color: $navy; }
+      &[disabled] { color: $text-3; }
+    }
+
+    .mat-mdc-select-value { color: $text-2; font-size: 13px; }
+  }
+}
+
+.muted { color: $text-3; }
+
+// ── Preview overlay ────────────────────────────────────────────
+.preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13,31,53,.65);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn .2s ease both;
+}
+
+.preview-modal {
+  background: $surface;
+  border-radius: 14px;
+  width: 82vw;
+  height: 90vh;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(13,31,53,.35);
+}
+
+.preview-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 54px;
+  background: $navy;
+  flex-shrink: 0;
+}
+
+.preview-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: $gold-light;
+  }
+}
+
+.preview-close {
+  background: rgba(255,255,255,.1);
+  border: none;
+  border-radius: 7px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .15s;
+
+  mat-icon { color: rgba(255,255,255,.8); font-size: 18px; }
+
+  &:hover { background: rgba(255,255,255,.2); }
+}
+
+.preview-frame {
+  flex: 1;
+  border: none;
+  width: 100%;
+}

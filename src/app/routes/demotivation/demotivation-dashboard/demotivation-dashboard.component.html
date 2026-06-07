@@ -1,0 +1,62 @@
+<div class="demotivation-container">
+
+  <header class="page-header">
+    <h2>Analyse de la démotivation</h2>
+    <p class="subtitle">Scores calculés sur les indicateurs de présence — Mai {{ year }}</p>
+  </header>
+
+  <!-- Cartes de résumé -->
+  <div class="summary-cards">
+    <div class="card card-eleve">
+      <span class="card-count">{{ countEleve }}</span>
+      <span class="card-label">Risque élevé</span>
+    </div>
+    <div class="card card-moyen">
+      <span class="card-count">{{ countMoyen }}</span>
+      <span class="card-label">À surveiller</span>
+    </div>
+    <div class="card card-faible">
+      <span class="card-count">{{ countFaible }}</span>
+      <span class="card-label">Sains</span>
+    </div>
+  </div>
+
+  <!-- États de chargement / erreur -->
+  <div *ngIf="loading" class="state-msg">Chargement…</div>
+  <div *ngIf="error" class="state-msg error">{{ error }}</div>
+
+  <!-- Tableau de classement -->
+  <table *ngIf="!loading && !error" class="scores-table">
+    <thead>
+      <tr>
+        <th>Employé</th>
+        <th>Niveau</th>
+        <th>Score</th>
+        <th>Absence</th>
+        <th>Retard</th>
+        <th>Demi-journées</th>
+        <th>Départs anticipés</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of scores">
+        <td class="name-cell">{{ s.userFullName }}</td>
+        <td>
+          <span class="badge" [ngClass]="levelClass(s.level)">{{ s.level }}</span>
+        </td>
+        <td class="score-cell">
+          <div class="score-bar-bg">
+            <div class="score-bar-fill" [ngClass]="levelClass(s.level)"
+                 [style.width.%]="asPercent(s.score)"></div>
+          </div>
+          <span class="score-value">{{ asPercent(s.score) }}%</span>
+        </td>
+        <td>{{ asPercent(s.breakdown.absence) }}%</td>
+        <td>{{ asPercent(s.breakdown.retard) }}%</td>
+        <td>{{ asPercent(s.breakdown.demiJournee) }}%</td>
+        <td>{{ asPercent(s.breakdown.departAnticipe) }}%</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

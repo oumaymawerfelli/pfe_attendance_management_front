@@ -1,8 +1,26 @@
 // Admin Layout Component Styles
+
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .matero-container-wrap {
   position: relative;
   width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.matero-container {
+  position: relative;
+  width: 100%;
   height: 100%;
+
+  &.has-header-above {
+    height: calc(100% - 64px);
+  }
 }
 
 // Header above styles
@@ -11,27 +29,30 @@
   z-index: 10;
 }
 
-// Sidenav container adjustments
-.matero-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  
-  // When header is above, adjust container height
-  &.has-header-above {
-    height: calc(100% - 64px); // Adjust based on your header height
-  }
-  
-  &.has-header-fixed {
-    // Additional adjustments if needed
-  }
+// Lock the sidebar to the viewport — stays fixed during navigation/scroll
+:host ::ng-deep .mat-sidenav,
+:host ::ng-deep .mat-drawer {
+  position: fixed !important;
+  top: 0;
+  bottom: 0;
+  height: 100vh !important;
+  overflow-y: auto;
+  z-index: 3;
+}
+
+// The content area is the ONLY thing that scrolls
+:host ::ng-deep .mat-sidenav-content,
+:host ::ng-deep .mat-drawer-content {
+  height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden;
 }
 
 // Fixed header inside content
 .app-header-inline {
   position: relative;
   z-index: 5;
-  
+
   &.app-header-fixed {
     position: sticky;
     top: 0;
@@ -40,7 +61,7 @@
   }
 }
 
-// Top menu styles
+// Top menu
 .app-topmenu {
   position: sticky;
   top: 0;
@@ -54,63 +75,40 @@
   min-height: calc(100vh - 64px);
   padding: 24px;
   overflow-x: hidden;
-  
-  // Adjust for fixed header
+
   &.has-fixed-header {
-    min-height: calc(100vh - 128px); // Header height + content padding
+    min-height: calc(100vh - 128px);
   }
-  
-  // Adjust for top menu
+
   &.has-top-menu {
     min-height: calc(100vh - 120px);
   }
-  
-  // Ensure content doesn't get covered
+
   > * {
     position: relative;
     z-index: 1;
   }
 }
 
-// Responsive adjustments
-@media (width <= 959px) {
-  .matero-content {
-    min-height: calc(100vh - 56px);
-    padding: 16px;
-    
-    &.has-fixed-header {
-      min-height: calc(100vh - 112px);
-    }
-  }
-  
-  .matero-container.has-header-above {
-    height: calc(100% - 56px);
-  }
-}
-
-// Ensure router outlet content has proper spacing
+// Router outlet spacing
 router-outlet + * {
   display: block;
   padding-top: 0;
   margin-top: 0;
 }
 
-// Fix for Material sidenav content scrolling
-.mat-sidenav-content {
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
+// Responsive
+@media (width <= 959px) {
+  .matero-content {
+    min-height: calc(100vh - 56px);
+    padding: 16px;
 
-// Prevent content from being hidden under fixed elements
-:host {
-  display: block;
-  height: 100vh;
-  overflow: hidden;
-  
-  .matero-container-wrap {
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
+    &.has-fixed-header {
+      min-height: calc(100vh - 112px);
+    }
+  }
+
+  .matero-container.has-header-above {
+    height: calc(100% - 56px);
   }
 }

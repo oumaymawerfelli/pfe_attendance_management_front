@@ -11,6 +11,9 @@ import { MaterialExtensionsModule } from '../material-extensions.module';
 import { MatMenuModule }        from '@angular/material/menu';
 import { MatDatepickerModule }  from '@angular/material/datepicker';
 import { MatNativeDateModule }  from '@angular/material/core';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCheckboxModule }    from '@angular/material/checkbox';
+import { MatStepperModule }     from '@angular/material/stepper';
 
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyMaterialModule } from '@ngx-formly/material';
@@ -36,6 +39,12 @@ const MODULES: any[] = [
   DragDropModule,
   MaterialModule,
   MaterialExtensionsModule,
+  MatMenuModule,          // ← was imported but missing from array
+  MatDatepickerModule,    // ← was imported but missing from array
+  MatNativeDateModule,    // ← was imported but missing from array
+  MatSlideToggleModule,   // ← new: fixes mat-slide-toggle in register
+  MatCheckboxModule,      // ← new: fixes mat-checkbox in register
+  MatStepperModule,       // ← new: fixes mat-step in register
   FormlyModule,
   FormlyMaterialModule,
   NgProgressModule,
@@ -45,14 +54,15 @@ const MODULES: any[] = [
   ToastrModule,
   TranslateModule,
 ];
-const COMPONENTS: any[] = [BreadcrumbComponent, PageHeaderComponent, ErrorCodeComponent];
+
+const COMPONENTS: any[]         = [BreadcrumbComponent, PageHeaderComponent, ErrorCodeComponent];
 const COMPONENTS_DYNAMIC: any[] = [];
-const DIRECTIVES: any[] = [DisableControlDirective];
-const PIPES: any[] = [SafeUrlPipe, ToObservablePipe];
+const DIRECTIVES: any[]         = [DisableControlDirective];
+const PIPES: any[]              = [SafeUrlPipe, ToObservablePipe];
 
 @NgModule({
-  imports: [...MODULES],
-  exports: [...MODULES, ...COMPONENTS, ...DIRECTIVES, ...PIPES],
+  imports:      [...MODULES],
+  exports:      [...MODULES, ...COMPONENTS, ...DIRECTIVES, ...PIPES],
   declarations: [...COMPONENTS, ...COMPONENTS_DYNAMIC, ...DIRECTIVES, ...PIPES],
 })
 export class SharedModule {}

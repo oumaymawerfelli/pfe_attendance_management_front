@@ -119,4 +119,13 @@ export class AuthService {
       })
     );
   }
+  hasRole(role: string): boolean {
+  const user = this.user$.getValue();
+  return user?.roles?.includes(role) ?? false;
+}
+
+hasAnyRole(roles: string[]): boolean {
+  const user = this.user$.getValue();
+  return roles.some(r => user?.roles?.includes(r));
+}
 }

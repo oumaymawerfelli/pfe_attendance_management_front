@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 
 import { AdminLayoutComponent } from './admin-layout/admin-layout.component';
 import { AuthLayoutComponent } from './auth-layout/auth-layout.component';
+import { ChatbotComponent } from '../routes/dashboard/chatbot/chatbot.component';
 
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { UserPanelComponent } from './sidebar/user-panel.component';
@@ -49,8 +50,9 @@ import { CustomizerComponent } from './customizer/customizer.component';
     TranslateComponent,
     UserComponent,
     CustomizerComponent,
+    
   ],
-  imports: [SharedModule, RouterModule],
-  exports: [AdminLayoutComponent, AuthLayoutComponent],
+  imports: [SharedModule, RouterModule, ChatbotComponent],
+  exports: [AdminLayoutComponent, AuthLayoutComponent , ],
 })
 export class ThemeModule {}

@@ -1,145 +1,183 @@
 <!-- src/app/routes/users/view/view.component.html -->
 <div class="user-view-container">
-  
-  <!-- Loading State -->
+
+  <!-- ── Loading ──────────────────────────────────────────── -->
   <div class="loading-container" *ngIf="isLoading">
     <mat-spinner diameter="50"></mat-spinner>
     <p>Loading user profile...</p>
   </div>
 
-  <!-- Error State -->
+  <!-- ── Error ────────────────────────────────────────────── -->
   <div class="error-container" *ngIf="!isLoading && !user">
     <mat-icon>error_outline</mat-icon>
     <h3>User not found</h3>
-    <button mat-raised-button color="primary" (click)="goBack()">
-      Back to Users
-    </button>
+    <button mat-raised-button color="primary" (click)="goBack()">Back to Users</button>
   </div>
 
-  <!-- User Profile -->
+  <!-- ── Profile card ─────────────────────────────────────── -->
   <div class="profile-card" *ngIf="!isLoading && user">
-    
-    <!-- Header with back button -->
+
+    <!-- Dark navy header with subtitle -->
     <div class="profile-header">
-      <button mat-icon-button (click)="goBack()" class="back-btn">
+      <button mat-icon-button class="back-btn" (click)="goBack()">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <h1>User Profile</h1>
-      <button mat-raised-button color="primary" (click)="editUser()">
-        <mat-icon>edit</mat-icon> Edit
+      <div class="header-titles">
+        <h1>User Profile</h1>
+        <p>View and manage user information</p>
+      </div>
+      <button class="header-btn" (click)="editUser()">
+        <mat-icon>edit</mat-icon> Edit Profile
       </button>
     </div>
 
-    <!-- Main Profile Content -->
+    <!-- Content grid -->
     <div class="profile-content">
-      
-      <!-- Left Column - Avatar & Basic Info -->
+
+      <!-- ── LEFT SIDEBAR ──────────────────────────────────── -->
       <div class="profile-left">
+
+        <!-- Avatar + name + status -->
         <div class="avatar-section">
           <div class="user-avatar" [ngClass]="getStatusClass()">
-            {{ getInitials() }}
+            <img *ngIf="user.avatar" [src]="user.avatar" [alt]="getInitials()">
+            <span *ngIf="!user.avatar">{{ getInitials() }}</span>
+            <span class="online-dot" [ngClass]="getStatusClass()"></span>
           </div>
           <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+          <p class="user-job">{{ user.jobTitle || 'No job title' }}</p>
           <span class="status-badge" [ngClass]="getStatusClass()">
-            <span class="status-dot"></span>
-            {{ getStatusLabel() }}
+            <span class="status-dot"></span>{{ getStatusLabel() }}
           </span>
         </div>
 
-        <div class="role-card">
-          <h3>ROLE</h3>
-          <p class="role-name">{{ user.roles?.[0] || 'EMPLOYEE' }}</p>
+        <!-- Role card -->
+        <div class="sidebar-card">
+          <p class="card-label">
+            <mat-icon>manage_accounts</mat-icon> Role
+          </p>
+          <span class="role-chip">
+            {{ formatRole(user.roles?.[0] || 'EMPLOYEE') }}
+          </span>
         </div>
 
-        <div class="account-stats">
-          <h3>ACCOUNT INFO</h3>
-          <div class="stat-item">
-            <mat-icon>event</mat-icon>
+        <!-- Account info card -->
+        <div class="sidebar-card">
+          <p class="card-label">
+            <mat-icon>info</mat-icon> Account Info
+          </p>
+
+          <div class="stat-row">
+            <div class="icon-tile"><mat-icon>calendar_today</mat-icon></div>
             <div>
-              <span class="stat-label">CREATED</span>
+              <span class="stat-label">Created</span>
               <span class="stat-value">{{ formatDate(user.createdAt) }}</span>
             </div>
           </div>
-          <div class="stat-item">
-            <mat-icon>login</mat-icon>
+
+          <div class="stat-row">
+            <div class="icon-tile"><mat-icon>login</mat-icon></div>
             <div>
-              <span class="stat-label">LAST LOGIN</span>
+              <span class="stat-label">Last Login</span>
               <span class="stat-value">{{ formatDate(user.lastLogin) }}</span>
             </div>
           </div>
-          <div class="stat-item">
-            <mat-icon>vpn_key</mat-icon>
+
+          <div class="stat-row">
+            <div class="icon-tile"><mat-icon>alternate_email</mat-icon></div>
             <div>
-              <span class="stat-label">USERNAME</span>
+              <span class="stat-label">Username / Email</span>
               <span class="stat-value">{{ user.username || '—' }}</span>
             </div>
           </div>
         </div>
+
       </div>
 
-      <!-- Right Column - Detailed Info -->
+      <!-- ── RIGHT PANEL ───────────────────────────────────── -->
       <div class="profile-right">
         <div class="info-section">
-          <h3>Personal Information</h3>
+
+          <div class="section-title">Personal Information</div>
+
           <div class="info-grid">
-            <!-- Left subcolumn -->
-            <div class="info-subcolumn">
+
+            <!-- Col 1 -->
+            <div>
               <div class="info-item">
                 <span class="info-label">First Name</span>
-                <span class="info-value">{{ user.firstName || '—' }}</span>
+                <span class="info-value" [class.empty]="!user.firstName">{{ user.firstName || '—' }}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Last Name</span>
-                <span class="info-value">{{ user.lastName || '—' }}</span>
+                <span class="info-value" [class.empty]="!user.lastName">{{ user.lastName || '—' }}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Email</span>
                 <span class="info-value">{{ user.email }}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">Job Title</span>
-                <span class="info-value">{{ user.jobTitle || '—' }}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Birth Date</span>
-                <span class="info-value">{{ user.birthDate ? (user.birthDate | date:'longDate') : '—' }}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Nationality</span>
-                <span class="info-value">{{ user.nationality || '—' }}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Address</span>
-                <span class="info-value">{{ user.address || '—' }}</span>
-              </div>
-            </div>
-
-            <!-- Right subcolumn -->
-            <div class="info-subcolumn">
-              <div class="info-item">
                 <span class="info-label">Phone</span>
-                <span class="info-value">{{ user.phone || '—' }}</span>
+                <span class="info-value" [class.empty]="!user.phone">{{ user.phone || '—' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Job Title</span>
+                <span class="info-value" [class.empty]="!user.jobTitle">{{ user.jobTitle || '—' }}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Department</span>
-                <span class="info-value">{{ user.department || '—' }}</span>
+                <span class="info-value" [class.empty]="!user.department">{{ user.department || '—' }}</span>
               </div>
               <div class="info-item">
+                <span class="info-label">Nationality</span>
+                <span class="info-value" [class.empty]="!user.nationality">{{ user.nationality || '—' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Address</span>
+                <span class="info-value" [class.empty]="!user.address">{{ user.address || '—' }}</span>
+              </div>
+            </div>
+
+            <!-- Col 2 -->
+            <div>
+              <div class="info-item">
                 <span class="info-label">Gender</span>
-                <span class="info-value">{{ user.gender || '—' }}</span>
+                <span class="info-value" [class.empty]="!user.gender">{{ user.gender || '—' }}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Marital Status</span>
-                <span class="info-value">{{ user.maritalStatus || '—' }}</span>
+                <span class="info-value" [class.empty]="!user.maritalStatus">{{ user.maritalStatus || '—' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Birth Date</span>
+                <span class="info-value" [class.empty]="!user.birthDate">
+                  {{ user.birthDate ? (user.birthDate | date:'longDate') : '—' }}
+                </span>
               </div>
               <div class="info-item">
                 <span class="info-label">Hire Date</span>
-                <span class="info-value">{{ user.hireDate ? (user.hireDate | date:'longDate') : '—' }}</span>
+                <span class="info-value" [class.empty]="!user.hireDate">
+                  {{ user.hireDate ? (user.hireDate | date:'longDate') : '—' }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Contract Type</span>
+                <span class="info-value" [class.empty]="!user.contractType">{{ user.contractType || '—' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Service</span>
+                <span class="info-value" [class.empty]="!user.service">{{ user.service || '—' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Children</span>
+                <span class="info-value">{{ user.childrenCount ?? '—' }}</span>
               </div>
             </div>
+
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>

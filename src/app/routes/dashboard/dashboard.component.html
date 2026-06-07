@@ -1,268 +1,178 @@
 <div class="db-root">
 
-  <div class="header-card">
-    <div class="header-orange-left"></div>
-    <div class="header-bg-dots"></div>
-    <div class="header-bg-waves">
-      <svg width="100%" height="100%" preserveAspectRatio="none">
-        <path d="M200 130 Q350 50 500 130 Q650 210 800 130" fill="none" stroke="rgba(30,58,95,0.05)" stroke-width="2"/>
-        <path d="M200 150 Q350 70 500 150 Q650 230 800 150" fill="none" stroke="rgba(30,58,95,0.04)" stroke-width="1.5"/>
-        <path d="M200 110 Q350 30 500 110 Q650 190 800 110" fill="none" stroke="rgba(30,58,95,0.03)" stroke-width="1"/>
-      </svg>
+  <app-dashboard-header
+    [deptLabels]="deptLabels"
+    (periodChange)="onPeriodChange($any($event))"
+    (departmentChange)="onDepartmentChange($any($event))"
+    (dateChange)="onDateChange($any($event))">
+  </app-dashboard-header>
+
+  <!-- Admin-only content -->
+  <ng-container *ngIf="isAdmin">
+
+    <div *ngIf="loading" class="loading-center">
+      <mat-spinner diameter="40"></mat-spinner>
     </div>
-    <div class="header-orange-blob"></div>
 
-    <div class="header-inner">
+    <ng-container *ngIf="!loading">
 
-      <div class="header-left">
+    <!-- ══ Workforce Card ════════════════════════════════════ -->
+    <div class="wf-card">
 
-        <div class="text-block">
-          <div class="greeting">{{ greeting }} <span class="wave">👋</span></div>
-          <div class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</div>
-          <div class="sub-text">
-            Here's what's happening with your team today.
-            <span class="sub-star">✨</span>
+      <!-- ── Left panel ──────────────────────────────────── -->
+      <div class="wf-left">
+
+        <div class="wf-header-row">
+          <div class="wf-icon-box">
+            <mat-icon>group</mat-icon>
           </div>
-        </div>
-
-        <div class="controls-row">
-
-          <!-- Period toggle -->
-          <mat-button-toggle-group
-            [value]="period"
-            (change)="onPeriodChange($event.value)"
-            class="period-toggle"
-            hideSingleSelectionIndicator>
-            <mat-button-toggle value="day">Day</mat-button-toggle>
-            <mat-button-toggle value="week">Week</mat-button-toggle>
-            <mat-button-toggle value="month">Month</mat-button-toggle>
-            <mat-button-toggle value="year">Year</mat-button-toggle>
-          </mat-button-toggle-group>
-
-          <!-- Department filter -->
-          <div class="filter-btn" [matMenuTriggerFor]="deptMenu">
-            <div class="fi-icon-wrap">
-              <mat-icon class="fi-icon">domain</mat-icon>
-            </div>
-            <div class="fi-texts">
-              <span class="fi-label">Department</span>
-              <span class="fi-val">
-                {{ selectedDepartment === 'ALL' ? 'All departments' : selectedDepartment }}
-              </span>
-            </div>
-            <mat-icon class="fi-arr">expand_more</mat-icon>
+          <div class="wf-title-block">
+            <h3 class="wf-title">Workforce Overview</h3>
+            <p class="wf-subtitle">Real-time overview of your organization</p>
           </div>
-
-          <mat-menu #deptMenu="matMenu">
-            <button mat-menu-item (click)="onDepartmentChange('ALL')">
-              <span [class.fw-bold]="selectedDepartment === 'ALL'">All departments</span>
-            </button>
-            <button mat-menu-item
-                    *ngFor="let d of deptLabels"
-                    (click)="onDepartmentChange(d)">
-              <span [class.fw-bold]="selectedDepartment === d">{{ d }}</span>
+          <div class="wf-header-spacer"></div>
+          <div class="wf-type-pill" [matMenuTriggerFor]="typeMenu">
+            Employee type <mat-icon>expand_more</mat-icon>
+          </div>
+          <mat-menu #typeMenu="matMenu">
+            <button mat-menu-item *ngFor="let t of contractTypes" (click)="onContractTypeChange(t.key)">
+              <span [class.fw-bold]="selectedContractType === t.key">{{ t.label }}</span>
             </button>
           </mat-menu>
-
-          <!-- Date filter -->
-          <div class="filter-btn" (click)="picker.open()">
-            <div class="fi-icon-wrap">
-              <mat-icon class="fi-icon">calendar_today</mat-icon>
-            </div>
-            <div class="fi-texts">
-              <span class="fi-label">Date</span>
-              <span class="fi-val">
-                {{ selectedDate ? (selectedDate | date:'MMM d, y') : 'Select date' }}
-              </span>
-            </div>
-            <mat-icon class="fi-arr" *ngIf="!selectedDate">expand_more</mat-icon>
-            <mat-icon class="fi-clear"
-                      *ngIf="selectedDate"
-                      (click)="clearDate(); $event.stopPropagation()">
-              close
-            </mat-icon>
-            <input [matDatepicker]="picker"
-                   [(ngModel)]="selectedDate"
-                   (dateChange)="onDateChange($event.value)"
-                   [max]="today"
-                   style="display:none"
-                   readonly>
-            <mat-datepicker #picker></mat-datepicker>
-          </div>
-
         </div>
+
+        <div class="wf-total-section">
+          <span class="wf-total-label">Total Employees</span>
+          <div class="wf-total-row">
+            <span class="wf-total-num">{{ deptTotal }}</span>
+            <div class="wf-trend-badge">
+              <mat-icon>arrow_upward</mat-icon>
+              <span class="wf-trend-pct">{{ employeeTrend }}</span>
+            </div>
+          </div>
+          <span class="wf-trend-sub">vs last month</span>
+        </div>
+
+        <div class="wf-bars-row">
+          <div
+            *ngFor="let t of contractTypes; let i = index"
+            class="wf-bar-seg"
+            [class]="'wf-bar-' + i"
+            [style.flex]="t.count"
+            [style.background]="t.color"
+            [matTooltip]="t.label + ': ' + t.count + ' (' + contractPct(t.count) + ')'"
+            matTooltipPosition="above">
+            <mat-icon>group</mat-icon>
+            <span>{{ contractPct(t.count) }}</span>
+          </div>
+        </div>
+
+        <div class="wf-legend-row">
+          <span *ngFor="let t of contractTypes" class="wf-legend-pill">
+            <span class="wf-legend-dot" [style.background]="t.color"></span>
+            {{ t.label }}
+          </span>
+        </div>
+
+        <div class="wf-counts-row">
+          <div class="wf-count-card" *ngFor="let t of contractTypes; let i = index"
+               [style.--accent]="t.color">
+            <div class="wf-count-top">
+              <div class="wf-count-icon-wrap" [style.background]="t.color + '18'">
+                <mat-icon [style.color]="t.color">{{ contractIcons[i] }}</mat-icon>
+              </div>
+              <span class="wf-count-type">{{ t.label }} Employees</span>
+            </div>
+            <div class="wf-count-num">{{ t.count }}</div>
+            <div class="wf-count-footer">
+              <span class="wf-count-pct" [style.color]="t.color">
+                {{ contractPct(t.count) }} of total
+              </span>
+              <svg class="wf-count-spark" viewBox="0 0 60 24" fill="none">
+                <polyline
+                  [attr.points]="contractSparklines[i]"
+                  [attr.stroke]="t.color"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  fill="none"/>
+                <circle [attr.cx]="sparkEndX[i]" [attr.cy]="sparkEndY[i]"
+                        r="3" [attr.fill]="t.color"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Clock -->
-      <app-clock></app-clock>
+      <!-- ── Divider ─────────────────────────────────────── -->
+      <div class="wf-divider"></div>
+
+      <!-- ── Right panel ─────────────────────────────────── -->
+      <div class="wf-right">
+
+        <div class="wf-right-header">
+          <span class="wf-right-title">Employees by Department</span>
+          <button class="wf-more-btn">
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+        </div>
+
+        <div class="wf-right-body">
+          <div class="wf-donut-wrap">
+            <canvas id="donutChart"></canvas>
+            <div class="wf-donut-center">
+              <span class="wf-donut-num">{{ deptTotal }}</span>
+              <span class="wf-donut-lbl">Total</span>
+            </div>
+          </div>
+
+          <div class="wf-dept-list">
+            <div class="wf-dept-item"
+                 *ngFor="let d of deptLabels; let i = index"
+                 [style.animation-delay]="(i * 60) + 'ms'">
+              <span class="wf-dept-dot" [style.background]="deptColors[i]"></span>
+              <mat-icon class="wf-dept-icon">{{ getDeptIcon(d) }}</mat-icon>
+              <span class="wf-dept-name">{{ d }}</span>
+              <span class="wf-dept-stats">
+                {{ deptData[i] }}
+                <small>({{ deptPercent(deptData[i]) }})</small>
+              </span>
+              <div class="wf-dept-bar-track">
+                <div class="wf-dept-bar-fill"
+                     [style.width]="deptPercent(deptData[i])"
+                     [style.background]="deptColors[i]">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="wf-view-all-btn">
+          View all departments <mat-icon>arrow_forward</mat-icon>
+        </button>
+
+      </div>
 
     </div>
-  </div>
+    <!-- ══ End Workforce Card ════════════════════════════════ -->
 
-  <!-- Loading -->
-  <div *ngIf="loading" class="loading-center">
-    <mat-spinner diameter="40"></mat-spinner>
-  </div>
-
-  <ng-container *ngIf="!loading">
-
+    <!-- ══ Attendance Overview ═══════════════════════════════ -->
     <app-attendance-overview
       [period]="period"
       [department]="selectedDepartment"
       [specificDate]="selectedDate">
     </app-attendance-overview>
 
-    <!-- ── Workforce Distribution ───────────────────────── -->
-    <div class="wf-card">
-
-      <!-- Card Header -->
-      <div class="wf-header">
-        <div class="wf-header-left">
-          <div class="wf-icon-wrap">
-            <mat-icon>group</mat-icon>
-          </div>
-          <div>
-            <div class="wf-title">Workforce distribution</div>
-            <div class="wf-updated">
-              <span class="wf-dot"></span> Updated just now
-            </div>
-          </div>
-        </div>
-        <div class="wf-header-right">
-          <div class="dept-filter-pill" [matMenuTriggerFor]="deptMenu2">
-            <span>{{ selectedDepartment === 'ALL' ? 'All departments' : selectedDepartment }}</span>
-            <mat-icon>keyboard_arrow_down</mat-icon>
-          </div>
-          <mat-menu #deptMenu2="matMenu">
-            <button mat-menu-item (click)="onDepartmentChange('ALL')">All departments</button>
-            <button mat-menu-item *ngFor="let d of deptLabels" (click)="onDepartmentChange(d)">{{ d }}</button>
-          </mat-menu>
-          <mat-icon class="wf-more">more_vert</mat-icon>
-        </div>
-      </div>
-
-      <!-- Card Body -->
-      <div class="wf-body">
-
-        <!-- Left: Donut + Insight -->
-        <div class="wf-left">
-          <div class="donut-wrap"><canvas id="donutChart"></canvas></div>
-
-          <div class="wf-insight">
-            <mat-icon class="insight-icon">emoji_events</mat-icon>
-            <div class="insight-body">
-              <div class="insight-title">Workforce insight</div>
-              <div class="insight-text">
-                <strong>{{ deptLabels[0] }}</strong> dominates workforce distribution,
-                representing <span class="insight-pct">{{ deptPercent(deptData[0]) }}</span> of employees.
-                This indicates a highly technical organization structure.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Ranked Table -->
-        <div class="wf-right">
-          <table class="dept-table">
-            <thead>
-              <tr>
-                <th class="th-rank"></th>
-                <th class="th-dept">Departments</th>
-                <th class="th-bar"></th>
-                <th class="th-emp">Employees</th>
-                <th class="th-pct">Percentage</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let d of deptLabels; let i = index"
-                  [class.row-highlight]="i === 0">
-                <td class="td-rank">
-                  <span class="rank-badge" [class.rank-first]="i === 0">{{ i + 1 }}</span>
-                </td>
-                <td class="td-dept">
-                  <span class="dept-name">{{ d }}</span>
-                  <span class="dept-sub">{{ deptData[i] }} employees</span>
-                </td>
-                <td class="td-bar">
-                  <div class="bar-track">
-                    <div class="bar-fill"
-                         [style.width]="deptPercent(deptData[i])"
-                         [style.background]="i === 0 ? '#1e3a5f' : deptColors[i]">
-                    </div>
-                  </div>
-                </td>
-                <td class="td-emp">
-                  <span [class.emp-bold]="i === 0">{{ deptData[i] }}</span>
-                </td>
-                <td class="td-pct">
-                  <span [class.pct-orange]="i === 0" [class.pct-normal]="i !== 0">
-                    {{ deptPercent(deptData[i]) }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-
-      <!-- Card Footer: Summary Stats -->
-      <div class="wf-footer">
-        <div class="stat-item">
-          <div class="stat-icon-wrap blue">
-            <mat-icon>group</mat-icon>
-          </div>
-          <div>
-            <div class="stat-label">Total Employees</div>
-            <div class="stat-value">{{ deptTotal }}</div>
-          </div>
-        </div>
-
-        <div class="stat-divider"></div>
-
-        <div class="stat-item">
-          <div class="stat-icon-wrap orange">
-            <mat-icon>emoji_events</mat-icon>
-          </div>
-          <div>
-            <div class="stat-label">Largest Department</div>
-            <div class="stat-value">{{ deptLabels[0] }} ({{ deptPercent(deptData[0]) }})</div>
-          </div>
-        </div>
-
-        <div class="stat-divider"></div>
-
-        <div class="stat-item">
-          <div class="stat-icon-wrap blue">
-            <mat-icon>business</mat-icon>
-          </div>
-          <div>
-            <div class="stat-label">Departments</div>
-            <div class="stat-value">{{ deptLabels.length }}</div>
-          </div>
-        </div>
-
-        <div class="stat-divider"></div>
-
-        <div class="stat-item">
-          <div class="stat-icon-wrap blue">
-            <mat-icon>people_outline</mat-icon>
-          </div>
-          <div>
-            <div class="stat-label">Avg. Team Size</div>
-            <div class="stat-value">{{ avgTeamSize }}</div>
-          </div>
-        </div>
-
-        <div class="stat-action">
-          <span>View full report</span>
-          <mat-icon>chevron_right</mat-icon>
-        </div>
-      </div>
-
-    </div>
-    <!-- ── End Workforce Distribution ────────────────────── -->
-
+    </ng-container>
   </ng-container>
+
+  <ng-container *ngIf="!isAdmin">
+    <app-employee-dashboard></app-employee-dashboard>
+  </ng-container>
+
+ 
+
+  <app-chatbot></app-chatbot>
 
 </div>

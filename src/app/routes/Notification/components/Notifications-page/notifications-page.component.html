@@ -1,37 +1,103 @@
-﻿<div class="notifications-container">
-  <div class="notifications-header">
-    <h2>Notifications</h2>
-    <button mat-button *ngIf="notifications.length > 0" (click)="markAllRead()">
+﻿<!-- notifications-page.component.html -->
+<div class="nc-page">
+
+  <!-- ── Page header ──────────────────────────────────── -->
+  <div class="nc-page-header">
+    <div class="nc-page-header-left">
+      <div class="nc-page-icon">
+        <mat-icon>notifications</mat-icon>
+      </div>
+      <div>
+        <h1 class="nc-page-title">Notification Center</h1>
+        <p class="nc-page-sub">Stay on top of everything happening</p>
+      </div>
+    </div>
+    <button class="nc-mark-all-btn" *ngIf="unreadTotal > 0" (click)="markAllRead()">
+      <mat-icon>done_all</mat-icon>
       Mark all as read
     </button>
   </div>
 
-  <div *ngIf="loading && notifications.length === 0" class="loading-spinner">
-    <mat-spinner diameter="40"></mat-spinner>
-  </div>
-
-  <mat-list *ngIf="!loading && notifications.length > 0">
-    <mat-list-item *ngFor="let notification of notifications" (click)="markRead(notification)" [class.unread]="!notification.read">
-      <mat-icon matListIcon [style.color]="getMeta(notification.type).color">
-        {{ getMeta(notification.type).icon }}
-      </mat-icon>
-      <div matListItemTitle>
-        {{ notification.title }}
-        <span *ngIf="!notification.read" class="unread-badge">New</span>
-      </div>
-      <div matListItemLine>{{ notification.message }}</div>
-      <div matListItemLine class="timestamp">{{ timeAgo(notification.createdAt) }}</div>
-    </mat-list-item>
-  </mat-list>
-
-  <div *ngIf="!loading && notifications.length === 0" class="no-notifications">
-    <mat-icon>notifications_none</mat-icon>
-    <p>No notifications yet</p>
-  </div>
-
-  <div *ngIf="hasMore" class="load-more">
-    <button mat-button (click)="loadMore()" [disabled]="loading">
-      {{ loading ? 'Loading...' : 'Load more' }}
+  <!-- ── Filter tabs ───────────────────────────────────── -->
+  <div class="nc-tabs">
+    <button class="nc-tab" [class.active]="filter==='all'"    (click)="setFilter('all')">
+      All <span class="nc-tab-count" *ngIf="notifications.length">{{ notifications.length }}</span>
+    </button>
+    <button class="nc-tab" [class.active]="filter==='unread'" (click)="setFilter('unread')">
+      Unread <span class="nc-tab-count nc-tab-count--red" *ngIf="unreadTotal > 0">{{ unreadTotal }}</span>
     </button>
   </div>
+
+  <!-- ── Loading ───────────────────────────────────────── -->
+  <div *ngIf="loading && notifications.length === 0" class="nc-loading">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
+  <!-- ── Empty ─────────────────────────────────────────── -->
+  <div *ngIf="!loading && displayed.length === 0" class="nc-empty">
+    <div class="nc-empty-icon">
+      <mat-icon>notifications_none</mat-icon>
+    </div>
+    <p class="nc-empty-title">All caught up!</p>
+    <p class="nc-empty-sub">No {{ filter === 'unread' ? 'unread ' : '' }}notifications yet.</p>
+  </div>
+
+  <!-- ── Grouped list ──────────────────────────────────── -->
+  <div class="nc-list" *ngIf="displayed.length > 0">
+
+    <ng-container *ngFor="let group of grouped">
+
+      <!-- Date separator -->
+      <div class="nc-date-sep">
+        <span>{{ group.label }}</span>
+      </div>
+
+      <!-- Notification items -->
+      <div
+        *ngFor="let n of group.items"
+        class="nc-item"
+        [class.nc-item--unread]="!n.read"
+        (click)="markRead(n)">
+
+        <!-- Left accent bar for unread -->
+        <div class="nc-item-bar" *ngIf="!n.read"></div>
+
+        <!-- Icon -->
+        <div class="nc-item-icon" [style.background]="getMeta(n.type).bgColor">
+          <mat-icon [style.color]="getMeta(n.type).color">
+            {{ getMeta(n.type).icon }}
+          </mat-icon>
+        </div>
+
+        <!-- Content -->
+        <div class="nc-item-body">
+          <div class="nc-item-top">
+            <span class="nc-item-title">{{ n.title }}</span>
+            <span class="nc-item-new" *ngIf="!n.read">New</span>
+          </div>
+          <p class="nc-item-msg">{{ n.message }}</p>
+        </div>
+
+        <!-- Time -->
+        <span class="nc-item-time">{{ timeAgo(n.createdAt) }}</span>
+
+        <!-- Unread dot -->
+        <span class="nc-item-dot" *ngIf="!n.read"></span>
+
+      </div>
+
+    </ng-container>
+
+  </div>
+
+  <!-- ── Load more ─────────────────────────────────────── -->
+  <div *ngIf="hasMore && !loading" class="nc-load-more">
+    <button class="nc-load-more-btn" (click)="loadMore()">
+      Load more notifications
+    </button>
+  </div>
+  <div *ngIf="loading && notifications.length > 0" class="nc-loading-more">
+    <mat-spinner diameter="24"></mat-spinner>
+  </div>
+
 </div>

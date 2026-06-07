@@ -1,177 +1,169 @@
 <!-- attendance-history.component.html -->
+<div class="ah-page">
 
-<!-- Page Header -->
-<div class="page-header">
-  <h1 class="page-title">Attendance History</h1>
-  <p class="page-subtitle">View and track your daily attendance records</p>
-</div>
-
-<!-- Filters Toolbar -->
-<mat-card class="filter-card m-b-24">
-  <mat-card-content>
-    <div class="filter-row">
-
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Month</mat-label>
-        <mat-icon matPrefix class="prefix-icon">calendar_today</mat-icon>
-        <mat-select [(ngModel)]="selectedMonth" (ngModelChange)="onFilterChange()">
-          <mat-option [value]="null">All months</mat-option>
-          <mat-option *ngFor="let m of months" [value]="m.value">{{ m.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Year</mat-label>
-        <mat-icon matPrefix class="prefix-icon">calendar_today</mat-icon>
-        <mat-select [(ngModel)]="selectedYear" (ngModelChange)="onFilterChange()">
-          <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-icon matPrefix>search</mat-icon>
-        <input
-          matInput
-          placeholder="Search by date or status..."
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="applySearch()"
-        />
-      </mat-form-field>
-
-      <button mat-stroked-button class="filter-btn" (click)="openFilterDialog()">
-        <mat-icon>filter_list</mat-icon>
-        Filter
-      </button>
-
+  <!-- ── Page Header ──────────────────────────────────── -->
+  <div class="ah-header">
+    <div class="ah-header-left">
+      <div class="ah-header-icon">
+        <mat-icon>history</mat-icon>
+      </div>
+      <div>
+        <h1 class="ah-title">Attendance History</h1>
+        <p class="ah-subtitle">Your daily attendance timeline</p>
+      </div>
     </div>
-  </mat-card-content>
-</mat-card>
 
-<!-- Loading -->
-<div *ngIf="loading" class="spinner-wrapper">
-  <mat-spinner diameter="40"></mat-spinner>
-</div>
-
-<ng-container *ngIf="!loading">
-
-  <!-- Summary bar -->
-  <div class="summary-bar" *ngIf="filtered.length > 0">
-    <span class="summary-range">{{ dateRangeLabel }}</span>
-    <div class="summary-chips">
-      <span class="chip chip-ontime">
-        <span class="chip-dot"></span>{{ countByStatus('PRESENT') }} On time
+    <!-- Summary chips -->
+    <div class="ah-summary-chips" *ngIf="filtered.length > 0">
+      <span class="ach ach-ontime">
+        <span class="ach-dot"></span>{{ countByStatus('PRESENT') }} On time
       </span>
-      <span class="chip chip-late">
-        <span class="chip-dot"></span>{{ countByStatus('LATE') }} Late
+      <span class="ach ach-late">
+        <span class="ach-dot"></span>{{ countByStatus('LATE') }} Late
       </span>
-      <span class="chip chip-half">
-        <span class="chip-dot"></span>{{ countByStatus('HALF_DAY') }} Half day
+      <span class="ach ach-half">
+        <span class="ach-dot"></span>{{ countByStatus('HALF_DAY') }} Half day
       </span>
-      <span class="chip chip-absent">
-        <span class="chip-dot"></span>{{ countByStatus('ABSENT') }} Absent
+      <span class="ach ach-absent">
+        <span class="ach-dot"></span>{{ countByStatus('ABSENT') }} Absent
       </span>
     </div>
   </div>
 
-  <!-- No data -->
-  <div class="no-data" *ngIf="filtered.length === 0">
-    <mat-icon>event_busy</mat-icon>
-    <p>No attendance records found.</p>
+  <!-- ── Filters ───────────────────────────────────────── -->
+  <div class="ah-filters">
+    <mat-form-field appearance="outline" class="af-field">
+      <mat-label>Month</mat-label>
+      <mat-icon matPrefix class="prefix-icon">calendar_today</mat-icon>
+      <mat-select [(ngModel)]="selectedMonth" (ngModelChange)="onFilterChange()">
+        <mat-option [value]="null">All months</mat-option>
+        <mat-option *ngFor="let m of months" [value]="m.value">{{ m.label }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="af-field">
+      <mat-label>Year</mat-label>
+      <mat-icon matPrefix class="prefix-icon">today</mat-icon>
+      <mat-select [(ngModel)]="selectedYear" (ngModelChange)="onFilterChange()">
+        <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="af-search">
+      <mat-icon>search</mat-icon>
+      <input
+        type="text"
+        placeholder="Search by date or status…"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applySearch()" />
+    </div>
   </div>
 
-  <!-- Cards Grid — all records, no pagination -->
-  <div class="cards-grid" *ngIf="filtered.length > 0">
-    <div
-      class="attendance-card"
-      [ngClass]="[cardClass(row.status), isExpanded(row) ? 'is-expanded' : '']"
-      *ngFor="let row of filtered"
-      (click)="toggleExpand(row)"
-    >
+  <!-- ── Loading ───────────────────────────────────────── -->
+  <div *ngIf="loading" class="ah-loading">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
 
-      <!-- Card header -->
-      <div class="card-header">
-        <span class="card-date">{{ row.date | date:'EEE, MMM d, yyyy' }}</span>
-        <div class="header-right">
-          <span class="status-dot-badge" [ngClass]="statusDotClass(row.status)">
-            <span class="dot"></span>
-            {{ statusLabel(row.status) }}
-          </span>
-          <mat-icon class="expand-icon">
-            {{ isExpanded(row) ? 'expand_less' : 'expand_more' }}
-          </mat-icon>
-        </div>
+  <!-- ── Empty ─────────────────────────────────────────── -->
+  <div *ngIf="!loading && filtered.length === 0" class="ah-empty">
+    <div class="ah-empty-icon"><mat-icon>event_busy</mat-icon></div>
+    <p class="ah-empty-title">No records found</p>
+    <p class="ah-empty-sub">Try adjusting the month or year filter.</p>
+  </div>
+
+  <!-- ── Timeline ──────────────────────────────────────── -->
+  <div class="ah-timeline" *ngIf="!loading && filtered.length > 0">
+
+    <ng-container *ngFor="let group of groupedByMonth; let gi = index">
+
+      <!-- Month separator -->
+      <div class="tl-month-sep">
+        <span class="tl-month-label">{{ group.label }}</span>
+        <span class="tl-month-count">{{ group.items.length }} records</span>
       </div>
 
-      <!-- Times row -->
-      <div class="card-times">
-        <div class="time-block">
-          <span class="time-label">Check In</span>
-          <span class="time-value">{{ row.checkIn ? (row.checkIn | date:'hh:mm a') : '—' }}</span>
-        </div>
-        <div class="time-block">
-          <span class="time-label">Check Out</span>
-          <span class="time-value">{{ row.checkOut ? (row.checkOut | date:'hh:mm a') : '—' }}</span>
-        </div>
-        <div class="time-block">
-          <span class="time-label">Total</span>
-          <span class="time-value time-total">{{ formatDuration(row.workDuration) }}</span>
-        </div>
-      </div>
+      <!-- Timeline entries -->
+      <div class="tl-entry"
+           *ngFor="let row of group.items; let last = last"
+           [class.tl-entry--last]="last && gi === groupedByMonth.length - 1">
 
-      <!-- Notes (always visible) -->
-      <div class="card-notes">
-        <span class="notes-label">Notes:</span>
-        <span class="notes-value">{{ row.notes || '—' }}</span>
-      </div>
+        <!-- Left: date column -->
+        <div class="tl-date-col">
+          <div class="tl-day-num">{{ row.date | date:'d' }}</div>
+          <div class="tl-day-name">{{ row.date | date:'EEE' }}</div>
+        </div>
 
-      <!-- Expanded details (animated) -->
-      <div class="card-expanded" [@expandCollapse]="isExpanded(row) ? 'expanded' : 'collapsed'">
-        <div class="expanded-inner">
+        <!-- Center: timeline dot + line -->
+        <div class="tl-axis">
+          <div class="tl-dot" [ngClass]="'dot-' + cardClass(row.status)"></div>
+          <div class="tl-line" *ngIf="!last || gi < groupedByMonth.length - 1"></div>
+        </div>
 
-          <!-- Hours progress bar -->
-          <div class="progress-section">
-            <div class="progress-header">
-              <span class="progress-label">Hours worked</span>
-              <span class="progress-value">{{ formatDuration(row.workDuration) }} / 8h 00m</span>
+        <!-- Right: content -->
+        <div class="tl-content" [ngClass]="'tl-' + cardClass(row.status)">
+
+          <div class="tl-content-main">
+
+            <!-- Status badge -->
+            <span class="tl-badge" [ngClass]="'badge-' + cardClass(row.status)">
+              {{ statusLabel(row.status) }}
+            </span>
+
+            <!-- Times -->
+            <div class="tl-times">
+              <div class="tl-time-block">
+                <span class="tl-time-label">In</span>
+                <span class="tl-time-val">
+                  {{ row.checkIn ? (row.checkIn | date:'hh:mm a') : '—' }}
+                </span>
+              </div>
+              <mat-icon class="tl-arrow">arrow_forward</mat-icon>
+              <div class="tl-time-block">
+                <span class="tl-time-label">Out</span>
+                <span class="tl-time-val">
+                  {{ row.checkOut ? (row.checkOut | date:'hh:mm a') : '—' }}
+                </span>
+              </div>
             </div>
-            <div class="progress-track">
-              <div
-                class="progress-fill"
-                [ngClass]="cardClass(row.status)"
-                [style.width.%]="hoursPercent(row.workDuration)"
-              ></div>
+
+            <!-- Worked hours -->
+            <div class="tl-worked" *ngIf="row.workDuration">
+              <mat-icon>access_time</mat-icon>
+              <span>{{ formatDuration(row.workDuration) }}</span>
+            </div>
+
+            <!-- Overtime pill -->
+            <div class="tl-overtime" *ngIf="row.overtimeHours > 0">
+              <mat-icon>trending_up</mat-icon>
+              <span>+{{ formatDuration(row.overtimeHours) }}</span>
+            </div>
+
+          </div>
+
+          <!-- Progress bar -->
+          <div class="tl-progress" *ngIf="row.workDuration">
+            <div class="tl-progress-fill"
+                 [ngClass]="'fill-' + cardClass(row.status)"
+                 [style.width.%]="hoursPercent(row.workDuration)">
             </div>
           </div>
 
-          <!-- Extra stats row -->
-          <div class="extra-stats">
-            <div class="extra-stat">
-              <span class="extra-label">Overtime</span>
-              <span class="extra-value" [class.positive]="row.overtimeHours > 0">
-                {{ row.overtimeHours > 0 ? '+' + formatDuration(row.overtimeHours) : '—' }}
-              </span>
-            </div>
-            <div class="extra-stat">
-              <span class="extra-label">Expected</span>
-              <span class="extra-value">8h 00m</span>
-            </div>
-            <div class="extra-stat">
-              <span class="extra-label">Difference</span>
-              <span class="extra-value" [ngClass]="diffClass(row.workDuration)">
-                {{ formatDiff(row.workDuration) }}
-              </span>
-            </div>
+          <!-- Notes -->
+          <div class="tl-notes" *ngIf="row.notes">
+            <mat-icon>notes</mat-icon>
+            <span>{{ row.notes }}</span>
           </div>
 
         </div>
       </div>
 
+    </ng-container>
+
+    <!-- End cap -->
+    <div class="tl-end-cap">
+      <span>{{ filtered.length }} records · {{ dateRangeLabel }}</span>
     </div>
+
   </div>
 
-  <!-- Record count footer -->
-  <div class="records-footer" *ngIf="filtered.length > 0">
-    {{ filtered.length }} record{{ filtered.length !== 1 ? 's' : '' }} this month
-  </div>
-
-</ng-container>
+</div>

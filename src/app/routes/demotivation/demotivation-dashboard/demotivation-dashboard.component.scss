@@ -1,0 +1,40 @@
+.demotivation-container { padding: 24px; font-family: 'Segoe UI', sans-serif; }
+.page-header h2 { margin: 0; color: #1f2937; }
+.subtitle { color: #6b7280; margin-top: 4px; }
+
+.summary-cards { display: flex; gap: 16px; margin: 24px 0; }
+.card {
+  flex: 1; padding: 20px; border-radius: 12px;
+  display: flex; flex-direction: column; align-items: center;
+  color: #fff;
+}
+.card-count { font-size: 32px; font-weight: 700; }
+.card-label { font-size: 14px; opacity: 0.9; }
+.card-eleve  { background: #dc2626; }
+.card-moyen  { background: #f59e0b; }
+.card-faible { background: #16a34a; }
+
+.scores-table { width: 100%; border-collapse: collapse; background: #fff;
+  border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.scores-table th { background: #f9fafb; padding: 12px; text-align: left;
+  font-size: 13px; color: #6b7280; text-transform: uppercase; }
+.scores-table td { padding: 12px; border-top: 1px solid #f3f4f6; font-size: 14px; }
+.name-cell { font-weight: 600; color: #1f2937; }
+
+.badge { padding: 4px 12px; border-radius: 999px; font-size: 12px;
+  font-weight: 600; color: #fff; }
+.badge-eleve  { background: #dc2626; }
+.badge-moyen  { background: #f59e0b; }
+.badge-faible { background: #16a34a; }
+
+.score-cell { display: flex; align-items: center; gap: 8px; }
+.score-bar-bg { width: 80px; height: 8px; background: #e5e7eb;
+  border-radius: 4px; overflow: hidden; }
+.score-bar-fill { height: 100%; border-radius: 4px; }
+.score-bar-fill.badge-eleve  { background: #dc2626; }
+.score-bar-fill.badge-moyen  { background: #f59e0b; }
+.score-bar-fill.badge-faible { background: #16a34a; }
+.score-value { font-weight: 600; min-width: 36px; }
+
+.state-msg { padding: 24px; text-align: center; color: #6b7280; }
+.state-msg.error { color: #dc2626; }

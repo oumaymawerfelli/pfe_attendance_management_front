@@ -1,0 +1,296 @@
+<div class="emp-db-container">
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- ATTENDANCE CARD                                                       -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div class="attendance-card" [class.card-loaded]="cardsReady">
+
+    <div class="bg-orb bg-orb--gold" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb--navy" aria-hidden="true"></div>
+
+    <!-- Header -->
+    <div class="card-header">
+      <div class="header-left">
+        <div class="header-icon-wrap" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM5 7V6h14v1H5zM7 11h5v5H7z"/>
+          </svg>
+          <span class="header-icon-glow" aria-hidden="true"></span>
+        </div>
+        <div class="header-text">
+          <h3 class="card-title">Attendance Rate</h3>
+          <p class="card-sub">Monthly overview for
+            <span class="card-sub-accent">{{ currentMonthLabel }}</span>
+          </p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="month-btn" aria-label="Select month">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+          </svg>
+          {{ currentMonthLabel }}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M7 10l5 5 5-5z"/>
+          </svg>
+        </button>
+        <button class="menu-btn" aria-label="More options">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Two-column body -->
+    <div class="dashboard-body">
+
+      <!-- LEFT — Rate Hero -->
+      <div class="rate-hero">
+        <p class="section-label">Monthly Rate</p>
+        <div class="hero-donut-wrap">
+          <svg class="hero-donut-svg" viewBox="0 0 220 220"
+               [attr.aria-label]="displayedRate + '% attendance rate'">
+            <defs>
+              <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#d4920a"/>
+                <stop offset="32%"  stop-color="#9333ea"/>
+                <stop offset="66%"  stop-color="#3b82f6"/>
+                <stop offset="100%" stop-color="#1e3a5f"/>
+              </linearGradient>
+              <filter id="arcGlow" x="-25%" y="-25%" width="150%" height="150%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <circle cx="110" cy="110" r="90" fill="none" stroke="#e8eef6" stroke-width="20"/>
+            <circle cx="110" cy="110" r="90" fill="none"
+                    stroke="url(#arcGrad)" stroke-width="20"
+                    stroke-linecap="round"
+                    filter="url(#arcGlow)"
+                    [style.stroke-dasharray]="arcReady ? rateStrokeDasharray : '0 566'"
+                    style="transition: stroke-dasharray 1.5s cubic-bezier(0.4,0,0.2,1) 0.35s"
+                    transform="rotate(-90 110 110)"/>
+          </svg>
+          <div class="hero-center">
+            <div class="hero-rate-wrap">
+              <span class="hero-rate-num">{{ displayedRate }}</span>
+              <span class="hero-rate-pct">%</span>
+            </div>
+            <span class="hero-rate-lbl">Attendance Rate</span>
+            <div class="hero-delta"
+                 [class.delta-positive]="rateDelta >= 0"
+                 [class.delta-negative]="rateDelta < 0">
+              <span class="delta-arrow">{{ rateDelta >= 0 ? '↑' : '↓' }}</span>
+              <span class="delta-val">{{ rateDelta < 0 ? -rateDelta : rateDelta }}%</span>
+            </div>
+            <span class="delta-vs">vs {{ prevMonthLabel }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-divider" aria-hidden="true"></div>
+
+      <!-- RIGHT — Attendance Sheet -->
+      <div class="sheet-panel">
+        <p class="section-label">Attendance Sheet</p>
+        <div class="chart-wrap">
+          <div class="y-axis" aria-hidden="true">
+            <span *ngFor="let tick of yTicks">{{ tick }}</span>
+          </div>
+          <div class="bars-area"
+               [class.bars-ready]="barsReady"
+               role="img"
+               [attr.aria-label]="'Attendance chart for ' + currentMonthLabel">
+            <div class="grid-lines" aria-hidden="true">
+              <div *ngFor="let tick of yTicks" class="grid-line"
+                   [style.bottom.%]="yMax > 0 ? (tick / yMax) * 100 : 0"></div>
+            </div>
+            <div class="bar-col" *ngFor="let b of statusBars">
+              <div class="bar-value" [style.color]="b.valueColor"
+                   [style.animation-delay]="b.animDelay">{{ b.value }}</div>
+              <div class="bar-track">
+                <div class="bar-fill"
+                     [style.height.%]="yMax > 0 ? (b.realValue / yMax) * 100 : 4"
+                     [style.background]="b.gradient"
+                     [style.animation-delay]="b.animDelay"
+                     [style.box-shadow]="'0 8px 24px ' + b.glowColor">
+                  <div class="bar-icon-circle">
+                    <span class="bar-icon-inner" [style.color]="b.valueColor">
+                      <ng-container *ngIf="b.label === 'PRESENT'">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                      </ng-container>
+                      <ng-container *ngIf="b.label === 'LATE'">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                      </ng-container>
+                      <ng-container *ngIf="b.label === 'ABSENT'">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/><line x1="17" y1="13" x2="23" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="23" y1="13" x2="17" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                      </ng-container>
+                      <ng-container *ngIf="b.label === 'HALF DAY'">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18V4c4.41 0 8 3.59 8 8s-3.59 8-8 8z"/></svg>
+                      </ng-container>
+                      <ng-container *ngIf="b.label === 'LEAVE'">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.36C18 3.15 16.85 2 15.46 2H8.54C7.16 2 6 3.15 6 4.64c0 .48.11.92.18 1.36H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-4.46-2c.39 0 .46.52.46.64v1H8V4.64c0-.12.07-.64.54-.64h6.92zM20 19H4V8h16v11z"/></svg>
+                      </ng-container>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="bar-label">{{ b.label }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-row">
+      <div class="summary-card"
+           *ngFor="let b of statusBars"
+           [style.animation-delay]="b.cardDelay"
+           [class.card-visible]="cardsReady">
+        <div class="sc-accent-line" [style.background]="b.gradient"></div>
+        <div class="sc-icon-wrap" [style.background]="b.lightBg">
+          <span [style.color]="b.valueColor">
+            <ng-container *ngIf="b.label === 'PRESENT'"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></ng-container>
+            <ng-container *ngIf="b.label === 'LATE'"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></ng-container>
+            <ng-container *ngIf="b.label === 'ABSENT'"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/><line x1="17" y1="13" x2="23" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="23" y1="13" x2="17" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></ng-container>
+            <ng-container *ngIf="b.label === 'HALF DAY'"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18V4c4.41 0 8 3.59 8 8s-3.59 8-8 8z"/></svg></ng-container>
+            <ng-container *ngIf="b.label === 'LEAVE'"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.36C18 3.15 16.85 2 15.46 2H8.54C7.16 2 6 3.15 6 4.64c0 .48.11.92.18 1.36H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-4.46-2c.39 0 .46.52.46.64v1H8V4.64c0-.12.07-.64.54-.64h6.92zM20 19H4V8h16v11z"/></svg></ng-container>
+          </span>
+        </div>
+        <div class="sc-body">
+          <div class="sc-label">{{ b.label }}</div>
+          <div class="sc-value" [style.color]="b.valueColor">{{ b.value }}</div>
+          <div class="sc-pct">{{ getPercent(b.realValue) }}% of total</div>
+        </div>
+        <div class="sc-progress">
+          <div class="sc-progress-fill"
+               [style.width.%]="cardsReady ? getPercent(b.realValue) : 0"
+               [style.background]="b.gradient"
+               [style.transition-delay]="b.cardDelay"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- /ATTENDANCE CARD -->
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- BOTTOM ROW: Projects + Wellbeing side by side                        -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div class="bottom-row">
+
+    <!-- ── PROJECTS CARD ─────────────────────────────────────────────────── -->
+    <div class="projects-card" [class.projects-loaded]="projectsReady">
+
+      <div class="proj-header">
+        <div class="proj-header-left">
+          <div class="proj-icon-wrap" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <path d="M20 6h-2.18c.07-.44.18-.88.18-1.36C18 3.15 16.85 2 15.46 2H8.54C7.16 2 6 3.15 6 4.64c0 .48.11.92.18 1.36H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-4.46-2c.39 0 .46.52.46.64v1H8V4.64c0-.12.07-.64.54-.64h6.92zM20 19H4V8h16v11z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="proj-title">My Projects</h3>
+            <p class="proj-subtitle">Your active assignments</p>
+          </div>
+        </div>
+        <div class="proj-count-pill">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/>
+          </svg>
+          <strong>{{ myProjects.length }}</strong> projects
+        </div>
+      </div>
+
+      <div class="proj-skeleton" *ngIf="projectsLoading">
+        <div class="skel-card" *ngFor="let _ of [1,2,3]">
+          <div class="skel-avatar"></div>
+          <div class="skel-lines">
+            <div class="skel-line skel-line--title"></div>
+            <div class="skel-line skel-line--sub"></div>
+          </div>
+          <div class="skel-right">
+            <div class="skel-bar"></div>
+            <div class="skel-badge"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proj-empty" *ngIf="!projectsLoading && myProjects.length === 0">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/>
+        </svg>
+        <p>No active projects assigned</p>
+      </div>
+
+      <div class="proj-cards" *ngIf="!projectsLoading && myProjects.length > 0">
+        <div class="proj-item"
+             *ngFor="let p of myProjects; let i = index"
+             [style.animation-delay]="(i * 0.1) + 's'"
+             [class.proj-item--visible]="projectsReady">
+
+          <div class="proj-avatar-wrap">
+            <div class="proj-avatar-icon" [attr.aria-label]="p.name">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+              </svg>
+            </div>
+            <span class="proj-avatar-dot" [style.background]="getStatusConfig(p.status).color"></span>
+          </div>
+
+          <div class="proj-info">
+            <p class="proj-name">{{ p.name }}</p>
+            <p class="proj-role">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px;opacity:.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              Role: <span>{{ p.role }}</span>
+            </p>
+          </div>
+
+          <div class="proj-mid">
+            <div class="proj-progress-row">
+              <div class="proj-progress-track">
+                <div class="proj-progress-fill"
+                     [style.width.%]="projectsReady ? p.progress : 0"
+                     [style.transition-delay]="(i * 0.1 + 0.3) + 's'"></div>
+              </div>
+              <span class="proj-pct">{{ p.progress }}%</span>
+            </div>
+            <p class="proj-due">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+              Due: <span>{{ formatDueDate(p.dueDate) }}</span>
+            </p>
+          </div>
+
+          <span class="proj-status-badge"
+                [style.color]="getStatusConfig(p.status).color"
+                [style.background]="getStatusConfig(p.status).bg"
+                [style.border-color]="getStatusConfig(p.status).border">
+            <span class="status-dot" [style.background]="getStatusConfig(p.status).color"></span>
+            {{ getStatusConfig(p.status).label }}
+          </span>
+
+          <button class="proj-menu-btn" [attr.aria-label]="'Options for ' + p.name">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
+            </svg>
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+    <!-- /PROJECTS CARD -->
+
+    <!-- ── WELLBEING WIDGET ───────────────────────────────────────────────── 
+    <div class="wellbeing-col">
+      <app-wellbeing-widget></app-wellbeing-widget>
+    </div>-->
+
+  </div>
+  <!-- /BOTTOM ROW -->
+
+</div>

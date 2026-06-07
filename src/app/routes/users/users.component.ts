@@ -43,14 +43,9 @@ export class UsersComponent implements OnInit {
   selectedDepartment: string | null = null;
   selectedRole: string | null = null;
 
-  departments: string[] = ['IT', 'HR', 'Finance', 'Operations', 'Marketing'];
+  departments: string[] = ['IT', 'HR', 'FINANCE', 'SALES', 'MARKETING', 'OPERATIONS'];
 
-  availableRoles: string[] = [
-    'Admin',
-    'Manager',
-    'Employee',
-    'General Director',
-  ];
+availableRoles: string[] = ['ADMIN', 'GENERAL MANAGER', 'PROJECT MANAGER', 'EMPLOYEE'];
 
   constructor(
     private usersService: UsersService,
@@ -181,46 +176,31 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  loadUsers(keyword = this.searchKeyword): void {
-    this.isLoading = true;
+loadUsers(keyword = this.searchKeyword): void {
+  this.isLoading = true;
 
-    this.usersService.getUsers(this.currentPage, this.pageSize, keyword).subscribe({
-      next: (res: PageResponse<UserDTO>) => {
-        let mapped = res.content.map(user => ({
-          ...user,
-          registrationPending:   user.registrationPending          === true,
-          registrationRejected:  (user as any).registrationRejected === true,   // ← not yet in DTO
-          accountNonLocked:      user.accountNonLocked              === true,
-          active:                user.active                        === true,
-          enabled:               user.enabled                       === true,
-        }));
-
-        // Client-side filtering
-        if (this.activeFilter) {
-          mapped = mapped.filter(u => this.getStatus(u).toUpperCase() === this.activeFilter);
-        }
-        if (this.selectedDepartment) {
-          mapped = mapped.filter(u => u.department === this.selectedDepartment);
-        }
-        if (this.selectedRole) {
-          mapped = mapped.filter(
-            u => this.getRoleLabel(u).toLowerCase() === this.selectedRole!.toLowerCase()
-          );
-        }
-
-        this.users = mapped;
-        this.totalElements = res.totalElements;
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        this.snackBar.open('Failed to load users', 'Close', { duration: 3000 });
-        this.isLoading = false;
-        if (err.status === 401 || err.status === 403) {
-          this.router.navigate(['/auth/login']);
-        }
-      },
-    });
-  }
+  this.usersService.getUsers(
+    this.currentPage, this.pageSize,
+    keyword,
+    this.selectedDepartment ?? undefined,
+    this.activeFilter ?? undefined,
+    this.selectedRole ?? undefined          // ← add
+  ).subscribe({
+    next: (res) => {
+      this.users = res.content.map(user => ({
+        ...user,
+        registrationPending: user.registrationPending === true,
+        accountNonLocked:    user.accountNonLocked    === true,
+        active:              user.active              === true,
+        enabled:             user.enabled             === true,
+      }));
+      // ← client-side role filter removed entirely
+      this.totalElements = res.totalElements;
+      this.isLoading = false;
+    },
+    error: () => { this.isLoading = false; }
+  });
+}
 
   // ============================================================================
   // PAGINATION

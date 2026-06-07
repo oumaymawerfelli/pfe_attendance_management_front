@@ -88,6 +88,7 @@ export interface LeaveRequest {
   endDate:   string;
   duration:  number;      // NEW — working days, calculated on the frontend
   reason:    string;
+  attachmentType?: string;
 }
 
 
@@ -160,6 +161,7 @@ export interface LeaveDocumentRequest {
   signatureBase64: string;
   approvedBy?:     string;
   approvalDate?:   string;
+  
 }
 
 export interface LeaveBalance {

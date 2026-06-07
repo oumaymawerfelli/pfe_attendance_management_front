@@ -6,9 +6,12 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormControl, Validators } from '@angular/forms';
 import { Subject, switchMap, map, takeUntil } from 'rxjs';
 import SignaturePad from 'signature_pad';
+import { DocumentService } from '../../../admin/services/document.service';
+import { LeaveDocument }   from '../../../admin/models/leave-document.model';
 
 import { LeaveService } from '../../services/leave.service';
 import { AuthService } from '@core/authentication/auth.service';
+import { LeavePdfService, LeaveDocumentData } from '../../services/leave-pdf.service';
 import {
   LeaveRecord,
   LeaveStatus,
@@ -77,11 +80,16 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
   private signaturePad!: SignaturePad;
   private destroy$ = new Subject<void>();
 
+  documents: LeaveDocument[] = [];
+loadingDocs = false;
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: LeaveDetailDialogData,
     private dialogRef: MatDialogRef<LeaveDetailDialogComponent, LeaveDetailDialogResult | null>,
     private leaveService: LeaveService,
     private authService: AuthService,
+    private documentService: DocumentService,
+    private pdfService: LeavePdfService,
   ) {
     this.leave = data.leave;
     this.mode  = data.mode  ?? 'view';
@@ -89,6 +97,7 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.loadDocuments();
     this.authService.user()
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
@@ -161,47 +170,75 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
 
   // ── Approve flow ──────────────────────────────────────────────────────────
 
-  confirmApprove(): void {
-    if (this.isSignatureEmpty()) {
-      this.error = 'Please draw your signature before approving.';
-      return;
-    }
-
-    this.saving = true;
-    this.error  = '';
-
-    const approve$ = this.isPM
-      ? this.leaveService.approveTeamLeave(this.leave.id)
-      : this.leaveService.approveLeave(this.leave.id);
-
-    const signatureBase64 = this.signaturePad.toDataURL('image/png');
-
-    approve$.pipe(
-      switchMap(updated =>
-        this.leaveService.generateDocument(this.leave.id, {
-          startDate:    updated.startDate ?? this.leave.startDate,
-          endDate:      updated.endDate   ?? this.leave.endDate,
-          reason:       updated.reason    ?? this.leave.reason ?? '',
-          signatureBase64,
-          approvedBy:   this.approverFullName,
-          approvalDate: new Date().toISOString().split('T')[0],
-        }).pipe(
-          // generateDocument returns void — map back to the updated record
-          map(() => updated),
-        )
-      ),
-      takeUntil(this.destroy$),
-    ).subscribe({
-      next: updated => {
-        this.leaveService.openDocument(this.leave.id);
-        this.dialogRef.close({ action: 'approved', leave: updated });
-      },
-      error: err => {
-        this.error  = err?.error?.message || 'Approval failed. Please try again.';
-        this.saving = false;
-      },
-    });
+confirmApprove(): void {
+  if (this.isSignatureEmpty()) {
+    this.error = 'Please draw your signature before approving.';
+    return;
   }
+
+  this.saving = true;
+  this.error  = '';
+
+  const signatureBase64 = this.signaturePad.toDataURL('image/png');
+
+  const approve$ = this.isPM
+    ? this.leaveService.approveTeamLeave(this.leave.id)
+    : this.leaveService.approveLeave(this.leave.id);
+
+  approve$.pipe(
+    switchMap(updated => {
+      // Generate the PDF blob on the frontend
+      const pdfBlob = this.pdfService.generateBlob({
+        leaveId:            this.leave.id,
+        employeeFullName:   this.leave.userFullName,
+        employeeDepartment: this.leave.userDepartment ?? '—',
+        employeeJobTitle:   this.leave.userJobTitle,
+        leaveType:          this.leave.leaveType,
+        startDate:          updated.startDate ?? this.leave.startDate,
+        endDate:            updated.endDate   ?? this.leave.endDate,
+        daysCount:          this.leave.daysCount,
+        reason:             this.leave.reason ?? '—',
+        requestDate:        this.leave.startDate,
+        approverFullName:   this.approverFullName,
+        approverRole:       this.approverRole,
+        approvalDate:       new Date().toISOString().split('T')[0],
+        signatureDataUrl:   signatureBase64,
+        companyName:        'Arab Soft',   // ← your company name
+      });
+
+      // Upload to backend — saves to leave_documents table
+      return this.leaveService.uploadAuthorizationLetter(this.leave.id, pdfBlob).pipe(
+  map(() => updated)
+);
+    }),
+    takeUntil(this.destroy$),
+  ).subscribe({
+    next: updated => {
+      // Also trigger browser download
+      this.pdfService.generateAndDownload({
+        leaveId:            this.leave.id,
+        employeeFullName:   this.leave.userFullName,
+        employeeDepartment: this.leave.userDepartment ?? '—',
+        leaveType:          this.leave.leaveType,
+        startDate:          updated.startDate ?? this.leave.startDate,
+        endDate:            updated.endDate   ?? this.leave.endDate,
+        daysCount:          this.leave.daysCount,
+        reason:             this.leave.reason ?? '—',
+        requestDate:        this.leave.startDate,
+        approverFullName:   this.approverFullName,
+        approverRole:       this.approverRole,
+        approvalDate:       new Date().toISOString().split('T')[0],
+        signatureDataUrl:   signatureBase64,
+        companyName:        'Arab Soft',
+      });
+      this.dialogRef.close({ action: 'approved', leave: updated });
+    },
+    error: err => {
+      this.error  = err?.error?.message || 'Approval failed. Please try again.';
+      this.saving = false;
+    },
+  });
+}
 
   // ── Reject flow ───────────────────────────────────────────────────────────
 
@@ -260,4 +297,37 @@ export class LeaveDetailDialogComponent implements OnInit, OnDestroy {
     };
     return labels[role.replace(/^ROLE_/, '')] ?? role;
   }
+
+  private loadDocuments(): void {
+  this.loadingDocs = true;
+  this.documentService.getMyDocuments({ leaveRequestId: this.leave.id })
+    .subscribe({
+      next:  page => { this.documents = page.content; this.loadingDocs = false; },
+      error: ()   => { this.loadingDocs = false; },
+    });
+}
+
+downloadDoc(doc: LeaveDocument): void {
+  this.documentService.download(doc.id).subscribe({
+    next: response => {
+      this.documentService.triggerDownload(response.body!, doc.fileName);
+    }
+  });
+}
+
+previewDoc(doc: LeaveDocument): void {
+  this.documentService.download(doc.id).subscribe({
+    next: response => {
+      const blob = response.body!;
+      const url  = URL.createObjectURL(blob);
+      window.open(url, '_blank');   // ← opens in new tab
+    }
+  });
+}
+formatSize(bytes: number): string {
+  if (!bytes) return '—';
+  if (bytes < 1024)        return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
 }

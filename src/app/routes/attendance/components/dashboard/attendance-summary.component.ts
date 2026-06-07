@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+
 import { AttendanceService } from '../../services/attendance.service';
 import { AttendanceSummary, AttendanceFilter } from '../../models/attendance.model';
 import {
-  DayDetailDialogComponent,
+
   DayDetailDialogData,
 } from '../day-detail-dialog/day-detail-dialog.component';
 
@@ -44,11 +44,6 @@ export class AttendanceSummaryComponent implements OnInit {
 
   calendarWeeks: CalendarDay[][] = [];
   weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  attendanceRate = 0;
-
-  // ── Chart state ───────────────────────────────────────────────────────────
-  yMax   = 30;
-  yTicks: number[] = [30, 25, 20, 15, 10, 5, 0];
 
   readonly legendItems = [
     { key: 'present', label: 'Present'  },
@@ -62,7 +57,6 @@ export class AttendanceSummaryComponent implements OnInit {
 
   constructor(
     private attendanceService: AttendanceService,
-    private dialog:            MatDialog,
   ) {}
 
   ngOnInit(): void { this.loadSummary(); }
@@ -80,8 +74,6 @@ export class AttendanceSummaryComponent implements OnInit {
       next: data => {
         this.summary = data;
         this.buildCalendar(data);
-        this.computeRate(data);
-        this.buildChartTicks(data);
         this.loading = false;
       },
       error: () => { this.loading = false; },
@@ -130,7 +122,15 @@ export class AttendanceSummaryComponent implements OnInit {
     const today       = new Date();
     const firstDay    = new Date(this.selectedYear, this.selectedMonth - 1, 1);
     const daysInMonth = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
-    const startOffset = (firstDay.getDay() + 6) % 7; // Monday-based
+    const startOffset = (firstDay.getDay() + 6) % 7;
+
+    // Parse the account start date sent by the backend ('YYYY-MM-DD').
+    // Days before this date should render as 'empty', not 'absent'.
+    let startBoundary: Date | null = null;
+    if (data.accountStartDate) {
+      const [y, m, d] = data.accountStartDate.split('-').map(Number);
+      startBoundary = new Date(y, m - 1, d);
+    }
 
     const dayLookup = new Map<number, any>();
     (data.dailyHours ?? []).forEach(d => {
@@ -145,23 +145,25 @@ export class AttendanceSummaryComponent implements OnInit {
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
-      const date      = new Date(this.selectedYear, this.selectedMonth - 1, d);
-      const isToday   = date.toDateString() === today.toDateString();
-      const dow       = date.getDay();
-      const isFuture  = date > today;
-      const isWeekend = dow === 0 || dow === 6;
-      const isoDate   = this.toIsoDate(this.selectedYear, this.selectedMonth, d);
+      const date        = new Date(this.selectedYear, this.selectedMonth - 1, d);
+      const isToday     = date.toDateString() === today.toDateString();
+      const dow         = date.getDay();
+      const isFuture    = date > today;
+      const isWeekend   = dow === 0 || dow === 6;
+      const beforeStart = startBoundary !== null && date < startBoundary;
+      const isoDate     = this.toIsoDate(this.selectedYear, this.selectedMonth, d);
 
       let status: CalendarDay['status'] = 'future';
       let workedHours: number | undefined;
-      let clickable = false;
+      const clickable = false;
 
       if (!isFuture) {
         if (isWeekend) {
-          status    = 'weekend';
-          clickable = false;
+          status = 'weekend';
+        } else if (beforeStart) {
+          // User's account didn't exist / wasn't tracked yet → blank cell
+          status = 'empty';
         } else {
-          clickable = true;
           const rec = dayLookup.get(d);
           if (rec) {
             workedHours = rec.workedHours;
@@ -201,48 +203,13 @@ export class AttendanceSummaryComponent implements OnInit {
       record: null, loading: true, error: '',
     };
 
-    this.dialog.open(DayDetailDialogComponent, {
-      data: dialogData, width: '420px', maxHeight: '90vh',
-      panelClass: 'day-detail-dialog-panel',
-    });
-
     this.attendanceService.getMyDayRecord(cell.isoDate).subscribe({
       next: record => { dialogData.record = record;  dialogData.loading = false; },
       error: ()     => { dialogData.record = null;    dialogData.loading = false; dialogData.error = 'no-record'; },
     });
   }
 
-  // ── Chart helpers ─────────────────────────────────────────────────────────
-
-  get statusBars() {
-  return [
-    { label: 'PRESENT',  value: this.summary?.presentDays  ?? 0, color: '#16a34a' }, // $green
-    { label: 'LATE',     value: this.summary?.lateDays     ?? 0, color: '#d4920a' }, // $gold
-    { label: 'ABSENT',   value: this.summary?.absentDays   ?? 0, color: '#dc2626' }, // $red
-    { label: 'HALF DAY', value: this.summary?.halfDays     ?? 0, color: '#7c3aed' }, // $purple
-    { label: 'LEAVE',    value: this.summary?.leaveDays    ?? 0, color: '#0891b2' }, // $teal
-  ];
-}
-
-  private buildChartTicks(data: AttendanceSummary): void {
-    const values = [
-      data.presentDays ?? 0, data.lateDays   ?? 0,
-      data.absentDays  ?? 0, data.halfDays   ?? 0,
-      data.leaveDays   ?? 0,
-    ];
-    const max    = Math.max(...values, 5);
-    this.yMax    = Math.ceil(max / 5) * 5;
-    const steps  = this.yMax / 5;
-    this.yTicks  = Array.from({ length: steps + 1 }, (_, i) => (steps - i) * 5);
-  }
-
-  // ── Rate & helpers ────────────────────────────────────────────────────────
-
-  computeRate(data: AttendanceSummary): void {
-    const worked = (data.presentDays ?? 0) + (data.lateDays ?? 0) + (data.halfDays ?? 0);
-    const total  = worked + (data.absentDays ?? 0);
-    this.attendanceRate = total > 0 ? Math.round((worked / total) * 100) : 0;
-  }
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   statusLabel(status: string): string {
     const m: Record<string, string> = {
@@ -254,11 +221,6 @@ export class AttendanceSummaryComponent implements OnInit {
 
   get currentMonthLabel(): string {
     return this.months.find(m => m.value === this.selectedMonth)?.label ?? '';
-  }
-
-  get strokeDasharray(): string {
-    const c = 2 * Math.PI * 28;
-    return `${(c * this.attendanceRate) / 100} ${c}`;
   }
 
   getTooltip(cell: CalendarDay): string {

@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatMenuModule } from '@angular/material/menu';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { NotificationsPageComponent } from './components/Notifications-page/notifications-page.component';
 
@@ -28,6 +29,7 @@ import { NotificationsPageComponent } from './components/Notifications-page/noti
     MatListModule,
     MatDividerModule,
     MatProgressSpinnerModule,
+    MatMenuModule,
     ScrollingModule,
   ],
 })

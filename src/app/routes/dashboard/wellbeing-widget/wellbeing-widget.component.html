@@ -1,0 +1,100 @@
+<!-- wellbeing-widget.component.html -->
+<div class="wb-widget" *ngIf="!loading">
+
+  <!-- ── Already submitted ───────────────────────────────── -->
+  <ng-container *ngIf="status?.submitted">
+    <div class="wb-done">
+      <div class="wb-done-top">
+        <div class="wb-done-emoji">{{ submittedMood?.emoji }}</div>
+        <div class="wb-done-text">
+          <span class="wb-done-title">Today's Wellbeing</span>
+          <span class="wb-done-sub">You reported: <strong>{{ submittedMood?.label }}</strong></span>
+        </div>
+      </div>
+
+      <div class="wb-participation">
+        <div class="wb-participation-bar-track">
+          <div class="wb-participation-bar-fill"
+               [style.width.%]="status?.participationRate">
+          </div>
+        </div>
+        <span class="wb-participation-label">{{ participationLabel }}</span>
+      </div>
+
+      <div class="wb-tip">
+        <mat-icon>tips_and_updates</mat-icon>
+        <span>Take a short break if you need one. Your wellbeing matters.</span>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── Not yet submitted ───────────────────────────────── -->
+  <ng-container *ngIf="!status?.submitted">
+    <div class="wb-header">
+      <div class="wb-header-icon">
+        <mat-icon>favorite</mat-icon>
+      </div>
+      <div>
+        <span class="wb-title">Employee Wellbeing</span>
+        <span class="wb-subtitle">How are you feeling today?</span>
+      </div>
+    </div>
+
+    <!-- Emoji picker -->
+    <div class="wb-emojis">
+      <button
+        *ngFor="let m of moods"
+        class="wb-emoji-btn"
+        [class.wb-emoji-selected]="selected === m.score"
+        [class.wb-emoji-hovered]="hovered === m.score"
+        (mouseenter)="hovered = m.score"
+        (mouseleave)="hovered = null"
+        (click)="selected = m.score">
+        <span class="wb-emoji">{{ m.emoji }}</span>
+        <span class="wb-emoji-label">{{ m.label }}</span>
+      </button>
+    </div>
+
+    <!-- Active mood label -->
+    <div class="wb-active-label" *ngIf="activeMood">
+      <span [style.color]="moodColor(activeMood.score)">
+        {{ activeMood.emoji }} {{ activeMood.label }}
+      </span>
+    </div>
+    <div class="wb-active-label wb-active-placeholder" *ngIf="!activeMood">
+      Select your mood
+    </div>
+
+    <!-- Optional note -->
+    <div class="wb-note-wrap">
+      <textarea
+        class="wb-note"
+        rows="2"
+        maxlength="200"
+        placeholder="Add an anonymous note (optional)…"
+        [(ngModel)]="note">
+      </textarea>
+      <span class="wb-note-count">{{ note.length }}/200</span>
+    </div>
+
+    <!-- Submit -->
+    <button
+      class="wb-submit"
+      [disabled]="!selected || saving"
+      (click)="submit()">
+      <mat-icon *ngIf="!saving">check</mat-icon>
+      <mat-icon *ngIf="saving" class="wb-spin">refresh</mat-icon>
+      {{ saving ? 'Submitting…' : 'Submit' }}
+    </button>
+  </ng-container>
+
+</div>
+
+<!-- Skeleton -->
+<div class="wb-skeleton" *ngIf="loading">
+  <div class="sk-row sk-title"></div>
+  <div class="sk-emojis">
+    <div class="sk-emoji" *ngFor="let i of [1,2,3,4,5]"></div>
+  </div>
+  <div class="sk-row sk-btn"></div>
+</div>

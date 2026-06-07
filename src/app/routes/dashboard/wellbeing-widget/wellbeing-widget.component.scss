@@ -1,0 +1,301 @@
+// wellbeing-widget.component.scss
+$navy: #1a2e5a;
+$border: #e2e8f0;
+$text-main: #1e293b;
+$text-muted: #64748b;
+$text-light: #94a3b8;
+$bg: #f8fafc;
+
+.wb-widget {
+  background: #ffffff;
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(26,46,90,0.06);
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Header ────────────────────────────────────────────────
+.wb-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.wb-header-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(255,107,157,0.3);
+
+  mat-icon {
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+    color: #fff;
+  }
+}
+
+.wb-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: $navy;
+}
+
+.wb-subtitle {
+  display: block;
+  font-size: 12px;
+  color: $text-muted;
+  margin-top: 1px;
+}
+
+// ── Emoji picker ──────────────────────────────────────────
+.wb-emojis {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.wb-emoji-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 6px;
+  border: 1.5px solid $border;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover, &.wb-emoji-hovered {
+    border-color: transparent;
+    background: $bg;
+    transform: translateY(-4px) scale(1.05);
+  }
+
+  &.wb-emoji-selected {
+    border-color: $navy;
+    background: rgba(26,46,90,0.05);
+    transform: translateY(-4px) scale(1.08);
+    box-shadow: 0 4px 12px rgba(26,46,90,0.15);
+  }
+}
+
+.wb-emoji {
+  font-size: 28px;
+  line-height: 1;
+  transition: transform 0.2s;
+
+  .wb-emoji-selected & { transform: scale(1.15); }
+}
+
+.wb-emoji-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: $text-muted;
+  white-space: nowrap;
+}
+
+// Active mood label
+.wb-active-label {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 22px;
+  margin-bottom: 14px;
+  transition: all 0.2s;
+}
+
+.wb-active-placeholder {
+  color: $text-light;
+  font-weight: 400;
+}
+
+// ── Note ──────────────────────────────────────────────────
+.wb-note-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.wb-note {
+  width: 100%;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: $text-main;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+  background: $bg;
+
+  &:focus { border-color: $navy; background: #fff; }
+  &::placeholder { color: $text-light; }
+}
+
+.wb-note-count {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-size: 10px;
+  color: $text-light;
+}
+
+// ── Submit ────────────────────────────────────────────────
+.wb-submit {
+  width: 100%;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: $navy;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  font-family: inherit;
+
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  &:hover:not(:disabled) {
+    background: #243d73;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.wb-spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Done state ────────────────────────────────────────────
+.wb-done {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wb-done-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.wb-done-emoji {
+  font-size: 40px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.wb-done-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: $navy;
+}
+
+.wb-done-sub {
+  display: block;
+  font-size: 12px;
+  color: $text-muted;
+  margin-top: 2px;
+
+  strong { color: $text-main; }
+}
+
+// Participation bar
+.wb-participation { display: flex; flex-direction: column; gap: 6px; }
+
+.wb-participation-bar-track {
+  height: 6px;
+  background: $bg;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.wb-participation-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #10b981);
+  border-radius: 6px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wb-participation-label {
+  font-size: 12px;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+// Tip
+.wb-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #166534;
+
+  mat-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    color: #16a34a;
+    flex-shrink: 0;
+  }
+}
+
+// ── Skeleton ──────────────────────────────────────────────
+.wb-skeleton {
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+@mixin shimmer {
+  background: linear-gradient(90deg, #f0f2f5 25%, #e8eaed 50%, #f0f2f5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.sk-row { height: 16px; margin-bottom: 16px; @include shimmer; }
+.sk-title { width: 60%; }
+.sk-btn   { width: 100%; height: 42px; }
+.sk-emojis { display: flex; gap: 8px; margin-bottom: 16px; }
+.sk-emoji  { flex: 1; height: 64px; @include shimmer; border-radius: 12px; }

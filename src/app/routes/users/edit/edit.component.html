@@ -1,27 +1,30 @@
 <!-- src/app/routes/users/edit/edit.component.html -->
 <div class="user-edit-container">
 
-  <!-- Loading State -->
+  <!-- ── Loading ──────────────────────────────────────────── -->
   <div class="loading-container" *ngIf="isLoading">
     <mat-spinner diameter="50"></mat-spinner>
     <p>Loading user data...</p>
   </div>
 
-  <!-- Edit Form -->
+  <!-- ── Edit card ─────────────────────────────────────────── -->
   <div class="edit-card" *ngIf="!isLoading && user">
 
-    <!-- Header -->
+    <!-- Dark navy header — matches view page -->
     <div class="edit-header">
-      <button mat-icon-button (click)="cancel()" class="back-btn">
+      <button mat-icon-button class="back-btn" (click)="cancel()">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <h1>Edit User: {{ user.firstName }} {{ user.lastName }}</h1>
+      <div class="header-titles">
+        <h1>Edit User: {{ user.firstName }} {{ user.lastName }}</h1>
+        <p>Update and manage user information</p>
+      </div>
       <div class="header-actions">
-        <button mat-stroked-button (click)="cancel()">Cancel</button>
-        <button mat-raised-button color="primary"
+        <button class="header-btn-cancel" (click)="cancel()">Cancel</button>
+        <button class="header-btn-save"
                 (click)="saveUser()"
                 [disabled]="userForm.invalid || isSaving">
-          <mat-spinner *ngIf="isSaving" diameter="18" class="btn-spinner"></mat-spinner>
+          <mat-spinner *ngIf="isSaving" diameter="16" class="btn-spinner"></mat-spinner>
           <mat-icon *ngIf="!isSaving">save</mat-icon>
           {{ isSaving ? 'Saving...' : 'Save Changes' }}
         </button>
@@ -30,192 +33,213 @@
 
     <form [formGroup]="userForm" class="edit-form">
 
-      <!-- ══ PHOTO UPLOAD SECTION ══ -->
-      <div class="photo-section">
+      <!-- ── Profile banner ─────────────────────────────────── -->
+      <div class="profile-banner">
         <div class="avatar-wrapper">
-
-          <!-- Avatar preview -->
-          <div class="avatar-preview" [class.has-photo]="avatarPreview || user.avatar">
+          <div class="avatar-preview" (click)="triggerFileInput()">
             <img *ngIf="avatarPreview || user.avatar"
                  [src]="avatarPreview || user.avatar"
-                 alt="Profile photo"
-                 class="avatar-img" />
-            <div *ngIf="!avatarPreview && !user.avatar" class="avatar-initials">
-              {{ getInitials() }}
-            </div>
-
-            <!-- Overlay on hover -->
-            <div class="avatar-overlay" (click)="triggerFileInput()">
+                 alt="Profile photo" />
+            <span *ngIf="!avatarPreview && !user.avatar">{{ getInitials() }}</span>
+            <div class="avatar-overlay">
               <mat-icon>photo_camera</mat-icon>
-              <span>Change Photo</span>
             </div>
           </div>
+          <input #fileInput type="file" accept="image/jpeg,image/png,image/webp"
+                 style="display:none" (change)="onFileSelected($event)" />
+        </div>
 
-          <!-- Hidden file input -->
-          <input #fileInput
-                 type="file"
-                 accept="image/jpeg,image/png,image/webp"
-                 style="display:none"
-                 (change)="onFileSelected($event)" />
-
-          <!-- Action buttons -->
-          <div class="avatar-actions">
+        <div class="banner-info">
+          <div class="banner-name-row">
+            <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+            <span class="status-badge" [ngClass]="getStatusClass()">
+              <span class="status-dot"></span>{{ getStatusLabel() }}
+            </span>
+          </div>
+          <p class="banner-hint">
+            Upload a clear profile photo. JPG, PNG or WebP. Max size 5MB.
+          </p>
+          <div class="banner-actions">
             <button mat-stroked-button type="button" (click)="triggerFileInput()" class="upload-btn">
               <mat-icon>upload</mat-icon> Upload Photo
             </button>
             <button mat-icon-button type="button" color="warn"
                     *ngIf="avatarPreview || user.avatar"
-                    (click)="removePhoto()"
-                    matTooltip="Remove photo">
-              <mat-icon>delete</mat-icon>
+                    (click)="removePhoto()" matTooltip="Remove photo">
+              <mat-icon>delete_outline</mat-icon>
             </button>
           </div>
+          <mat-progress-bar *ngIf="isUploadingPhoto" mode="indeterminate" class="upload-bar"></mat-progress-bar>
+        </div>
+      </div>
 
-          <!-- Upload progress -->
-          <div class="upload-progress" *ngIf="isUploadingPhoto">
-            <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
-            <p>Uploading photo...</p>
+      <!-- ── 3-column form grid ─────────────────────────────── -->
+      <div class="form-grid">
+
+        <!-- ── Col 1: Personal Information ─────────────────── -->
+        <div class="form-col">
+          <div class="section-label">Personal Information</div>
+
+          <div class="field-group">
+            <label class="field-label">First Name <span class="required">*</span></label>
+            <mat-form-field appearance="outline" class="fw">
+              <input matInput formControlName="firstName" placeholder="Enter first name">
+              <mat-error *ngIf="firstName?.invalid && firstName?.touched">Required</mat-error>
+            </mat-form-field>
           </div>
 
-          <!-- File info -->
-          <p class="photo-hint" *ngIf="!isUploadingPhoto">
-            JPG, PNG or WebP · Max 5MB
-          </p>
+          <div class="field-group">
+            <label class="field-label">Last Name <span class="required">*</span></label>
+            <mat-form-field appearance="outline" class="fw">
+              <input matInput formControlName="lastName" placeholder="Enter last name">
+              <mat-error *ngIf="lastName?.invalid && lastName?.touched">Required</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Email <span class="required">*</span></label>
+            <mat-form-field appearance="outline" class="fw">
+              <input matInput formControlName="email" type="email" placeholder="Enter email">
+              <mat-error *ngIf="email?.invalid && email?.touched">Valid email required</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Phone</label>
+            <mat-form-field appearance="outline" class="fw">
+              <input matInput formControlName="phone" placeholder="Enter phone number">
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Birth Date</label>
+            <mat-form-field appearance="outline" class="fw">
+              <input matInput [matDatepicker]="picker" formControlName="birthDate">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker startView="multi-year"></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Gender</label>
+            <mat-form-field appearance="outline" class="fw">
+              <mat-select formControlName="gender">
+                <mat-option value="">— Select —</mat-option>
+                <mat-option *ngFor="let g of genders" [value]="g">{{ g | titlecase }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Nationality</label>
+            <mat-form-field appearance="outline" class="fw">
+              <input matInput formControlName="nationality" placeholder="Enter nationality">
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Marital Status</label>
+            <mat-form-field appearance="outline" class="fw">
+              <mat-select formControlName="maritalStatus">
+                <mat-option value="">— Select —</mat-option>
+                <mat-option *ngFor="let s of maritalStatuses" [value]="s">{{ s | titlecase }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Address</label>
+            <mat-form-field appearance="outline" class="fw">
+              <textarea matInput formControlName="address" rows="2" placeholder="Enter address"></textarea>
+            </mat-form-field>
+          </div>
         </div>
-      </div>
 
-      <!-- ══ FORM COLUMNS ══ -->
-      <div class="form-row">
-
-        <!-- Colonne gauche -->
+        <!-- ── Col 2: Professional + Role ──────────────────── -->
         <div class="form-col">
-          <h3>Personal Information</h3>
+          <div class="section-label">Professional Information</div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>First Name *</mat-label>
-            <input matInput formControlName="firstName">
-            <mat-error *ngIf="firstName?.invalid && firstName?.touched">First name is required</mat-error>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="field-label">Job Title</label>
+            <mat-form-field appearance="outline" class="fw">
+              <input matInput formControlName="jobTitle" placeholder="Enter job title">
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Last Name *</mat-label>
-            <input matInput formControlName="lastName">
-            <mat-error *ngIf="lastName?.invalid && lastName?.touched">Last name is required</mat-error>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="field-label">Department</label>
+            <mat-form-field appearance="outline" class="fw">
+              <mat-select formControlName="department">
+                <mat-option value="">— Select —</mat-option>
+                <mat-option *ngFor="let d of departments" [value]="d">{{ d }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Email *</mat-label>
-            <input matInput formControlName="email" type="email">
-            <mat-error *ngIf="email?.invalid && email?.touched">Please enter a valid email</mat-error>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="field-label">Service</label>
+            <mat-form-field appearance="outline" class="fw">
+              <input matInput formControlName="service" placeholder="Enter service">
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Phone</mat-label>
-            <input matInput formControlName="phone">
-          </mat-form-field>
+          <div class="field-group">
+            <label class="field-label">Hire Date</label>
+            <mat-form-field appearance="outline" class="fw">
+              <input matInput [matDatepicker]="hirePicker" formControlName="hireDate">
+              <mat-datepicker-toggle matSuffix [for]="hirePicker"></mat-datepicker-toggle>
+              <mat-datepicker #hirePicker></mat-datepicker>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Birth Date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="birthDate">
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker startView="multi-year"></mat-datepicker>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="field-label">Contract Type</label>
+            <mat-form-field appearance="outline" class="fw">
+              <mat-select formControlName="contractType">
+                <mat-option value="">— Select —</mat-option>
+                <mat-option *ngFor="let t of contractTypes" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Gender</mat-label>
-            <mat-select formControlName="gender">
-              <mat-option *ngFor="let g of genders" [value]="g">{{ g | titlecase }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="field-label">Contract End Date</label>
+            <mat-form-field appearance="outline" class="fw">
+              <input matInput [matDatepicker]="endPicker" formControlName="contractEndDate" placeholder="Select end date">
+              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Nationality</mat-label>
-            <input matInput formControlName="nationality">
-          </mat-form-field>
+          <!-- Role & Permissions sub-section -->
+          <div class="section-label" style="margin-top: 8px;">Role &amp; Permissions</div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Marital Status</mat-label>
-            <mat-select formControlName="maritalStatus">
-              <mat-option *ngFor="let status of maritalStatuses" [value]="status">{{ status | titlecase }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Address</mat-label>
-            <textarea matInput formControlName="address" rows="2"></textarea>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="field-label">Role</label>
+            <mat-form-field appearance="outline" class="fw">
+              <mat-select formControlName="role">
+                <mat-option *ngFor="let r of roles" [value]="r">{{ r }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
 
-        <!-- Colonne droite -->
+        <!-- ── Col 3: Additional Information ───────────────── -->
         <div class="form-col">
-          <h3>Professional Information</h3>
+          <div class="section-label">Additional Information</div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Job Title</mat-label>
-            <input matInput formControlName="jobTitle">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Department</mat-label>
-            <mat-select formControlName="department">
-              <mat-option *ngFor="let dept of departments" [value]="dept">{{ dept }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Service</mat-label>
-            <input matInput formControlName="service">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Hire Date</mat-label>
-            <input matInput [matDatepicker]="hirePicker" formControlName="hireDate">
-            <mat-datepicker-toggle matSuffix [for]="hirePicker"></mat-datepicker-toggle>
-            <mat-datepicker #hirePicker></mat-datepicker>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Contract Type</mat-label>
-            <mat-select formControlName="contractType">
-              <mat-option *ngFor="let type of contractTypes" [value]="type">{{ type }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Contract End Date</mat-label>
-            <input matInput [matDatepicker]="endPicker" formControlName="contractEndDate">
-            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-            <mat-datepicker #endPicker></mat-datepicker>
-          </mat-form-field>
-
-          <h3 class="m-t-24">Role & Permissions</h3>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Role</mat-label>
-            <mat-select formControlName="role">
-              <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <h3 class="m-t-24">Additional Information</h3>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Description</mat-label>
-            <textarea matInput formControlName="description" rows="3"></textarea>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="field-label">Description</label>
+            <mat-form-field appearance="outline" class="fw">
+              <textarea matInput formControlName="description"
+                        rows="8" placeholder="Enter description..."
+                        maxlength="500"></textarea>
+              <mat-hint align="end">{{ userForm.get('description')?.value?.length || 0 }} / 500</mat-hint>
+            </mat-form-field>
+          </div>
         </div>
-      </div>
 
-      <!-- Actions mobile -->
-      <div class="form-actions-mobile">
-        <button mat-stroked-button (click)="cancel()">Cancel</button>
-        <button mat-raised-button color="primary"
-                (click)="saveUser()"
-                [disabled]="userForm.invalid || isSaving">
-          <mat-icon>save</mat-icon> Save Changes
-        </button>
       </div>
-
     </form>
   </div>
 </div>

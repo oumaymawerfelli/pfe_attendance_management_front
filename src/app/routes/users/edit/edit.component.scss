@@ -1,223 +1,334 @@
 // src/app/routes/users/edit/edit.component.scss
 
+// ── Tokens (same as view page) ────────────────────────────────
+$header-bg:   #0f1c3a;
+$accent:      #f97316;
+$brand:       #1d4ed8;
+$brand-light: #eff6ff;
+$bg:          #f1f5f9;
+$card:        #ffffff;
+$border:      #e2e8f0;
+$border-focus:#1d4ed8;
+$t1:          #0f172a;
+$t2:          #475569;
+$t3:          #94a3b8;
+$r-s:         8px;
+$r-m:         12px;
+$r-l:         16px;
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Page wrapper ──────────────────────────────────────────────
 .user-edit-container {
-  max-width: 1100px;
+  min-height: 100vh;
   padding: 24px;
-  margin: 0 auto;
+  background: $bg;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
 }
-
-// ── Header ────────────────────────────────────────────────────
-.edit-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 24px;
-
-  h1 {
-    flex: 1;
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-}
-
-// ── Photo Section ─────────────────────────────────────────────
-.photo-section {
-  display: flex;
-  justify-content: center;
-  padding: 24px;
-  margin-bottom: 32px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-}
-
-.avatar-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-}
-
-.avatar-preview {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  overflow: hidden;
-  cursor: pointer;
-  background: #1565c0;
-  border-radius: 50%;
-  box-shadow: 0 4px 16px rgba(21, 101, 192, .3);
-  transition: box-shadow .2s;
-
-  &:hover {
-    box-shadow: 0 6px 24px rgba(21, 101, 192, .45);
-
-    .avatar-overlay {
-      opacity: 1;
-    }
-  }
-
-  .avatar-img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .avatar-initials {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    font-size: 36px;
-    font-weight: 700;
-    color: white;
-    letter-spacing: 2px;
-  }
-
-  // Hover overlay
-  .avatar-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    background: rgba(0, 0, 0, .55);
-    opacity: 0;
-    transition: opacity .2s;
-
-    mat-icon {
-      width: 28px;
-      height: 28px;
-      font-size: 28px;
-    }
-
-    span {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-    }
-  }
-}
-
-.avatar-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-
-  .upload-btn {
-    font-size: 13px;
-    border-radius: 8px !important;
-  }
-}
-
-.upload-progress {
-  width: 200px;
-  text-align: center;
-
-  p {
-    margin: 6px 0 0;
-    font-size: 12px;
-    color: #666;
-  }
-}
-
-.photo-hint {
-  margin: 0;
-  font-size: 12px;
-  color: #94a3b8;
-  text-align: center;
-}
-
-// ── Form layout ───────────────────────────────────────────────
-.edit-card {
-  padding: 24px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-}
-
-.edit-form {
-  margin-top: 8px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-
-  @media (width <= 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.form-col {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-
-  h3 {
-    padding-bottom: 6px;
-    margin: 16px 0 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #1565c0;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    border-bottom: 2px solid #e3f2fd;
-  }
-}
-
-.full-width { width: 100%; }
-
-.m-t-24 { margin-top: 24px !important; }
 
 // ── Loading ───────────────────────────────────────────────────
 .loading-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
   align-items: center;
   justify-content: center;
+  gap: 16px;
   height: 300px;
-  color: #666;
+  font-size: 13px;
+  color: $t3;
 }
 
-// ── Mobile actions ────────────────────────────────────────────
-.form-actions-mobile {
-  display: none;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 24px;
+// ── Edit card ─────────────────────────────────────────────────
+.edit-card {
+  background: $card;
+  border-radius: $r-l;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 20px rgba(0,0,0,.06);
+  animation: fade-up .35s ease both;
+}
 
-  @media (width <= 600px) {
+// ── HEADER — dark navy, same as view page ─────────────────────
+.edit-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 28px;
+  background: $header-bg;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(255,255,255,.03) 0%, transparent 70%);
+  }
+
+  .back-btn {
+    z-index: 1;
+    color: rgba(255,255,255,.75);
+    flex-shrink: 0;
+    transition: color .15s;
+    &:hover { color: #fff; }
+  }
+
+  .header-titles {
+    z-index: 1;
+    flex: 1;
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.01em;
+      line-height: 1.2;
+    }
+
+    p {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: rgba(255,255,255,.5);
+    }
+  }
+
+  .header-actions {
+    z-index: 1;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
 
-    button { width: 100%; }
+  // Cancel — outlined white
+  .header-btn-cancel {
+    height: 36px;
+    padding: 0 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,.4);
+    border-radius: $r-s;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    &:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.7); }
+  }
+
+  // Save — solid blue
+  .header-btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    background: $brand;
+    border: none;
+    border-radius: $r-s;
+    cursor: pointer;
+    transition: background .15s, opacity .15s;
+
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+    &:hover:not(:disabled) { background: #1e40af; }
+    &:disabled { opacity: .55; cursor: not-allowed; }
   }
 }
 
-// ── Save button spinner ───────────────────────────────────────
+// ── Save spinner ──────────────────────────────────────────────
 .btn-spinner {
   display: inline-block;
-  margin-right: 6px;
-  vertical-align: middle;
+  ::ng-deep circle { stroke: #fff !important; }
+}
 
-  ::ng-deep circle {
-    stroke: white !important;
+// ── PROFILE BANNER ────────────────────────────────────────────
+.profile-banner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 28px;
+  border-bottom: 1px solid $border;
+  background: $card;
+
+  // avatar
+  .avatar-wrapper {
+    flex-shrink: 0;
+  }
+
+  .avatar-preview {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 18px;       // rounded square — matches view page
+    background: $accent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(249,115,22,.3);
+    transition: box-shadow .2s;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 18px;
+    }
+
+    .avatar-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .2s;
+      border-radius: 18px;
+
+      mat-icon { color: #fff; font-size: 22px; width: 22px; height: 22px; }
+    }
+
+    &:hover {
+      box-shadow: 0 6px 20px rgba(249,115,22,.45);
+      .avatar-overlay { opacity: 1; }
+    }
+  }
+
+  // info alongside avatar
+  .banner-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .banner-name-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: $t1;
+      }
+    }
+
+    .banner-hint {
+      margin: 0;
+      font-size: 12px;
+      color: $t3;
+    }
+
+    .banner-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .upload-btn {
+      font-size: 12px;
+      height: 32px;
+      border-radius: $r-s !important;
+      border-color: $border !important;
+      color: $t2 !important;
+    }
+
+    .upload-bar {
+      width: 200px;
+      margin-top: 4px;
+      border-radius: 4px;
+    }
+  }
+
+  // status badges — same as view page
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    &.active   { background: #dcfce7; color: #15803d; .status-dot { background: #22c55e; } }
+    &.pending  { background: #fff7ed; color: #c2410c; .status-dot { background: #f97316; } }
+    &.disabled { background: #fee2e2; color: #b91c1c; .status-dot { background: #ef4444; } }
+    &.locked   { background: #f1f5f9; color: #64748b; .status-dot { background: #94a3b8; } }
+  }
+}
+
+// ── FORM ──────────────────────────────────────────────────────
+.edit-form {
+  padding: 24px 28px 32px;
+}
+
+// 3-column grid matching screenshot
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 28px;
+
+  @media (max-width: 1024px) { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 640px)  { grid-template-columns: 1fr; }
+}
+
+.form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+// Blue uppercase section label — exactly as in screenshot
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: $brand;
+  margin-bottom: 16px;
+}
+
+// Field wrapper: label above mat-form-field
+.field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 4px;
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: $t2;
+    margin-bottom: 2px;
+    padding-left: 2px;
+
+    .required { color: #ef4444; margin-left: 2px; }
+  }
+}
+
+// Full-width form fields
+.fw {
+  width: 100%;
+
+  // Tighten mat-form-field spacing
+  ::ng-deep {
+    .mat-mdc-form-field-subscript-wrapper { margin-top: 0; }
+    .mat-mdc-text-field-wrapper { padding: 0 12px; }
   }
 }

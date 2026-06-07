@@ -72,7 +72,33 @@
       <span class="section-label">Reason</span>
       <p class="reason-text">{{ leave.reason || 'No reason provided.' }}</p>
     </div>
+    <!-- ── Supporting documents ─────────────────────────── -->
+ <!-- ── Supporting documents ─────────────────────────── -->
+    <div class="section" *ngIf="documents.length > 0 || loadingDocs">
+      <div class="section-label">SUPPORTING DOCUMENTS</div>
 
+      <div *ngIf="loadingDocs" class="loading-docs">
+        <mat-spinner diameter="20"></mat-spinner> Loading documents...
+      </div>
+
+      <div *ngFor="let doc of documents" class="doc-row">
+        <mat-icon>description</mat-icon>
+        <span class="doc-name">{{ doc.fileName }}</span>
+        <span class="doc-size">{{ formatSize(doc.fileSize) }}</span>
+        <button mat-icon-button matTooltip="View online" (click)="previewDoc(doc)">
+          <mat-icon>open_in_new</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Download" (click)="downloadDoc(doc)">
+          <mat-icon>download</mat-icon>
+        </button>
+      </div>
+
+      <div *ngIf="!loadingDocs && documents.length === 0" class="no-docs">
+        No supporting documents attached.
+      </div>
+    </div>   <!-- ← this closing tag was missing -->
+
+    <!-- Decision info (already-decided records) -->
     <!-- Decision info (already-decided records) ─────────────────────────── -->
     <div class="info-section"
          *ngIf="leave.status === LeaveStatus.APPROVED || leave.status === LeaveStatus.REJECTED">

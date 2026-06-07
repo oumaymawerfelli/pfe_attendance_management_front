@@ -55,14 +55,15 @@ $s-weekend: $text-muted;
   margin: 0 0 5px;
   font-size: 28px;
   font-weight: 700;
-  color: $text-primary;
+  color: $navy;
   letter-spacing: -0.4px;
 }
 
 .page-subtitle {
   margin: 0;
   font-size: 14px;
-  color: $text-secondary;
+  color: $navy;
+  opacity: 0.6;
 }
 
 .today-chip {
@@ -154,57 +155,7 @@ $s-weekend: $text-muted;
   letter-spacing: -0.3px;
 }
 
-.cal-rate-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.cal-rate-donut {
-  position: relative;
-  width: 64px; height: 64px;
-  flex-shrink: 0;
-  svg { width: 64px; height: 64px; }
-}
-
-.cal-rate-inner {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.rate-num {
-  font-size: 13px;
-  font-weight: 800;
-  color: $text-primary;
-  line-height: 1;
-}
-
-.rate-lbl {
-  font-size: 9px;
-  font-weight: 600;
-  color: $text-muted;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-top: 2px;
-}
-
-.rate-info-main {
-  margin: 0 0 2px;
-  font-size: 13px;
-  font-weight: 600;
-  color: $text-primary;
-}
-
-.rate-info-sub {
-  margin: 0;
-  font-size: 12px;
-  color: $text-muted;
-}
-
+// ── Filters ───────────────────────────────────────────────────────────────────
 .cal-filter-row {
   display: flex;
   gap: 12px;
@@ -259,6 +210,7 @@ $s-weekend: $text-muted;
   margin: 16px 0 0;
 }
 
+// ── Calendar grid ─────────────────────────────────────────────────────────────
 .cal-week-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -366,6 +318,7 @@ $s-weekend: $text-muted;
   padding-left: 2px;
 }
 
+// ── Legend ────────────────────────────────────────────────────────────────────
 .cal-legend {
   display: flex;
   flex-wrap: wrap;
@@ -450,94 +403,6 @@ $s-weekend: $text-muted;
   letter-spacing: 0.4px;
 }
 
-// ── Dark Bar Chart ────────────────────────────────────────────────────────────
-// ── Dark Bar Chart ────────────────────────────────────────────────────────────
-// ── Dark Bar Chart ────────────────────────────────────────────────────────────
-.dark-chart-card {
-  background: #0f172a;
-  border-radius: 16px;
-  padding: 28px 28px 20px;
-  border: 1.5px solid #1e293b;
-}
-.dark-chart-header { margin-bottom: 28px; }
-.dark-chart-title {
-  margin: 0 0 5px;
-  font-size: 18px; font-weight: 700;
-  color: #f1f5f9; letter-spacing: -0.3px;
-}
-.dark-chart-sub { margin: 0; font-size: 13px; color: #64748b; }
-
-.dark-chart-body {
-  display: flex;
-  gap: 16px;
-  height: 220px;
-}
-
-.y-axis {
-  display: flex;
-  flex-direction: column-reverse;       // 0 at bottom, max at top
-  justify-content: space-between;
-  padding-bottom: 28px;
-  width: 28px; flex-shrink: 0;
-  span { font-size: 11px; color: #475569; text-align: right; line-height: 1; }
-}
-
-.bars-area {
-  flex: 1;
-  position: relative;
-  display: flex;
-  align-items: stretch;                 // ← changed from flex-end to stretch
-  gap: 24px;
-  padding-bottom: 28px;
-}
-
-.grid-lines {
-  position: absolute;
-  inset: 0;
-  bottom: 28px;
-  pointer-events: none;
-}
-.grid-line {
-  position: absolute;
-  left: 0; right: 0;
-  height: 1px;
-  background: #1e293b;
-}
-
-.bar-group {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  // no height:100% here — stretch on parent handles it
-}
-
-.bar-track {
-  flex: 1;
-  width: 100%;
-  position: relative;   // ← ADD THIS, remove display:flex and align-items
-}
-
-.bar {
-  position: absolute;   // ← ADD THIS
-  bottom: 0;            // ← ADD THIS — anchors bar to bottom, grows UP
-  left: 0;
-  right: 0;
-  border-radius: 4px 4px 0 0;
-  min-height: 3px;
-  transition: height 0.4s cubic-bezier(.4, 0, .2, 1);
-}
-
-.bar-label {
-  margin-top: 6px;
-  font-size: 9px; font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  height: 28px; line-height: 1;
-}
-
 // ── Responsive ────────────────────────────────────────────────────────────────
 @media (max-width: 1200px) {
   .stats-grid { grid-template-columns: repeat(4, 1fr); }
@@ -549,5 +414,4 @@ $s-weekend: $text-muted;
   .cal-cell     { min-height: 70px; padding: 6px; }
   .event-pill .pill-label { display: none; }
   .cal-toolbar  { flex-direction: column; align-items: flex-start; }
-  .bars-area    { gap: 10px; }
 }

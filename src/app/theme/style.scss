@@ -3,6 +3,11 @@
 @use 'style/scrollbar';
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
 
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
 .scrollbar-thin {
   @include scrollbar.thin();
 }

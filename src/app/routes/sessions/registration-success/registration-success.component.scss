@@ -1,92 +1,334 @@
-// registration-success.component.scss
-.success-container {
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.success-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+}
+
+// Background
+.success-bg {
+  position: fixed;
+  inset: 0;
+  background: url('/assets/images/welcome1.jpg') center/cover no-repeat;
+  z-index: 0;
+}
+
+.success-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(10, 25, 60, 0.55) 0%, rgba(10, 25, 60, 0.35) 100%);
+  z-index: 1;
+}
+
+// Card
+.success-card {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: 900px;
+  max-width: 95vw;
+  margin: 40px auto;
+  min-height: 600px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+// ── Brand panel (left) ─────────────────────────────────────
+.brand-panel {
+  position: relative;
+  flex: 0 0 40%;
+  background: linear-gradient(160deg, #1e3a8a 0%, #0f1e4d 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 28px;
+  overflow: hidden;
+  color: #fff;
+
+  .brand-dots {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 70px;
+    height: 70px;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.25) 1.5px, transparent 1.5px);
+    background-size: 10px 10px;
+    opacity: 0.6;
+  }
+
+  .brand-welcome {
+    text-align: left;
+    align-self: flex-start;
+    margin-top: 8px;
+
+    h1 {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      margin: 0;
+      background: linear-gradient(180deg, #ffffff 0%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      color: #e2e8f0;
+
+      .brand-accent { color: #f59e0b; font-weight: 600; }
+    }
+  }
+
+  .brand-logo {
+    width: 180px;
+    margin: 32px 0 16px;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  }
+
+  .brand-tagline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .tagline-strong { font-size: 14px; font-weight: 500; letter-spacing: 0.3px; }
+
+    .tagline-underline {
+      width: 60px;
+      height: 3px;
+      background: #f59e0b;
+      border-radius: 2px;
+      margin-top: 10px;
+    }
+  }
+
+  .brand-support {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 24px;
+
+    mat-icon {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      padding: 8px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .support-title { font-size: 13px; font-weight: 600; }
+    .support-sub   { font-size: 11px; color: #cbd5e1; }
+  }
+}
+
+// ── Content panel (right) ──────────────────────────────────
+.content-panel {
+  flex: 1;
+  padding: 40px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.success-icon-wrap {
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  padding: 16px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  margin-bottom: 16px;
+
+  mat-icon {
+    font-size: 38px;
+    width: 38px;
+    height: 38px;
+    color: #059669;
+  }
 }
 
-.success-card {
-  width: 100%;
-  max-width: 500px;
-  padding: 24px;
+.content-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f1e4d;
+  margin: 0 0 6px;
+  text-align: center;
+}
 
-  .success-icon {
+.content-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 20px;
+  text-align: center;
+}
+
+.email-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 9px;
+  margin-bottom: 16px;
+
+  mat-icon {
+    color: #059669;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .email-address {
+    font-size: 14px;
+    font-weight: 600;
+    color: #047857;
+  }
+}
+
+.success-message {
+  font-size: 13px;
+  color: #475569;
+  text-align: center;
+  margin: 0 0 16px;
+}
+
+.steps-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-bottom: 16px;
+
+  .step-item {
     display: flex;
     align-items: center;
-    justify-content: center;
-    
-    mat-icon {
-      width: 40px;
-      height: 40px;
-      font-size: 40px;
+    gap: 10px;
+    font-size: 13px;
+    color: #0f1e4d;
+
+    .step-icon {
+      color: #1e3a8a;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
     }
   }
+}
 
-  .email-info {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    padding: 12px;
-    margin: 24px 0;
-    background-color: #e8f5e9;
-    border-radius: 4px;
+.warning-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 9px;
+  margin-bottom: 22px;
 
-    .email-address {
-      font-weight: 500;
-      color: #2e7d32;
-    }
+  mat-icon {
+    color: #ea580c;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
   }
 
-  .info-card {
-    margin-bottom: 24px;
-    background-color: #f5f5f5;
+  span {
+    font-size: 12.5px;
+    color: #9a3412;
+    line-height: 1.5;
+  }
+}
 
-    .info-item {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      padding: 8px 0;
+.actions-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
 
-      mat-icon {
-        width: 20px;
-        height: 20px;
-        font-size: 20px;
-      }
+.next-btn,
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
 
-      span {
-        color: rgba(0, 0, 0, .87);
-      }
-    }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.next-btn {
+  background: #0f1e4d;
+  color: #fff;
+
+  &:hover:not(:disabled) { background: #1e3a8a; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.back-btn {
+  background: #fff;
+  color: #0f1e4d;
+  border-color: #e2e8f0;
+
+  &:hover:not(:disabled) { border-color: #1e3a8a; background: #f8fafc; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.footer-text {
+  margin: auto 0 0;
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+
+  .brand-accent { color: #f59e0b; font-weight: 600; }
+}
+
+// ── Responsive ────────────────────────────────────────────
+@media (max-width: 900px) {
+  .success-card {
+    flex-direction: column;
+    width: 95vw;
   }
 
-  .warning-message {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    padding: 12px;
-    background-color: #fff3e0;
-    border-radius: 4px;
+  .brand-panel {
+    flex: 0 0 auto;
+    padding: 24px;
 
-    span {
-      font-size: 14px;
-      color: #e65100;
-    }
+    .brand-logo { width: 130px; margin: 16px 0 12px; }
+    .brand-support { padding-top: 16px; }
   }
 
-  mat-card-actions {
-    display: flex;
-    gap: 12px;
-    padding: 16px 8px !important;
+  .content-panel { padding: 28px 22px; }
 
-    button {
-      flex: 1;
-
-      mat-icon {
-        margin-right: 4px;
-      }
-    }
-  }
+  .actions-row { flex-direction: column-reverse; }
 }

@@ -35,20 +35,21 @@ $slate-light:    #f1f5f9;
   gap: 16px;
   flex-wrap: wrap;
 
-  .header-left {
-    h1 {
-      margin: 0 0 5px;
-      font-size: 28px;
-      font-weight: 700;
-      color: $text-primary;
-      letter-spacing: -0.4px;
-    }
-    .page-description {
-      margin: 0;
-      font-size: 14px;
-      color: $text-secondary;
-    }
+ .header-left {
+  h1 {
+    margin: 0 0 5px;
+    font-size: 28px;
+    font-weight: 700;
+    color: $navy;           // ← was $text-primary
+    letter-spacing: -0.4px;
   }
+  .page-description {
+    margin: 0;
+    font-size: 14px;
+    color: $navy;           // ← was $text-secondary
+    opacity: 0.6;
+  }
+}
 
   .header-actions {
     display: flex;

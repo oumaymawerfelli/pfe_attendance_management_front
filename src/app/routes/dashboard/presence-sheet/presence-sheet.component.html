@@ -1,0 +1,220 @@
+<!-- presence-sheet.component.html -->
+<div class="ps-wrap">
+
+  <!-- ══ Header ═══════════════════════════════════════════ -->
+  <div class="ps-header">
+
+    <div class="ps-header-left">
+      <div class="ps-icon-box">
+        <mat-icon>badge</mat-icon>
+      </div>
+      <div class="ps-title-block">
+        <div class="ps-title-row">
+          <h2 class="ps-title">Presence Sheet – Today</h2>
+          <span class="ps-live-badge">
+            <span class="ps-live-dot"></span> Live
+          </span>
+        </div>
+        <p class="ps-subtitle">
+          Real-time attendance overview for {{ today | date:'MMMM d, yyyy' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- 4 stats -->
+    <div class="ps-stats">
+      <div class="ps-stat">
+        <div class="ps-stat-icon si-green"><mat-icon>group</mat-icon></div>
+        <div class="ps-stat-body">
+          <span class="ps-stat-label">Present</span>
+          <span class="ps-stat-num">{{ presentCount }}</span>
+        </div>
+      </div>
+      <div class="ps-stat-sep"></div>
+      <div class="ps-stat">
+        <div class="ps-stat-icon si-amber"><mat-icon>schedule</mat-icon></div>
+        <div class="ps-stat-body">
+          <span class="ps-stat-label">Late</span>
+          <span class="ps-stat-num">{{ lateCount }}</span>
+        </div>
+      </div>
+      <div class="ps-stat-sep"></div>
+      <div class="ps-stat">
+        <div class="ps-stat-icon si-blue"><mat-icon>flight_takeoff</mat-icon></div>
+        <div class="ps-stat-body">
+          <span class="ps-stat-label">On Leave</span>
+          <span class="ps-stat-num">{{ onLeaveCount }}</span>
+        </div>
+      </div>
+      <div class="ps-stat-sep"></div>
+      <div class="ps-stat">
+        <div class="ps-stat-icon si-red"><mat-icon>person_off</mat-icon></div>
+        <div class="ps-stat-body">
+          <span class="ps-stat-label">Absent</span>
+          <span class="ps-stat-num">{{ absentCount }}</span>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- ══ Table area ════════════════════════════════════════ -->
+  <div class="ps-table-area">
+
+    <!-- Toolbar -->
+    <div class="ps-toolbar">
+      <div class="ps-status-tabs">
+        <button class="ps-stab" [class.active]="statusFilter==='ALL'"       (click)="onStatusFilter('ALL')">All</button>
+        <button class="ps-stab" [class.active]="statusFilter==='PRESENT'"   (click)="onStatusFilter('PRESENT')">Present</button>
+        <button class="ps-stab" [class.active]="statusFilter==='LATE'"      (click)="onStatusFilter('LATE')">Late</button>
+        <button class="ps-stab" [class.active]="statusFilter==='ON_LEAVE'"  (click)="onStatusFilter('ON_LEAVE')">On Leave</button>
+        <button class="ps-stab" [class.active]="statusFilter==='ABSENT'"    (click)="onStatusFilter('ABSENT')">Absent</button>
+      </div>
+
+      <div class="ps-toolbar-right">
+        <!-- Department filter -->
+        <div class="ps-dept-filter" [matMenuTriggerFor]="deptFilterMenu">
+          <mat-icon class="ps-dept-icon">domain</mat-icon>
+          <span class="ps-dept-val">{{ deptFilter === 'ALL' ? 'All Departments' : deptFilter }}</span>
+          <mat-icon class="ps-dept-arr">expand_more</mat-icon>
+        </div>
+        <mat-menu #deptFilterMenu="matMenu">
+          <button mat-menu-item (click)="onDeptFilter('ALL')">
+            <span [class.fw-bold]="deptFilter==='ALL'">All Departments</span>
+          </button>
+          <button mat-menu-item *ngFor="let d of availableDepts" (click)="onDeptFilter(d)">
+            <span [class.fw-bold]="deptFilter===d">{{ d }}</span>
+          </button>
+        </mat-menu>
+
+        <!-- Search -->
+        <div class="ps-search-wrap">
+          <mat-icon class="ps-search-icon">search</mat-icon>
+          <input
+            class="ps-search-input"
+            type="text"
+            placeholder="Search employee..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearch()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Skeleton -->
+    <div *ngIf="loading" class="ps-loading">
+      <div class="ps-sk-row" *ngFor="let i of [1,2,3,4,5]"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="ps-table-wrap" *ngIf="!loading">
+      <table class="ps-table">
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th class="col-emp">Employee</th>
+            <th class="col-contact">Contact</th>
+            <th class="col-dept">Department</th>
+            <th class="col-status">Status</th>
+            <th class="col-checkin">Check In</th>
+            <th class="col-update">Last Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of filteredRecords; let i = index"
+              class="ps-row"
+              [style.animation-delay]="(i * 35) + 'ms'">
+
+            <!-- # -->
+            <td class="col-num ps-num">{{ i + 1 }}</td>
+
+            <!-- Employee -->
+            <td class="col-emp">
+              <div class="ps-emp-cell">
+
+                <!-- ── Creative avatar ───────────────────── -->
+                <div class="ps-avatar-ring" [ngClass]="'ring-' + displayStatus(r.status)">
+                  <div class="ps-avatar-inner">
+                    <!-- Subtle dot pattern -->
+                    <svg class="ps-avatar-pattern" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="8"  cy="8"  r="1.2" fill="rgba(255,255,255,0.18)"/>
+                      <circle cx="22" cy="8"  r="1.2" fill="rgba(255,255,255,0.12)"/>
+                      <circle cx="36" cy="8"  r="1.2" fill="rgba(255,255,255,0.18)"/>
+                      <circle cx="8"  cy="22" r="1.2" fill="rgba(255,255,255,0.12)"/>
+                      <circle cx="36" cy="22" r="1.2" fill="rgba(255,255,255,0.12)"/>
+                      <circle cx="8"  cy="36" r="1.2" fill="rgba(255,255,255,0.18)"/>
+                      <circle cx="22" cy="36" r="1.2" fill="rgba(255,255,255,0.12)"/>
+                      <circle cx="36" cy="36" r="1.2" fill="rgba(255,255,255,0.18)"/>
+                    </svg>
+                    <!-- Initials -->
+                    <span class="ps-avatar-initials">{{ initials(r.userFullName) }}</span>
+                  </div>
+                  <!-- Status pip -->
+                  <span class="ps-avatar-pip" [ngClass]="'pip-' + displayStatus(r.status)"></span>
+                </div>
+                <!-- ── End avatar ─────────────────────────── -->
+
+                <div class="ps-emp-info">
+                  <span class="ps-emp-name">{{ r.userFullName }}</span>
+                  <span class="ps-emp-title">{{ r.userJobTitle }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Contact -->
+            <td class="col-contact">
+              <div class="ps-contact-cell">
+                <div class="ps-contact-row">
+                  <mat-icon class="ps-contact-icon">phone</mat-icon>
+                  <span>{{ r.userPhone || '—' }}</span>
+                </div>
+                <div class="ps-contact-row">
+                  <mat-icon class="ps-contact-icon">mail_outline</mat-icon>
+                  <span>{{ r.userEmail || '—' }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Department -->
+            <td class="col-dept">
+              <div class="ps-dept-cell">
+                <span class="ps-dept-name">{{ r.userDepartment }}</span>
+                <span class="ps-dept-sub">{{ r.userDepartment }}</span>
+              </div>
+            </td>
+
+            <!-- Status -->
+            <td class="col-status">
+              <span class="ps-status-badge" [ngClass]="'st-' + displayStatus(r.status)">
+                <span class="ps-status-dot"></span>
+                {{ statusLabel(r.status) }}
+              </span>
+            </td>
+
+            <!-- Check In -->
+            <td class="col-checkin ps-checkin">
+              {{ formatCheckIn(r.checkIn) }}
+            </td>
+
+            <!-- Last Update -->
+            <td class="col-update ps-update">
+              {{ formatLastUpdate(r.checkIn) }}
+            </td>
+
+
+          </tr>
+
+          <tr *ngIf="filteredRecords.length === 0">
+            <td colspan="7" class="ps-empty">
+              <mat-icon>search_off</mat-icon>
+              <span>No employees found</span>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>

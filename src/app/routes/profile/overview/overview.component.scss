@@ -1,28 +1,29 @@
+$navy:      #1e3a5f;
+$navy-light: #e8eef6;
+
 .profile-overview {
   background: #f4f6fb;
 }
 
 // ═══ COVER ═══════════════════════════════════════════════════
-// Tall enough to hold: image (200px) + avatar overlap + name + dept + tab header
 .profile-cover {
   position: relative;
-  height: 360px;              // covers image area + hero text
+  height: 360px;
   background: url('/assets/images/profile-cover.jpg') center/cover no-repeat,
               linear-gradient(160deg, #b8ccdf 0%, #8fafc8 60%, #7a9bb7 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;  // push hero content toward the bottom
-  padding-bottom: 56px;       // leaves room for the tab header that bleeds up
+  justify-content: flex-end;
+  padding-bottom: 56px;
 }
 
-// semi-transparent dark gradient at the bottom so text is readable on any photo
 .cover-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 10, 30, 0)   30%,
+    rgba(0, 10, 30, 0)    30%,
     rgba(0, 10, 30, 0.55) 100%
   );
   pointer-events: none;
@@ -33,16 +34,15 @@
   top: 20px;
   right: 24px;
   z-index: 2;
-  background: #1a237e;
+  background: $navy;                                    // ← was #1a237e
   color: #fff;
   font-weight: 600;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(26, 35, 126, 0.4);
+  box-shadow: 0 2px 10px rgba(30, 58, 95, 0.4);        // ← updated shadow
 
   mat-icon { font-size: 17px; height: 17px; width: 17px; margin-right: 6px; }
 }
 
-// ── Hero: avatar + name + dept, all ON the cover image ───────
 .cover-hero {
   position: relative;
   z-index: 2;
@@ -106,13 +106,11 @@
 }
 
 // ═══ TABS ════════════════════════════════════════════════════
-// The tab HEADER pulls up by its own height to sit on top of the cover bottom edge
 .profile-tabs {
-  margin-top: -48px;      // pulls header bar UP onto the cover image
+  margin-top: -48px;
   background: transparent;
 
   ::ng-deep {
-    // Tab header bar sits directly on cover, no background of its own
     .mat-mdc-tab-header {
       background: rgba(10, 20, 60, 0.45);
       backdrop-filter: blur(4px);
@@ -132,12 +130,10 @@
       color: #ffffff;
     }
 
-    // Active tab indicator: white instead of primary blue
     .mdc-tab-indicator__content--underline {
       border-color: #ffffff !important;
     }
 
-    // Content area drops back to the page background
     .mat-mdc-tab-body-wrapper {
       background: #f4f6fb;
     }
@@ -169,35 +165,50 @@
 
   .sidebar-logo { margin-bottom: 50px; img { height: 100px; object-fit: contain; } }
   .sidebar-name { margin: 0 0 8px; font-size: 15px; font-weight: 700; color: #1a1a2e; text-align: center; }
+
   .role-badge {
-    display: inline-block; padding: 3px 14px;
-    background: #e3f2fd; color: #1565c0;
-    border-radius: 20px; font-size: 11px; font-weight: 700;
-    letter-spacing: .8px; text-transform: uppercase; margin-bottom: 20px;
+    display: inline-block;
+    padding: 3px 14px;
+    background: $navy-light;                            // ← was #e3f2fd
+    color: $navy;                                       // ← was #1565c0
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
   }
 }
 
 .sidebar-meta { width: 100%; border-top: 1px solid #f0f0f0; margin-bottom: 20px; }
 
 .sidebar-meta-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 0; border-bottom: 1px solid #f5f5f5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f5f5f5;
   &:last-child { border-bottom: none; }
 
   .meta-icon-wrap {
     display: flex; align-items: center; justify-content: center;
-    width: 34px; height: 34px; background: #e8f0fe;
-    border-radius: 8px; flex-shrink: 0;
-    mat-icon { font-size: 17px; height: 17px; width: 17px; color: #1976d2; }
+    width: 34px; height: 34px;
+    background: $navy-light;                            // ← was #e8f0fe
+    border-radius: 8px;
+    flex-shrink: 0;
+    mat-icon { font-size: 17px; height: 17px; width: 17px; color: $navy; } // ← was #1976d2
   }
   .meta-label { margin: 0 0 2px; font-size: 10px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: .6px; }
   .meta-value { margin: 0; font-size: 13px; font-weight: 600; color: #2c2c2c; }
 }
 
 .contact-btn {
-  width: 100%; border-radius: 8px !important;
-  border-color: #1565c0 !important; color: #1565c0 !important;
-  font-weight: 600 !important; height: 42px;
+  width: 100%;
+  border-radius: 8px !important;
+  border-color: $navy !important;                       // ← was #1565c0
+  color: $navy !important;                              // ← was #1565c0
+  font-weight: 600 !important;
+  height: 42px;
   mat-icon { margin-right: 6px; font-size: 17px; height: 17px; width: 17px; }
 }
 
@@ -228,8 +239,10 @@
 
 .info-icon-wrap {
   display: flex; flex-shrink: 0; align-items: center; justify-content: center;
-  width: 44px; height: 44px; background: #e8f0fe; border-radius: 10px;
-  mat-icon { width: 20px; height: 20px; font-size: 20px; color: #1976d2; }
+  width: 44px; height: 44px;
+  background: $navy-light;                              // ← was #e8f0fe
+  border-radius: 10px;
+  mat-icon { width: 20px; height: 20px; font-size: 20px; color: $navy; } // ← was #1976d2
 }
 
 .info-label { margin: 0 0 4px; font-size: 11px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: .8px; }

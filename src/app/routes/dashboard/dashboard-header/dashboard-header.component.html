@@ -1,0 +1,107 @@
+<div class="header-card">
+  <div class="header-orange-left"></div>
+  <div class="header-bg-dots"></div>
+  <div class="header-bg-waves">
+    <svg width="100%" height="100%" preserveAspectRatio="none">
+      <path d="M200 130 Q350 50 500 130 Q650 210 800 130" fill="none" stroke="rgba(30,58,95,0.05)" stroke-width="2"/>
+      <path d="M200 150 Q350 70 500 150 Q650 230 800 150" fill="none" stroke="rgba(30,58,95,0.04)" stroke-width="1.5"/>
+      <path d="M200 110 Q350 30 500 110 Q650 190 800 110" fill="none" stroke="rgba(30,58,95,0.03)" stroke-width="1"/>
+    </svg>
+  </div>
+  <div class="header-orange-blob"></div>
+
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="text-block">
+        <div class="greeting">{{ greeting }} <span class="wave">👋</span></div>
+        <div class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</div>
+        <div class="sub-text">
+          Here's what's happening with your team today.
+          <span class="sub-star">✨</span>
+        </div>
+      </div>
+
+      <div class="controls-row">
+
+        <!-- Period toggle -->
+        <mat-button-toggle-group
+          [value]="period"
+          (change)="onPeriodChange($event.value)"
+          class="period-toggle"
+          hideSingleSelectionIndicator>
+          <mat-button-toggle value="day">Day</mat-button-toggle>
+          <mat-button-toggle value="week">Week</mat-button-toggle>
+          <mat-button-toggle value="month">Month</mat-button-toggle>
+          <mat-button-toggle value="year">Year</mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <!-- Department filter -->
+        <div class="filter-btn" [matMenuTriggerFor]="deptMenu" *ngIf="deptLabels.length">
+          <div class="fi-icon-wrap">
+            <mat-icon class="fi-icon">domain</mat-icon>
+          </div>
+          <div class="fi-texts">
+            <span class="fi-label">Department</span>
+            <span class="fi-val">
+              {{ selectedDepartment === 'ALL' ? 'All departments' : selectedDepartment }}
+            </span>
+          </div>
+          <mat-icon class="fi-arr">expand_more</mat-icon>
+        </div>
+
+        <mat-menu #deptMenu="matMenu">
+          <button mat-menu-item (click)="onDepartmentChange('ALL')">
+            <span [class.fw-bold]="selectedDepartment === 'ALL'">All departments</span>
+          </button>
+          <button mat-menu-item
+                  *ngFor="let d of deptLabels"
+                  (click)="onDepartmentChange(d)">
+            <span [class.fw-bold]="selectedDepartment === d">{{ d }}</span>
+          </button>
+        </mat-menu>
+
+        <!-- Date filter -->
+        <div class="filter-btn" (click)="picker.open()">
+          <div class="fi-icon-wrap">
+            <mat-icon class="fi-icon">calendar_today</mat-icon>
+          </div>
+          <div class="fi-texts">
+            <span class="fi-label">Date</span>
+            <span class="fi-val">
+              {{ selectedDate ? (selectedDate | date:'MMM d, y') : 'Select date' }}
+            </span>
+          </div>
+          <mat-icon class="fi-arr" *ngIf="!selectedDate">expand_more</mat-icon>
+          <mat-icon class="fi-clear"
+                    *ngIf="selectedDate"
+                    (click)="clearDate(); $event.stopPropagation()">
+            close
+          </mat-icon>
+          <input [matDatepicker]="picker"
+                 [(ngModel)]="selectedDate"
+                 (dateChange)="onDateChange($event.value)"
+                 [max]="today"
+                 style="display:none"
+                 readonly>
+          <mat-datepicker #picker></mat-datepicker>
+        </div>
+
+        <!-- ── Presence Sheet shortcut ───────────────────── -->
+       <button class="presence-btn" *ngIf="!isEmployee" (click)="goToPresenceSheet()">
+  <div class="presence-btn-icon">
+    <mat-icon>badge</mat-icon>
+  </div>
+  <div class="presence-btn-texts">
+    <span class="presence-btn-label">Presence Sheet</span>
+    <span class="presence-btn-sub">Today's report</span>
+  </div>
+  <mat-icon class="presence-btn-arrow">arrow_forward</mat-icon>
+</button>
+
+      </div>
+    </div>
+
+    <!-- Clock -->
+    <app-clock></app-clock>
+  </div>
+</div>

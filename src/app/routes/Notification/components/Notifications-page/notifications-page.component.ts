@@ -1,4 +1,5 @@
-﻿import { Component, OnInit, OnDestroy } from '@angular/core';
+﻿// notifications-page.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../services/Notification.service';
@@ -8,8 +9,12 @@ interface NotificationPage {
   content: Notification[];
   totalPages: number;
   totalElements: number;
-  size: number;
   number: number;
+}
+
+interface NotifGroup {
+  label: string;
+  items: Notification[];
 }
 
 @Component({
@@ -18,27 +23,62 @@ interface NotificationPage {
   styleUrls: ['./notifications-page.component.scss'],
 })
 export class NotificationsPageComponent implements OnInit, OnDestroy {
+
   notifications: Notification[] = [];
-  loading = true;
-  hasMore = false;
+  filter:        'all' | 'unread' = 'all';
+  loading    = true;
+  hasMore    = false;
   currentPage = 0;
   readonly pageSize = 20;
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
   ) {}
 
-  ngOnInit(): void {
-    this.load(0);
+  ngOnInit(): void { this.load(0); }
+
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+
+  // ── Computed ──────────────────────────────────────────
+  get unreadTotal(): number {
+    return this.notifications.filter(n => !n.read).length;
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  get displayed(): Notification[] {
+    return this.filter === 'unread'
+      ? this.notifications.filter(n => !n.read)
+      : this.notifications;
   }
 
+  get grouped(): NotifGroup[] {
+    const today     = new Date(); today.setHours(0,0,0,0);
+    const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+    const weekAgo   = new Date(today); weekAgo.setDate(today.getDate() - 7);
+
+    const groups: Record<string, Notification[]> = {
+      'Today': [], 'Yesterday': [], 'This week': [], 'Older': [],
+    };
+
+    for (const n of this.displayed) {
+      const d = new Date(n.createdAt); d.setHours(0,0,0,0);
+      if (d >= today)          groups.Today.push(n);
+      else if (d >= yesterday) groups.Yesterday.push(n);
+      else if (d >= weekAgo)   groups['This week'].push(n);
+      else                     groups.Older.push(n);
+    }
+
+    return Object.entries(groups)
+      .filter(([, items]) => items.length > 0)
+      .map(([label, items]) => ({ label, items }));
+  }
+
+  // ── Filter tabs ───────────────────────────────────────
+  setFilter(f: 'all' | 'unread'): void { this.filter = f; }
+
+  // ── Data loading ──────────────────────────────────────
   load(page: number): void {
     this.loading = true;
     this.notificationService
@@ -46,65 +86,48 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: NotificationPage) => {
-          if (page === 0) {
-            this.notifications = data.content;
-          } else {
-            this.notifications = [...this.notifications, ...data.content];
-          }
+          this.notifications = page === 0
+            ? data.content
+            : [...this.notifications, ...data.content];
           this.currentPage = data.number;
-          this.hasMore = data.number + 1 < data.totalPages;
-          this.loading = false;
+          this.hasMore     = data.number + 1 < data.totalPages;
+          this.loading     = false;
         },
-        error: () => {
-          this.loading = false;
-        },
+        error: () => { this.loading = false; },
       });
   }
 
-  loadMore(): void {
-    this.load(this.currentPage + 1);
-  }
+  loadMore(): void { this.load(this.currentPage + 1); }
 
-  markRead(notification: Notification): void {
-    if (notification.read) {
-      this.navigate(notification);
-      return;
-    }
-    this.notificationService
-      .markRead(notification.id)
+  // ── Actions ───────────────────────────────────────────
+  markRead(n: Notification): void {
+    if (n.read) return;
+    this.notificationService.markRead(n.id)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        notification.read = true;
-        this.navigate(notification);
-      });
+      .subscribe(() => { n.read = true; });
   }
 
   markAllRead(): void {
-    this.notificationService
-      .markAllRead()
+    this.notificationService.markAllRead()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.notifications.forEach(n => (n.read = true));
-      });
+      .subscribe(() => this.notifications.forEach(n => (n.read = true)));
   }
 
-  getMeta(type: string) {
-    return NOTIFICATION_META[type] ?? { icon: 'info', color: '#64748b' };
+  // ── Helpers ───────────────────────────────────────────
+  getMeta(type: string): { icon: string; color: string; bgColor: string } {
+    return NOTIFICATION_META[type] ?? { icon: 'info', color: '#64748b', bgColor: '#f1f5f9' };
   }
 
   timeAgo(dateStr: string): string {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'Just now';
-    if (mins < 60) return mins + 'm ago';
+    const mins = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60_000);
+    if (mins < 1)  return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return hrs + 'h ago';
+    if (hrs < 24)  return `${hrs}h ago`;
     const days = Math.floor(hrs / 24);
-    if (days < 7) return days + 'd ago';
+    if (days < 7)  return `${days}d ago`;
     return new Date(dateStr).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
+      day: '2-digit', month: 'short', year: 'numeric',
     });
   }
 

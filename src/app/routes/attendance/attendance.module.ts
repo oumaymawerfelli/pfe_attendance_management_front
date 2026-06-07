@@ -57,5 +57,8 @@ import { DayDetailDialogComponent } from './components/day-detail-dialog/day-det
     AttendanceSummaryComponent,
     DayDetailDialogComponent,
   ],
+   exports: [
+    AttendanceSummaryComponent,  // ← add this
+  ],
 })
 export class AttendanceModule {}

@@ -1,298 +1,444 @@
-// ══════════════════════════════════════════════════════════════
-//  Register Component — Refined Professional Style
-// ══════════════════════════════════════════════════════════════
-
-$primary:      #1565c0;
-$primary-light:#e8f0fe;
-$accent:       #0288d1;
-$text-dark:    #1a1a2e;
-$text-muted:   #6b7280;
-$border:       #e2e8f0;
-$surface:      #f8fafc;
-$white:        #fff;
-$radius:       12px;
-$radius-sm:    8px;
-
-// ── Wrapper ──────────────────────────────────────────────────
-
-
-.register-wrapper {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 32px 16px 64px;
-  background: transparent;
-}
-// ── Card ─────────────────────────────────────────────────────
-.register-card {
+:host {
+  display: block;
   width: 100%;
-  max-width: 720px;
-  overflow: hidden;
-  border: 1px solid $border;
-  border-radius: $radius !important;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,.07),
-              0 20px 60px -10px rgba(21, 101, 192, .12) !important;
+  min-height: 100vh;
 }
 
-// ── Card Header ───────────────────────────────────────────────
-.register-header {
+.register-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+}
+
+// Background
+.register-bg {
+  position: fixed;
+  inset: 0;
+  background: url('/assets/images/welcome1.jpg') center/cover no-repeat;
+  z-index: 0;
+}
+
+.register-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(10, 25, 60, 0.55) 0%, rgba(10, 25, 60, 0.35) 100%);
+  z-index: 1;
+}
+
+// Card
+.register-card {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: 1000px;
+  max-width: 95vw;
+  margin: 32px auto;
+  min-height: 640px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+// ── Brand panel (left) ─────────────────────────────────────
+.brand-panel {
+  position: relative;
+  flex: 0 0 38%;
+  background: linear-gradient(160deg, #1e3a8a 0%, #0f1e4d 100%);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  align-items: flex-start;
-  padding: 28px 28px 24px !important;
-  background: linear-gradient(135deg, $primary 0%, $accent 100%);
+  align-items: center;
+  padding: 36px 28px;
+  overflow: hidden;
+  color: #fff;
 
-  .header-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 8px;
-    background: rgba(255,255,255,.2);
-    border-radius: 50%;
+  .brand-dots {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 70px;
+    height: 70px;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.25) 1.5px, transparent 1.5px);
+    background-size: 10px 10px;
+    opacity: 0.6;
+  }
 
-    mat-icon {
-      font-size: 24px;
-      color: $white;
+  .brand-welcome {
+    text-align: left;
+    align-self: flex-start;
+    margin-top: 8px;
+
+    h1 {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      margin: 0;
+      background: linear-gradient(180deg, #ffffff 0%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      color: #e2e8f0;
+
+      .brand-accent {
+        color: #f59e0b;
+        font-weight: 600;
+      }
     }
   }
 
-  mat-card-title {
-    margin: 0 !important;
-    font-size: 22px !important;
-    font-weight: 700 !important;
-    color: $white !important;
+  .brand-logo {
+    width: 180px;
+    margin: 32px 0 16px;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
   }
 
-  mat-card-subtitle {
-    margin: 0 !important;
-    font-size: 14px !important;
-    color: rgba(255,255,255,.8) !important;
+  .brand-tagline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .tagline-strong {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    .tagline-underline {
+      width: 60px;
+      height: 3px;
+      background: #f59e0b;
+      border-radius: 2px;
+      margin-top: 10px;
+    }
+  }
+
+  .brand-support {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 24px;
+
+    mat-icon {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      padding: 8px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .support-title { font-size: 13px; font-weight: 600; }
+    .support-sub   { font-size: 11px; color: #cbd5e1; }
   }
 }
 
-// ── Stepper overrides ─────────────────────────────────────────
+// ── Form panel (right) ─────────────────────────────────────
+.form-panel {
+  flex: 1;
+  padding: 36px 40px;
+  display: flex;
+  flex-direction: column;
+
+  .form-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f1e4d;
+    margin: 0 0 4px;
+  }
+
+  .form-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0 0 20px;
+  }
+}
+
+// ── Stepper overrides ──────────────────────────────────────
 .custom-stepper {
   background: transparent !important;
 
-  .mat-step-header {
-    padding: 12px 16px !important;
-    border-radius: $radius-sm;
-    transition: background .2s;
+  ::ng-deep .mat-horizontal-stepper-header-container {
+    margin-bottom: 12px;
+  }
 
-    &:hover { 
-      background: $primary-light !important; 
+  ::ng-deep .mat-step-header {
+    padding: 8px 12px !important;
+
+    .mat-step-icon {
+      background: #94a3b8;
+      color: #fff;
     }
 
-    .mat-step-label { 
-      font-size: 14px; 
-      font-weight: 500; 
+    .mat-step-icon-selected,
+    .mat-step-icon-state-edit {
+      background: #1e3a8a !important;
     }
-    
-    .mat-step-label-selected { 
-      font-weight: 600 !important; 
-      color: $primary !important; 
+
+    .mat-step-label {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .mat-step-label-selected {
+      color: #1e3a8a !important;
+      font-weight: 600 !important;
     }
   }
 
-  .mat-stepper-horizontal-line { 
-    border-top-color: $border !important; 
+  ::ng-deep .mat-stepper-horizontal-line {
+    border-top-color: #e2e8f0 !important;
+  }
+
+  ::ng-deep .mat-horizontal-content-container {
+    padding: 8px 0 0 !important;
   }
 }
 
-// ── Step Content ──────────────────────────────────────────────
-.step-content {
-  padding: 8px 4px 4px;
-}
+.step-content { padding: 8px 0 0; }
 
 .step-subtitle {
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   font-size: 13px;
   font-style: italic;
-  color: $text-muted;
+  color: #64748b;
 }
 
-// ── Form Grid ─────────────────────────────────────────────────
+// ── Form grid ──────────────────────────────────────────────
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px 16px;
+  gap: 14px 16px;
 
-  mat-form-field {
-    width: 100%;
+  .full-width { grid-column: 1 / -1; }
+}
+
+// ── Custom field styling (matches login) ──────────────────
+.field-group {
+  display: flex;
+  flex-direction: column;
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 5px;
+
+    .req { color: #dc2626; margin-left: 2px; }
   }
 
-  .full-width {
-    grid-column: 1 / -1;
+  .field-input {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 9px;
+    padding: 0 12px;
+    height: 42px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: text;
+
+    &:focus-within {
+      border-color: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+
+    &.has-error { border-color: #dc2626; }
+
+    .field-icon {
+      color: #1e3a8a;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+    }
+
+    input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 13px;
+      color: #0f172a;
+      &::placeholder { color: #94a3b8; }
+    }
+
+    ::ng-deep .mat-mdc-select {
+      flex: 1;
+      font-size: 13px;
+    }
+
+    ::ng-deep .mat-mdc-select-trigger { padding: 0; }
+    ::ng-deep .mat-mdc-select-value   { color: #0f172a; }
+    ::ng-deep .mat-mdc-select-placeholder { color: #94a3b8; }
   }
 }
 
-// ── Mat-form-field prefix icons ───────────────────────────────
-mat-form-field {
-  mat-icon[matPrefix] {
-    margin-right: 6px;
-    font-size: 18px;
-    color: $primary;
-  }
-}
-
-// ── Toggle Row ────────────────────────────────────────────────
+// ── Toggle row ────────────────────────────────────────────
 .toggle-row {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
   padding: 10px 14px;
-  margin: 4px 0 8px;
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: $radius-sm;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
 
-  .toggle-icon { font-size: 20px; color: $primary; }
+  .toggle-icon { font-size: 20px; color: #1e3a8a; }
 
   .toggle-label {
     flex: 1;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    color: $text-dark;
+    color: #0f1e4d;
   }
 }
 
-// ── Summary Grid ──────────────────────────────────────────────
+// ── Summary grid ──────────────────────────────────────────
 .summary-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding: 20px;
-  margin-bottom: 24px;
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: $radius;
+  padding: 18px;
+  margin-bottom: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
 
   .summary-block {
-    padding: 8px 12px;
-    border-left: 3px solid $primary-light;
-    border-radius: 0 $radius-sm $radius-sm 0;
+    padding: 6px 10px;
+    border-left: 3px solid #1e3a8a;
+    border-radius: 0 8px 8px 0;
 
     .summary-label {
       margin: 0 0 2px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
-      color: $text-muted;
+      color: #64748b;
       text-transform: uppercase;
       letter-spacing: .6px;
     }
 
     .summary-value {
       margin: 0;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
-      color: $text-dark;
+      color: #0f1e4d;
     }
   }
 }
 
-// ── Terms Row ─────────────────────────────────────────────────
 .terms-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 16px;
-  background: $primary-light;
-  border: 1px solid rgba(21, 101, 192, .15);
-  border-radius: $radius-sm;
+  padding: 14px;
+  background: rgba(30, 58, 138, 0.05);
+  border: 1px solid rgba(30, 58, 138, 0.15);
+  border-radius: 9px;
 
   .terms-link {
+    color: #1e3a8a;
     font-weight: 600;
-    color: $primary;
+    margin-left: 4px;
     text-decoration: none;
-
     &:hover { text-decoration: underline; }
   }
 }
 
-// ── Step Actions ──────────────────────────────────────────────
+// ── Step actions ──────────────────────────────────────────
 .step-actions {
   display: flex;
-  gap: 12px;
-  align-items: center;
   justify-content: space-between;
-  padding: 20px 4px 8px;
-
-  button {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    height: 42px;
-    padding: 0 20px !important;
-    font-weight: 500 !important;
-    border-radius: $radius-sm !important;
-  }
-
-  button[mat-flat-button] {
-    justify-content: center;
-    min-width: 140px;
-  }
+  align-items: center;
+  margin-top: 20px;
+  gap: 12px;
 }
 
-// ── Submit Button ─────────────────────────────────────────────
-.submit-btn {
-  justify-content: center;
-  min-width: 200px !important;
+.next-btn,
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: background 0.2s, border-color 0.2s, transform 0.1s;
 
-  .btn-spinner {
-    display: inline-block;
-    margin-right: 6px;
-
-    ::ng-deep circle {
-      stroke: $white !important;
-    }
-  }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
 }
 
-// ── Login Link ────────────────────────────────────────────────
-.login-link {
-  padding: 20px 0 8px;
-  font-size: 14px;
-  color: $text-muted;
+.next-btn {
+  background: #0f1e4d;
+  color: #fff;
+
+  &:hover:not(:disabled) { background: #1e3a8a; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.back-btn {
+  background: #fff;
+  color: #0f1e4d;
+  border-color: #e2e8f0;
+
+  &:hover { border-color: #1e3a8a; background: #f8fafc; }
+}
+
+.submit-btn { min-width: 200px; justify-content: center; }
+.btn-spinner ::ng-deep circle { stroke: #fff !important; }
+
+// ── Sign in link + footer ─────────────────────────────────
+.signin-link {
+  margin: 20px 0 6px;
+  font-size: 13px;
+  color: #64748b;
   text-align: center;
 
   a {
-    margin-left: 4px;
+    color: #1e3a8a;
     font-weight: 600;
-    color: $primary;
+    margin-left: 4px;
     text-decoration: none;
-
     &:hover { text-decoration: underline; }
   }
 }
 
-// ── Responsive ────────────────────────────────────────────────
-@media (width <= 600px) {
-  .register-wrapper { 
-    padding: 16px 8px 48px; 
+.footer-text {
+  margin: 0;
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+
+  .brand-accent { color: #f59e0b; font-weight: 600; }
+}
+
+// ── Responsive ────────────────────────────────────────────
+@media (max-width: 900px) {
+  .register-card {
+    flex-direction: column;
+    width: 95vw;
   }
 
-  .form-grid {
-    grid-template-columns: 1fr;
+  .brand-panel {
+    flex: 0 0 auto;
+    padding: 24px;
 
-    .full-width { 
-      grid-column: 1; 
-    }
+    .brand-logo { width: 130px; margin: 16px 0 12px; }
+    .brand-support { padding-top: 16px; }
   }
 
-  .summary-grid {
-    grid-template-columns: 1fr;
-  }
+  .form-panel { padding: 24px 20px; }
 
-  .step-actions {
-    flex-direction: column-reverse;
-    
-    button { 
-      justify-content: center; 
-      width: 100%; 
-    }
-  }
+  .form-grid { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr; }
 }

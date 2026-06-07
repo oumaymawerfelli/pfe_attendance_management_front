@@ -1,499 +1,398 @@
 // ============================================================
-// view.component.scss
+// view.component.scss — matches Image 2 design exactly
 // ============================================================
 
-$brand-gradient: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
-$brand-a:  #4338ca;
-$brand-b:  #6d28d9;
-$bg:       #f4f3fb;
-$card:     #fff;
-$sidebar:  #faf9fe;
-$t1:       #1a1035;
-$t2:       #4b5068;
-$t3:       #9095a8;
-$line:     rgba(88, 80, 200, .09);
-$s1:       0 1px 3px rgba(67,56,202,.06), 0 1px 2px rgba(0,0,0,.03);
-$s2:       0 4px 18px rgba(67,56,202,.10), 0 2px 6px rgba(0,0,0,.04);
-$s3:       0 16px 48px rgba(67,56,202,.13), 0 4px 16px rgba(0,0,0,.05);
+// ── Tokens ───────────────────────────────────────────────────
+$header-bg:    #0f1c3a;          // dark navy header
+$accent:       #f97316;          // orange accent (avatar, chips)
+$brand:        #1d4ed8;          // blue for icon tiles
+$brand-light:  #eff6ff;
+$bg:           #f1f5f9;          // page background
+$card:         #ffffff;
+$sidebar-bg:   #ffffff;
+$border:       #e2e8f0;
+$t1:           #0f172a;          // primary text
+$t2:           #475569;          // secondary text
+$t3:           #94a3b8;          // label text
 $r-s: 8px;
-$r-m: 14px;
-$r-l: 20px;
+$r-m: 12px;
+$r-l: 16px;
 
-@keyframes up {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-// ─────────────────────────────────────────────────────────────
-// PAGE (identical wrapper as users + edit)
-// ─────────────────────────────────────────────────────────────
+// ── Page wrapper ─────────────────────────────────────────────
 .user-view-container {
   min-height: 100vh;
-  padding: 28px 32px;
-  font-family: Outfit, sans-serif;
+  padding: 24px;
   background: $bg;
-  background-image:
-    radial-gradient(ellipse 55% 35% at 85% 8%,  rgba(99,80,220,.07) 0%, transparent 65%),
-    radial-gradient(ellipse 45% 30% at 12% 92%, rgba(109,40,217,.05) 0%, transparent 65%);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
 }
 
-// ─────────────────────────────────────────────────────────────
-// LOADING / ERROR
-// ─────────────────────────────────────────────────────────────
+// ── Loading ───────────────────────────────────────────────────
 .loading-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
   align-items: center;
   justify-content: center;
+  gap: 16px;
   height: 420px;
   font-size: 13px;
   color: $t3;
 }
 
+// ── Error ─────────────────────────────────────────────────────
 .error-container {
-  padding: 100px 24px;
+  padding: 80px 24px;
   text-align: center;
-  
-  mat-icon {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 16px;
-    font-size: 60px;
-    color: #ef4444;
-    opacity: .7;
-  }
-  
-  h3 {
-    margin-bottom: 28px;
-    font-size: 21px;
-    font-weight: 700;
-    color: $t1;
-  }
+
+  mat-icon { font-size: 56px; width: 56px; height: 56px; color: #ef4444; margin-bottom: 12px; }
+  h3       { font-size: 20px; font-weight: 700; color: $t1; margin-bottom: 24px; }
 }
 
-// ─────────────────────────────────────────────────────────────
-// PROFILE CARD
-// ─────────────────────────────────────────────────────────────
+// ── Profile card ─────────────────────────────────────────────
 .profile-card {
-  overflow: hidden;
   background: $card;
   border-radius: $r-l;
-  box-shadow: $s3;
-  animation: up .4s ease both;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 20px rgba(0,0,0,.06);
+  animation: fade-up .35s ease both;
 
-  // ── header strip — same gradient, same mesh, same padding as list table-header + edit header ──
+  // ── HEADER — dark navy ──────────────────────────────────────
   .profile-header {
-    position: relative;
     display: flex;
     align-items: center;
-    padding: 20px 26px;
+    gap: 16px;
+    padding: 20px 28px;
+    background: $header-bg;
+    position: relative;
     overflow: hidden;
-    background: $brand-gradient;
 
+    // subtle mesh overlay
     &::after {
+      content: '';
       position: absolute;
       inset: 0;
       pointer-events: none;
-      content: '';
       background:
-        radial-gradient(circle at 18% 55%, rgba(255,255,255,.09) 0%, transparent 48%),
-        radial-gradient(circle at 82% 18%, rgba(255,255,255,.06) 0%, transparent 38%);
+        radial-gradient(ellipse 60% 80% at 80% 50%, rgba(255,255,255,.03) 0%, transparent 70%),
+        radial-gradient(ellipse 30% 60% at 10% 20%, rgba(255,255,255,.02) 0%, transparent 60%);
     }
 
     .back-btn {
       z-index: 1;
-      color: rgba(255,255,255,.85);
-      transition: transform .2s;
-      
-      &:hover {
-        transform: translateX(-2px);
+      color: rgba(255,255,255,.75);
+      flex-shrink: 0;
+      transition: color .15s;
+      &:hover { color: #fff; }
+    }
+
+    .header-titles {
+      z-index: 1;
+      flex: 1;
+
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -.01em;
+        line-height: 1.2;
+      }
+
+      p {
+        margin: 2px 0 0;
+        font-size: 12px;
+        color: rgba(255,255,255,.5);
       }
     }
 
-    h1 {
-      z-index: 1;
-      flex: 1;
-      margin: 0 18px;
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -.02em;
-    }
-
-    // Ghost glass button — same as edit header cancel
+    // Edit Profile button — outlined white
     .header-btn {
       z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       height: 36px;
-      padding: 0 18px;
-      font-size: 12px;
-      font-weight: 700;
-      color: rgba(255,255,255,.9);
-      letter-spacing: .02em;
-      cursor: pointer;
-      background: rgba(255,255,255,.14);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,.28);
+      padding: 0 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,.35);
       border-radius: $r-s;
-      transition: background .2s, box-shadow .2s;
-      
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+
+      mat-icon { font-size: 15px; width: 15px; height: 15px; }
+
       &:hover {
-        background: rgba(255,255,255,.24);
-        box-shadow: 0 4px 12px rgba(0,0,0,.14);
+        background: rgba(255,255,255,.1);
+        border-color: rgba(255,255,255,.6);
       }
     }
   }
 
-  // ── content grid ──
+  // ── Content grid ───────────────────────────────────────────
   .profile-content {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    min-height: 520px;
+    grid-template-columns: 300px 1fr;
 
-    @media (width <= 768px) {
+    @media (max-width: 768px) {
       grid-template-columns: 1fr;
     }
   }
 
-  // ─────────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────
   // LEFT SIDEBAR
-  // ─────────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────
   .profile-left {
-    padding: 30px 22px;
-    background: $sidebar;
-    border-right: 1px solid $line;
+    padding: 28px 20px;
+    background: $sidebar-bg;
+    border-right: 1px solid $border;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 
-    // ── avatar ──
+    // ── Avatar section ────────────────────────────────────────
     .avatar-section {
-      margin-bottom: 26px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid $border;
 
       .user-avatar {
         position: relative;
+        width: 88px;
+        height: 88px;
+        border-radius: 20px;          // rounded square like Image 2
+        background: $accent;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 90px;
-        height: 90px;
-        margin: 0 auto 14px;
-        font-size: 30px;
+        font-size: 28px;
         font-weight: 800;
         color: #fff;
         letter-spacing: -.5px;
-        border: 3px solid rgba(255,255,255,.55);
-        border-radius: 50%;
-        box-shadow: 0 8px 24px rgba(0,0,0,.16);
+        box-shadow: 0 8px 24px rgba(249,115,22,.35);
+        overflow: hidden;
 
-        &.active {
-          background: linear-gradient(135deg, #059669, #34d399);
-        }
-        
-        &.pending {
-          background: linear-gradient(135deg, #d97706, #fbbf24);
-        }
-        
-        &.disabled {
-          background: linear-gradient(135deg, #dc2626, #f87171);
-        }
-        
-        &.locked {
-          background: linear-gradient(135deg, #64748b, #cbd5e1);
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 20px;
         }
 
-        // status dot — same dot used in status badges on list
+        // colour variants per status
+        &.active   { background: linear-gradient(135deg, #059669, #34d399); box-shadow: 0 8px 24px rgba(5,150,105,.3); }
+        &.pending  { background: $accent; box-shadow: 0 8px 24px rgba(249,115,22,.35); }
+        &.disabled { background: linear-gradient(135deg, #dc2626, #f87171); box-shadow: 0 8px 24px rgba(220,38,38,.3); }
+        &.locked   { background: linear-gradient(135deg, #64748b, #cbd5e1); box-shadow: 0 8px 24px rgba(100,116,139,.25); }
+
         .online-dot {
           position: absolute;
-          right: 4px;
-          bottom: 4px;
-          width: 13px;
-          height: 13px;
-          border: 2.5px solid $card;
+          bottom: 5px;
+          right: 5px;
+          width: 12px;
+          height: 12px;
           border-radius: 50%;
-
-          &.active {
-            background: #22c55e;
-          }
-          
-          &.pending {
-            background: #eab308;
-          }
-          
-          &.disabled {
-            background: #ef4444;
-          }
-          
-          &.locked {
-            background: #94a3b8;
-          }
+          border: 2px solid #fff;
+          &.active   { background: #22c55e; }
+          &.pending  { background: #f59e0b; }
+          &.disabled { background: #ef4444; }
+          &.locked   { background: #94a3b8; }
         }
       }
 
       h2 {
-        margin: 0 0 3px;
-        font-size: 17px;
-        font-weight: 800;
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
         color: $t1;
-        letter-spacing: -.02em;
+        text-align: center;
       }
-      
+
       .user-job {
-        margin: 0 0 14px;
+        margin: 0;
         font-size: 12px;
         color: $t3;
+        text-align: center;
+      }
+
+      // status badge
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+
+        .status-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+        }
+
+        &.active   { background: #dcfce7; color: #15803d; .status-dot { background: #22c55e; } }
+        &.pending  { background: #fff7ed; color: #c2410c; .status-dot { background: #f97316; } }
+        &.disabled { background: #fee2e2; color: #b91c1c; .status-dot { background: #ef4444; } }
+        &.locked   { background: #f1f5f9; color: #64748b; .status-dot { background: #94a3b8; } }
       }
     }
 
-    // status badge — same component as in table rows
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 12px;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .7px;
-      border-radius: 20px;
-
-      .status-dot {
-        width: 6px;
-        height: 6px;
-        margin-right: 7px;
-        border-radius: 50%;
-      }
-
-      &.active {
-        color: #15803d;
-        background: #dcfce7;
-        
-        .status-dot {
-          background: #22c55e;
-        }
-      }
-      
-      &.pending {
-        color: #a16207;
-        background: #fef9c3;
-        
-        .status-dot {
-          background: #eab308;
-        }
-      }
-      
-      &.disabled {
-        color: #b91c1c;
-        background: #fee2e2;
-        
-        .status-dot {
-          background: #ef4444;
-        }
-      }
-      
-      &.locked {
-        color: #64748b;
-        background: #f1f5f9;
-        
-        .status-dot {
-          background: #94a3b8;
-        }
-      }
-    }
-
-    // ── sidebar mini-cards — same card style as edit section dividers ──
+    // ── Sidebar card (Role + Account Info) ────────────────────
     .sidebar-card {
-      padding: 16px 18px;
-      margin-top: 16px;
       background: $card;
-      border: 1px solid $line;
+      border: 1px solid $border;
       border-radius: $r-m;
-      box-shadow: $s1;
+      padding: 16px;
 
       .card-label {
-        margin: 0 0 10px;
+        margin: 0 0 12px;
         font-size: 10px;
-        font-weight: 800;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
         color: $t3;
-        text-transform: uppercase;
-        letter-spacing: 1.1px;
-      }
-
-      // role chip — same as list role-badge
-      .role-chip {
-        display: inline-block;
-        padding: 4px 11px;
-        font-size: 10px;
-        font-weight: 800;
-        color: $brand-a;
-        text-transform: uppercase;
-        letter-spacing: .6px;
-        background: linear-gradient(135deg, rgba(67,56,202,.09), rgba(109,40,217,.07));
-        border-radius: 6px;
-      }
-    }
-
-    // ── account stats — icon tiles match info rows on the right ──
-    .stat-row {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      margin-top: 14px;
-
-      &:first-of-type {
-        margin-top: 0;
-      }
-
-      // icon tile — identical to stat cards & info rows
-      .icon-tile {
         display: flex;
-        flex-shrink: 0;
         align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        background: linear-gradient(135deg, rgba(67,56,202,.09), rgba(109,40,217,.07));
-        border-radius: $r-s;
-        
+        gap: 6px;
+
         mat-icon {
-          width: 17px;
-          height: 17px;
-          font-size: 17px;
-          color: $brand-a;
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+          color: $t3;
         }
       }
 
-      .stat-label {
-        display: block;
-        margin-bottom: 2px;
-        font-size: 10px;
-        font-weight: 700;
-        color: $t3;
-        text-transform: uppercase;
-        letter-spacing: .7px;
-      }
-      
-      .stat-value {
-        display: block;
+      // role chip
+      .role-chip {
+        display: inline-block;
+        padding: 5px 12px;
+        background: $brand-light;
+        color: $brand;
         font-size: 13px;
         font-weight: 700;
-        color: $t1;
+        border-radius: 6px;
+      }
+
+      // each account info row
+      .stat-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid $border;
+
+        &:first-of-type { padding-top: 0; }
+        &:last-of-type  { padding-bottom: 0; border-bottom: none; }
+
+        .icon-tile {
+          flex-shrink: 0;
+          width: 36px;
+          height: 36px;
+          border-radius: $r-s;
+          background: $brand-light;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: $brand;
+          }
+        }
+
+        .stat-label {
+          display: block;
+          font-size: 11px;
+          font-weight: 600;
+          color: $t3;
+          margin-bottom: 2px;
+        }
+
+        .stat-value {
+          display: block;
+          font-size: 13px;
+          font-weight: 700;
+          color: $t1;
+          word-break: break-all;
+        }
       }
     }
   }
 
-  // ─────────────────────────────────────────────────────────
-  // RIGHT DETAIL PANEL
-  // ─────────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────
+  // RIGHT PANEL
+  // ────────────────────────────────────────────────────────────
   .profile-right {
-    padding: 30px 34px;
+    padding: 28px 32px;
 
     .info-section {
-      margin-bottom: 34px;
-      
-      &:last-child {
-        margin-bottom: 0;
-      }
+      margin-bottom: 32px;
+      &:last-child { margin-bottom: 0; }
     }
 
-    // section title — same 3-px bar + rule as edit form sections
+    // Section title — matches Image 2 "Personal Information" bold heading
     .section-title {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 22px;
-      font-size: 10px;
-      font-weight: 800;
-      color: $t3;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-
-      &::before {
-        display: block;
-        flex-shrink: 0;
-        width: 3px;
-        height: 16px;
-        content: '';
-        background: $brand-gradient;
-        border-radius: 2px;
-      }
-
-      &::after {
-        flex: 1;
-        height: 1px;
-        content: '';
-        background: $line;
-      }
+      font-size: 16px;
+      font-weight: 700;
+      color: $t1;
+      margin: 0 0 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid $border;
     }
 
+    // 2-column grid
     .info-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0;
-      
-      @media (width <= 480px) {
+      column-gap: 40px;
+
+      @media (max-width: 600px) {
         grid-template-columns: 1fr;
       }
     }
 
-    // info item — icon tile + two-line label/value; mirrors sidebar stat-row and list cell anatomy
+    // Each field row — label above value with bottom border
     .info-item {
       display: flex;
-      gap: 14px;
-      align-items: center;
-      padding: 15px 0;
-      padding-right: 28px;
-      border-bottom: 1px solid rgba(88,80,200,.055);
+      flex-direction: column;
+      padding: 14px 0;
+      border-bottom: 1px solid $border;
 
+      // remove border from last two items (one per column)
       &:nth-last-child(-n+2) {
         border-bottom: none;
       }
 
-      // same icon tile spec as sidebar and stat cards
-      .icon-tile {
-        display: flex;
-        flex-shrink: 0;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        background: linear-gradient(135deg, rgba(67,56,202,.08), rgba(109,40,217,.06));
-        border-radius: $r-s;
-        transition: transform .2s;
-        
-        mat-icon {
-          width: 17px;
-          height: 17px;
-          font-size: 17px;
-          color: $brand-a;
-        }
-      }
-
-      &:hover .icon-tile {
-        transform: scale(1.08);
-      }
-
       .info-label {
-        display: block;
-        margin-bottom: 3px;
-        font-size: 10px;
-        font-weight: 700;
+        font-size: 11px;
+        font-weight: 600;
         color: $t3;
         text-transform: uppercase;
-        letter-spacing: .7px;
+        letter-spacing: .5px;
+        margin-bottom: 4px;
       }
-      
+
       .info-value {
-        display: block;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 700;
         color: $t1;
         word-break: break-word;
-        
+
         &.empty {
           font-style: italic;
           font-weight: 400;

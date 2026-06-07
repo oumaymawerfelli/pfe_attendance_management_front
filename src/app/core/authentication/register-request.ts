@@ -12,7 +12,6 @@ export type Department = string;
 export type ContractType =
   | 'CDI'
   | 'CDD'
-  | 'INTERNSHIP'
   | 'CTP'
   | 'CTT'
   | 'STAGE'

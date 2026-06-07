@@ -34,6 +34,8 @@ export interface UserResponseDTO extends UserDTO {
   maritalStatus?: string;
   address?: string;
   hireDate?: string;
+  childrenCount: number | null; 
+  roleNames?: string[];
 }
 
 export interface UserStats {
@@ -63,13 +65,21 @@ export class UsersService {
 
   constructor(private http: HttpClient) {}
 
-  getUsers(page: number, size: number, search: string = ''): Observable<PageResponse<UserDTO>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-    if (search) params = params.set('search', search);
-    return this.http.get<PageResponse<UserDTO>>(this.apiUrl, { params });
-  }
+ getUsers(page: number, size: number, search = '',
+         department?: string, status?: string,
+         role?: string): Observable<PageResponse<UserDTO>> {
+
+  let params = new HttpParams()
+    .set('page', page.toString())
+    .set('size', size.toString());
+
+  if (search)     params = params.set('search',     search);
+  if (department) params = params.set('department', department);
+  if (status)     params = params.set('status',     status);
+  if (role)       params = params.set('role',       role);    // ← add
+
+  return this.http.get<PageResponse<UserDTO>>(this.apiUrl, { params });
+}
 
   getUser(id: number): Observable<UserResponseDTO> {
     return this.http.get<UserResponseDTO>(`${this.apiUrl}/${id}`);

@@ -36,23 +36,24 @@
     span.active { font-weight: 500; color: #555; }
   }
 
-  &__title {
-    h1 {
-      margin: 0 0 4px;
-      font-size: 22px;
-      font-weight: 500;
-      line-height: 1.2;
-      color: #1a1a1a;
-      // Animate when the tab changes
-      transition: opacity 0.15s ease;
-    }
-
-    p {
-      margin: 0;
-      font-size: 13px;
-      color: #888;
-    }
+ &__title {
+  h1 {
+    margin: 0 0 4px;
+    font-size: 28px;         // ← was 22px
+    font-weight: 700;        // ← was 500
+    letter-spacing: -0.4px;  // ← added
+    line-height: 1.2;
+    color: #1e3a5f;
+    transition: opacity 0.15s ease;
   }
+
+  p {
+    margin: 0;
+    font-size: 14px;         // ← was 13px
+    color: #1e3a5f;
+    opacity: 0.6;
+  }
+}
 
   &__actions {
     flex-shrink: 0;

@@ -34,6 +34,8 @@ export interface AttendanceSummary {
   dailyHours: DailyHours[];
   checkedInToday: boolean;
   checkedOutToday: boolean;
+  /** ISO date 'YYYY-MM-DD' — first day attendance is tracked for this user */
+  accountStartDate?: string;
 }
 
 export interface AttendanceFilter {

@@ -45,18 +45,18 @@ export class LeaveService {
     const form = new FormData();
 
     // Spring Boot @RequestPart("leaveRequest") expects a JSON blob with explicit type
-    form.append(
-      'leaveRequest',
-      new Blob([JSON.stringify(payload)], { type: 'application/json' }),
-    );
+  form.append(
+    'data',
+    new Blob([JSON.stringify(payload)], { type: 'application/json' }),
+  );
 
-    if (attachment) {
-      form.append('attachment', attachment, attachment.name);
-    }
-
-    // Do NOT set Content-Type manually — the browser must set the boundary automatically
-    return this.http.post<LeaveRecord>(`${this.api}/request`, form);
+  if (attachment) {
+    form.append('attachment', attachment, attachment.name);
+    form.append('attachmentType', payload.attachmentType ?? 'PROOF');
   }
+
+  return this.http.post<LeaveRecord>(`${this.api}/request`, form);
+}
 
   /**
    * NEW — saves the current form state as a DRAFT without triggering the
@@ -119,11 +119,11 @@ export class LeaveService {
     return this.http.post<void>(`${this.api}/${leaveId}/generate-document`, request);
   }
 
-  uploadDocument(leaveId: number, pdfBlob: Blob): Observable<void> {
-    const form = new FormData();
-    form.append('file', pdfBlob, `leave_${leaveId}.pdf`);
-    return this.http.post<void>(`${this.api}/${leaveId}/document`, form);
-  }
+ uploadAuthorizationLetter(leaveId: number, pdfBlob: Blob): Observable<void> {
+  const form = new FormData();
+  form.append('file', pdfBlob, `Leave_Authorization_${leaveId}.pdf`);
+  return this.http.post<void>(`${this.api}/${leaveId}/authorization-letter`, form);
+}
 
   openDocument(leaveId: number): void {
     const url = `${environment.apiUrl}/leaves/${leaveId}/document`;

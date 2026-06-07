@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LeaveService } from '../../services/leave.service';
+import { DocumentType } from '../../../admin/models/leave-document.model';
 import {
   LeaveType,
   WorkflowStep,
@@ -25,7 +26,7 @@ export interface PreviewDay {
 export class LeaveRequestFormComponent implements OnInit {
   @Output() submitted = new EventEmitter<void>();
   @Output() drafted   = new EventEmitter<void>();
-
+uploadableTypes = ['MEDICAL_CERTIFICATE', 'PROOF', 'OTHER'] as const;
   // ── Expose enums / constants to template ─────────────────────────────────
   readonly LeaveType        = LeaveType;
   readonly leaveTypeOptions = LEAVE_TYPE_OPTIONS;
@@ -68,6 +69,7 @@ export class LeaveRequestFormComponent implements OnInit {
       endDate:   [null,            Validators.required],
       halfDay:   [false],
       reason:    ['', [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
+      attachmentType:   ['PROOF'],
     });
   }
 
@@ -250,6 +252,7 @@ export class LeaveRequestFormComponent implements OnInit {
       endDate:   this.leaveService.toLocalISODate(val.endDate),
       duration:  this.workingDays,
       reason:    val.reason,
+      attachmentType: val.attachmentType ?? 'PROOF',
     };
 
     this.leaveService.requestLeave(payload, this.selectedFile ?? undefined).subscribe({

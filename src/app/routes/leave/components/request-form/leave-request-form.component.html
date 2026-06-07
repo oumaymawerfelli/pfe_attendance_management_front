@@ -192,6 +192,16 @@
           </button>
         </div>
       </section>
+      <div *ngIf="selectedFile" class="attachment-type">
+  <mat-form-field appearance="outline" style="width: 100%">
+    <mat-label>Document type</mat-label>
+    <mat-select formControlName="attachmentType">
+      <mat-option value="MEDICAL_CERTIFICATE">Medical certificate</mat-option>
+      <mat-option value="PROOF">Proof</mat-option>
+      <mat-option value="OTHER">Other</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
 
       <!-- Form actions ────────────────────────────────────────────────── -->
       <div class="form-actions">

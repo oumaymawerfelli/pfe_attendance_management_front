@@ -21,7 +21,7 @@ export class ViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const userId = this.route.snapshot.params['id'];
+    const userId = this.route.snapshot.params.id;
     this.loadUser(userId);
   }
 
@@ -63,16 +63,16 @@ export class ViewComponent implements OnInit {
     return ((this.user.firstName?.[0] || '') + (this.user.lastName?.[0] || '')).toUpperCase();
   }
 
-  formatDate(date?: string): string {
-    if (!date) return 'Never';
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
+ formatDate(date?: string): string {
+  if (!date) return '—';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-US', {
+    year:  'numeric',
+    month: 'long',
+    day:   'numeric',
+  });
+}
 
   goBack(): void {
     this.router.navigate(['/users']);
@@ -83,4 +83,13 @@ export class ViewComponent implements OnInit {
       this.router.navigate(['/users', this.user.id, 'edit']);
     }
   }
+  
+
+  // Strip ROLE_ prefix for display: "ROLE_EMPLOYEE" → "Employee"
+formatRole(role: string): string {
+  return role.replace('ROLE_', '')
+             .toLowerCase()
+             .replace(/^\w/, c => c.toUpperCase());
+}
+
 }

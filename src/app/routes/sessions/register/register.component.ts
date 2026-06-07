@@ -15,8 +15,18 @@ import {
 
 const GENDERS: Gender[] = ['MALE', 'FEMALE'];
 const MARITAL_STATUSES: MaritalStatus[] = ['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED'];
-const CONTRACT_TYPES: ContractType[] = ['CDI', 'CDD', 'INTERNSHIP', 'FREELANCE'];
-const DEPARTMENTS = ['IT', 'HR', 'FINANCE', 'OPERATIONS', 'MARKETING', 'ADMIN'];
+const CONTRACT_TYPES: ContractType[] = [
+  'CDI',
+  'CDD',
+  'CTP',
+  'CTT',
+  'STAGE',
+  'SIVP',
+  'ALTERNANCE',
+  'MISSION',
+  'FREELANCE',
+  'ESSAI'
+];const DEPARTMENTS = ['IT', 'HR', 'FINANCE', 'OPERATIONS', 'MARKETING', 'ADMIN'];
 
 @Component({
   selector: 'app-register',

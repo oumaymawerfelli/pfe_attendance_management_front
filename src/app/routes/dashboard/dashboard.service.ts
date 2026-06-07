@@ -7,6 +7,12 @@ export interface DeptStat {
   department: string;
   count: number;
 }
+export interface DashboardStats {
+  totalEmployees:    number;
+  newHiresThisMonth: number;
+  byDepartment:      { department: string; count: number }[];
+  byContractType?:   { contractType: string; count: number }[]; // ← add this line
+}
 
 export interface DashboardStats {
   totalEmployees: number;

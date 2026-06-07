@@ -132,6 +132,24 @@
   "confirm_password": "Confirm Password",
   "remember_me": "Remember Me",
   "register": "Create account",
+
+  "WELCOME": "WELCOME",
+  "WELCOME_PLATFORM_SUFFIX": "Platform",
+  "WELCOME_BACK": "WELCOME BACK",
+  "SIGN_IN_SUBTITLE": "Sign in to continue to your account",
+  "EMAIL_ADDRESS": "Email Address",
+  "EMAIL_PLACEHOLDER": "Enter your email",
+  "EMAIL_REQUIRED": "Email is required",
+  "PASSWORD": "Password",
+  "PASSWORD_PLACEHOLDER": "Enter your password",
+  "PASSWORD_REQUIRED": "Password is required",
+  "FORGOT_PASSWORD": "Forgot password?",
+  "SIGN_IN": "Sign In",
+  "SIGNING_IN": "Signing in...",
+  "OR": "or",
+  "CREATE_AN_ACCOUNT": "Create an account",
+  "ALL_RIGHTS_RESERVED": "All rights reserved.",
+
   "register_welcome": "Welcome",
   "register_title": "It only takes a few seconds to create your account",
   "read_and_agree": "I have read and agree to the terms of service",
@@ -168,7 +186,7 @@
   "register.hireDate": "Hire date",
   "register.contractType": "Contract type",
   "register.contractEndDate": "Contract end date",
-  
+
   "register.housingAllowance": "Housing allowance",
   "register.evaluationScore": "Evaluation score (0-5)",
   "register.socialSecurityNumber": "Social security number",

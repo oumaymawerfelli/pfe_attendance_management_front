@@ -1,72 +1,102 @@
-<div class="d-flex w-full h-full">
-  <mat-card class="m-auto" style="max-width: 380px;">
-    <mat-card-header class="m-b-24">
-      <mat-card-title>{{'WELCOME' | translate}}</mat-card-title>
-    </mat-card-header>
+<div class="login-page">
+  <!-- Background layer -->
+  <div class="login-bg"></div>
+  <div class="login-overlay"></div>
 
-    <mat-card-content>
-      <form class="form-field-full" [formGroup]="loginForm" (ngSubmit)="login()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Username or Email</mat-label>
-          <input 
-            matInput 
-            placeholder="Enter your username or email" 
-            formControlName="username" 
-            required>
-          <mat-icon matPrefix>person</mat-icon>
-          <mat-error *ngIf="username.invalid && username.touched">
-            <span *ngIf="username.errors?.required">Username or email is required</span>
-            <span *ngIf="username.errors?.remote">{{ username.errors?.remote }}</span>
-          </mat-error>
-        </mat-form-field>
+  <!-- Centered split card -->
+  <div class="login-card">
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Password</mat-label>
-          <input 
-            matInput 
-            [type]="hidePassword ? 'password' : 'text'" 
-            placeholder="Enter your password"
-            formControlName="password" 
-            required>
-          <mat-icon matPrefix>lock</mat-icon>
-          <button 
-            type="button"
-            mat-icon-button 
-            matSuffix 
-            (click)="hidePassword = !hidePassword">
-            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-          </button>
-          <mat-error *ngIf="password.invalid && password.touched">
-            <span *ngIf="password.errors?.required">Password is required</span>
-            <span *ngIf="password.errors?.remote">{{ password.errors?.remote }}</span>
-          </mat-error>
-        </mat-form-field>
+    <!-- Left half: brand panel -->
+    <div class="brand-panel">
+      <div class="brand-dots"></div>
+      <img src="assets/images/logo1.webp" alt="Arab Soft" class="brand-logo">
+      <div class="brand-tagline">
+        <span class="tagline-strong">Smart Solutions.</span>
+        <span class="tagline-strong">Stronger Teams.</span>
+        <div class="tagline-underline"></div>
+      </div>
+    </div>
 
-        <div class="flex items-center justify-between m-y-16">
-          <mat-checkbox formControlName="rememberMe">
-            {{'remember_me' | translate}}
+    <!-- Right half: form panel -->
+    <div class="form-panel">
+      <h2 class="form-title">{{ 'WELCOME_BACK' | translate }}</h2>
+      <p class="form-subtitle">{{ 'SIGN_IN_SUBTITLE' | translate }}</p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate class="login-form">
+
+        <!-- Email -->
+        <div class="field-group">
+          <label class="field-label">{{ 'EMAIL_ADDRESS' | translate }}</label>
+          <div class="field-input" [class.has-error]="username.invalid && username.touched">
+            <mat-icon class="field-icon">mail_outline</mat-icon>
+            <input
+              type="text"
+              [placeholder]="'EMAIL_PLACEHOLDER' | translate"
+              formControlName="username"
+              autocomplete="username">
+          </div>
+          <div class="field-error" *ngIf="username.invalid && username.touched">
+            <span *ngIf="username.errors?.['required']">{{ 'EMAIL_REQUIRED' | translate }}</span>
+            <span *ngIf="username.errors?.['remote']">{{ username.errors?.['remote'] }}</span>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="field-group">
+          <label class="field-label">{{ 'PASSWORD' | translate }}</label>
+          <div class="field-input" [class.has-error]="password.invalid && password.touched">
+            <mat-icon class="field-icon">lock_outline</mat-icon>
+            <input
+              [type]="hidePassword ? 'password' : 'text'"
+              [placeholder]="'PASSWORD_PLACEHOLDER' | translate"
+              formControlName="password"
+              autocomplete="current-password">
+            <button type="button" class="field-toggle" (click)="hidePassword = !hidePassword">
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </div>
+          <div class="field-error" *ngIf="password.invalid && password.touched">
+            <span *ngIf="password.errors?.['required']">{{ 'PASSWORD_REQUIRED' | translate }}</span>
+            <span *ngIf="password.errors?.['remote']">{{ password.errors?.['remote'] }}</span>
+          </div>
+        </div>
+
+        <!-- Options row -->
+        <div class="options-row">
+          <mat-checkbox formControlName="rememberMe" color="primary">
+            {{ 'remember_me' | translate }}
           </mat-checkbox>
-          <a routerLink="/auth/forgot-password" class="text-sm">
-            Forgot password?
+          <a routerLink="/auth/forgot-password" class="forgot-link">
+            {{ 'FORGOT_PASSWORD' | translate }}
           </a>
         </div>
 
-        <button 
-          class="w-full" 
-          mat-raised-button 
-          color="primary" 
-          type="submit"
-          [disabled]="loginForm.invalid || isSubmitting" 
-          [loading]="isSubmitting">
-          <mat-icon>login</mat-icon>
-          {{'login' | translate}}
-        </button>
+        <!-- Submit -->
+       <button
+  type="submit"
+  class="signin-btn"
+  [disabled]="loginForm.invalid || isSubmitting">
+  <span *ngIf="!isSubmitting">{{ 'SIGN_IN' | translate }}</span>
+  <span *ngIf="isSubmitting">{{ 'SIGNING_IN' | translate }}</span>
+  <mat-icon *ngIf="!isSubmitting">arrow_forward</mat-icon>
+</button>
 
-        <div class="text-center m-t-16">
-          {{'have_no_account' | translate}}?
-          <a routerLink="/auth/register">{{'create_one_account' | translate}}</a>
+        <!-- Divider -->
+        <div class="divider">
+          <span>{{ 'OR' | translate }}</span>
         </div>
+
+        <!-- Create account -->
+        <a routerLink="/auth/register" class="create-btn">
+          <mat-icon>person_outline</mat-icon>
+          {{ 'CREATE_AN_ACCOUNT' | translate }}
+        </a>
+
+        <!-- Footer -->
+        <p class="footer-text">
+          © 2026 <span class="brand-accent">Arab Soft</span>. {{ 'ALL_RIGHTS_RESERVED' | translate }}
+        </p>
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 </div>

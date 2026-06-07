@@ -23,11 +23,11 @@
 
   <!-- ── Skeleton ───────────────────────────────────────── -->
   <div *ngIf="loading" class="sk-wrap">
-    <div class="sk-hero"></div>
-    <div class="sk-right">
-      <div class="sk-row">
-        <div class="sk-stat" *ngFor="let i of [1,2,3,4]"></div>
-      </div>
+    <div class="sk-stat-row">
+      <div class="sk-stat" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+    <div class="sk-bottom">
+      <div class="sk-hero"></div>
       <div class="sk-trend"></div>
     </div>
   </div>
@@ -40,12 +40,85 @@
   <!-- ── Content ────────────────────────────────────────── -->
   <ng-container *ngIf="!loading && !error && data">
 
+    <!-- ── 4 stat cards (TOP) ─────────────────────────── -->
+    <div class="stat-row">
+
+      <div class="scard sc-orange">
+        <div class="scard-top">
+          <div class="scard-icon-wrap ic-orange"><mat-icon>schedule</mat-icon></div>
+          <mat-icon class="scard-dots">more_vert</mat-icon>
+        </div>
+        <div class="scard-label">LATE</div>
+        <div class="scard-num">{{ data.late }}</div>
+        <div class="scard-trend"
+             [class.trend-good]="trendDown(data.lateTrend)"
+             [class.trend-bad]="trendUp(data.lateTrend)">
+          <mat-icon>{{ trendUp(data.lateTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          {{ Math.abs(data.lateTrend) }}%
+          <span class="scard-vs">{{ compareLabel }}</span>
+        </div>
+        <div class="spark-box"><canvas #spark1></canvas></div>
+      </div>
+
+      <div class="scard sc-red">
+        <div class="scard-top">
+          <div class="scard-icon-wrap ic-red"><mat-icon>person_off</mat-icon></div>
+          <mat-icon class="scard-dots">more_vert</mat-icon>
+        </div>
+        <div class="scard-label">ABSENT</div>
+        <div class="scard-num">{{ data.absent }}</div>
+        <div class="scard-trend"
+             [class.trend-good]="trendDown(data.absentTrend)"
+             [class.trend-bad]="trendUp(data.absentTrend)">
+          <mat-icon>{{ trendUp(data.absentTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          {{ Math.abs(data.absentTrend) }}%
+          <span class="scard-vs">{{ compareLabel }}</span>
+        </div>
+        <div class="spark-box"><canvas #spark2></canvas></div>
+      </div>
+
+      <div class="scard sc-purple">
+        <div class="scard-top">
+          <div class="scard-icon-wrap ic-purple"><mat-icon>event_available</mat-icon></div>
+          <mat-icon class="scard-dots">more_vert</mat-icon>
+        </div>
+        <div class="scard-label">ON LEAVE</div>
+        <div class="scard-num">{{ data.onLeave }}</div>
+        <div class="scard-trend"
+             [class.trend-good]="trendDown(data.onLeaveTrend)"
+             [class.trend-bad]="trendUp(data.onLeaveTrend)">
+          <mat-icon>{{ trendUp(data.onLeaveTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          {{ Math.abs(data.onLeaveTrend) }}%
+          <span class="scard-vs">{{ compareLabel }}</span>
+        </div>
+        <div class="spark-box"><canvas #spark3></canvas></div>
+      </div>
+
+      <div class="scard sc-teal">
+        <div class="scard-top">
+          <div class="scard-icon-wrap ic-teal"><mat-icon>home_work</mat-icon></div>
+          <mat-icon class="scard-dots">more_vert</mat-icon>
+        </div>
+        <div class="scard-label">REMOTE</div>
+        <div class="scard-num">{{ data.remote }}</div>
+        <div class="scard-trend"
+             [class.trend-good]="trendUp(data.remoteTrend)"
+             [class.trend-bad]="trendDown(data.remoteTrend)">
+          <mat-icon>{{ trendUp(data.remoteTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          {{ Math.abs(data.remoteTrend) }}%
+          <span class="scard-vs">{{ compareLabel }}</span>
+        </div>
+        <div class="spark-box"><canvas #spark4></canvas></div>
+      </div>
+
+    </div>
+
+    <!-- ── Bottom: hero + trend side by side ──────────── -->
     <div class="ao-main">
 
-      <!-- ── Hero card ──────────────────────────────────── -->
+      <!-- Hero card -->
       <div class="hero-card">
 
-        <!-- background decoration -->
         <div class="hero-glow"></div>
         <svg class="hero-pattern" viewBox="0 0 480 480" preserveAspectRatio="xMidYMid slice" fill="none">
           <line x1="0"   y1="120" x2="480" y2="120" stroke="rgba(147,197,253,0.07)" stroke-width="1"/>
@@ -69,7 +142,6 @@
           <line x1="240" y1="240" x2="360" y2="360" stroke="rgba(147,197,253,0.06)" stroke-width="1"/>
         </svg>
 
-        <!-- Top section: info + donut -->
         <div class="hero-top">
           <div class="hero-info">
             <span class="rate-lbl">ATTENDANCE RATE</span>
@@ -95,117 +167,39 @@
           </div>
         </div>
 
-        <!-- Line chart -->
         <div class="hero-chart-wrap">
           <canvas #lineCanvas></canvas>
         </div>
 
       </div>
 
-      <!-- ── Right column ───────────────────────────────── -->
-      <div class="ao-right">
-
-        <!-- 4 stat cards -->
-        <div class="stat-row">
-
-          <div class="scard sc-orange">
-            <div class="scard-top">
-              <div class="scard-icon-wrap ic-orange"><mat-icon>schedule</mat-icon></div>
-              <mat-icon class="scard-dots">more_vert</mat-icon>
-            </div>
-            <div class="scard-label">LATE</div>
-            <div class="scard-num">{{ data.late }}</div>
-            <div class="scard-trend"
-                 [class.trend-good]="trendDown(data.lateTrend)"
-                 [class.trend-bad]="trendUp(data.lateTrend)">
-              <mat-icon>{{ trendUp(data.lateTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-              {{ Math.abs(data.lateTrend) }}%
-              <span class="scard-vs">{{ compareLabel }}</span>
-            </div>
-            <div class="spark-box"><canvas #spark1></canvas></div>
-          </div>
-
-          <div class="scard sc-red">
-            <div class="scard-top">
-              <div class="scard-icon-wrap ic-red"><mat-icon>person_off</mat-icon></div>
-              <mat-icon class="scard-dots">more_vert</mat-icon>
-            </div>
-            <div class="scard-label">ABSENT</div>
-            <div class="scard-num">{{ data.absent }}</div>
-            <div class="scard-trend"
-                 [class.trend-good]="trendDown(data.absentTrend)"
-                 [class.trend-bad]="trendUp(data.absentTrend)">
-              <mat-icon>{{ trendUp(data.absentTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-              {{ Math.abs(data.absentTrend) }}%
-              <span class="scard-vs">{{ compareLabel }}</span>
-            </div>
-            <div class="spark-box"><canvas #spark2></canvas></div>
-          </div>
-
-          <div class="scard sc-purple">
-            <div class="scard-top">
-              <div class="scard-icon-wrap ic-purple"><mat-icon>event_available</mat-icon></div>
-              <mat-icon class="scard-dots">more_vert</mat-icon>
-            </div>
-            <div class="scard-label">ON LEAVE</div>
-            <div class="scard-num">{{ data.onLeave }}</div>
-            <div class="scard-trend"
-                 [class.trend-good]="trendDown(data.onLeaveTrend)"
-                 [class.trend-bad]="trendUp(data.onLeaveTrend)">
-              <mat-icon>{{ trendUp(data.onLeaveTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-              {{ Math.abs(data.onLeaveTrend) }}%
-              <span class="scard-vs">{{ compareLabel }}</span>
-            </div>
-            <div class="spark-box"><canvas #spark3></canvas></div>
-          </div>
-
-          <div class="scard sc-teal">
-            <div class="scard-top">
-              <div class="scard-icon-wrap ic-teal"><mat-icon>home_work</mat-icon></div>
-              <mat-icon class="scard-dots">more_vert</mat-icon>
-            </div>
-            <div class="scard-label">REMOTE</div>
-            <div class="scard-num">{{ data.remote }}</div>
-            <div class="scard-trend"
-                 [class.trend-good]="trendUp(data.remoteTrend)"
-                 [class.trend-bad]="trendDown(data.remoteTrend)">
-              <mat-icon>{{ trendUp(data.remoteTrend) ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-              {{ Math.abs(data.remoteTrend) }}%
-              <span class="scard-vs">{{ compareLabel }}</span>
-            </div>
-            <div class="spark-box"><canvas #spark4></canvas></div>
-          </div>
-
-        </div>
-
-        <!-- Attendance Trend chart -->
-        <div class="trend-card">
-          <div class="trend-header">
-            <div class="trend-title-block">
-              <span class="trend-title">Attendance Trend</span>
-              <mat-icon class="trend-info-icon">info_outline</mat-icon>
-              <div class="trend-legend">
-                <div class="leg-item">
-                  <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/></svg>
-                  <span>This {{ activePeriod }}</span>
-                </div>
-                <div class="leg-item leg-prev">
-                  <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3" stroke-linecap="round"/></svg>
-                  <span>Last {{ activePeriod }}</span>
-                </div>
+      <!-- Attendance Trend -->
+      <div class="trend-card">
+        <div class="trend-header">
+          <div class="trend-title-block">
+            <span class="trend-title">Attendance Trend</span>
+            <mat-icon class="trend-info-icon">info_outline</mat-icon>
+            <div class="trend-legend">
+              <div class="leg-item">
+                <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/></svg>
+                <span>This {{ activePeriod }}</span>
+              </div>
+              <div class="leg-item leg-prev">
+                <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3" stroke-linecap="round"/></svg>
+                <span>Last {{ activePeriod }}</span>
               </div>
             </div>
-            <div class="trend-period-chip">
-              <span>This {{ activePeriod }}</span>
-              <mat-icon>expand_more</mat-icon>
-            </div>
           </div>
-          <div class="trend-canvas-wrap">
-            <canvas #trendCanvas></canvas>
+          <div class="trend-period-chip">
+            <span>This {{ activePeriod }}</span>
+            <mat-icon>expand_more</mat-icon>
           </div>
         </div>
-
+        <div class="trend-canvas-wrap">
+          <canvas #trendCanvas></canvas>
+        </div>
       </div>
+
     </div>
 
     <!-- ── Insight bar ─────────────────────────────────── -->

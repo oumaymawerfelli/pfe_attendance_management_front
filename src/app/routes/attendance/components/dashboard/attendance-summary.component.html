@@ -22,7 +22,7 @@
 
   <ng-container *ngIf="!loading && summary">
 
-    <!-- ── Calendar Card (FIRST) ──────────────────────────────────────────── -->
+    <!-- ── Calendar Card ─────────────────────────────────────────────────── -->
     <div class="calendar-card">
 
       <!-- Toolbar -->
@@ -38,27 +38,6 @@
             </button>
           </div>
           <h2 class="cal-title">{{ currentMonthLabel }} {{ selectedYear }}</h2>
-        </div>
-
-        <div class="cal-rate-wrap">
-          <div class="cal-rate-donut">
-            <svg viewBox="0 0 70 70">
-              <circle cx="35" cy="35" r="28" fill="none" stroke="#e2e8f0" stroke-width="6"/>
-              <circle cx="35" cy="35" r="28" fill="none"
-                      stroke="#1e3a5f" stroke-width="6"
-                      stroke-linecap="round"
-                      [attr.stroke-dasharray]="strokeDasharray"
-                      transform="rotate(-90 35 35)"/>
-            </svg>
-            <div class="cal-rate-inner">
-              <span class="rate-num">{{ attendanceRate }}%</span>
-              <span class="rate-lbl">Rate</span>
-            </div>
-          </div>
-          <div class="cal-rate-info">
-            <p class="rate-info-main">Attendance Rate</p>
-            <p class="rate-info-sub">For {{ currentMonthLabel }} {{ selectedYear }}</p>
-          </div>
         </div>
       </div>
 
@@ -99,10 +78,10 @@
                [class.cal-cell--empty]="cell.status === 'empty'"
                [class.cal-cell--today]="cell.isToday"
                [class.cal-cell--weekend]="cell.status === 'weekend' || cell.status === 'future'"
-               [class.cal-cell--clickable]="cell.clickable"
+               
                [matTooltip]="getTooltip(cell)"
                matTooltipPosition="above"
-               (click)="onDayClick(cell)">
+              >
 
             <div class="cell-top" *ngIf="cell.day">
               <span class="cell-day"
@@ -139,7 +118,7 @@
 
     </div>
 
-    <!-- ── Stat Cards (SECOND) ────────────────────────────────────────────── -->
+    <!-- ── Stat Cards ─────────────────────────────────────────────────────── -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-icon-wrap stat-present"><mat-icon>check_circle</mat-icon></div>
@@ -192,39 +171,6 @@
       </div>
     </div>
 
-    <!-- ── Dark Bar Chart (THIRD) ─────────────────────────────────────────── -->
-    <div class="dark-chart-card">
-      <div class="dark-chart-header">
-        <h3 class="dark-chart-title">Attendance Sheet</h3>
-        <p class="dark-chart-sub">Keep track of attendance</p>
-      </div>
-
-      <div class="dark-chart-body">
-        <!-- Y-axis -->
-        <div class="y-axis">
-          <span *ngFor="let tick of yTicks">{{ tick }}</span>
-        </div>
-
-        <!-- Bars area -->
-        <div class="bars-area">
-          <!-- Horizontal grid lines -->
-          <div class="grid-lines">
-            <div *ngFor="let tick of yTicks" class="grid-line"
-                 [style.bottom.%]="yMax > 0 ? (tick / yMax) * 100 : 0"></div>
-          </div>
-
-        <div class="bar-group" *ngFor="let b of statusBars">
-  <div class="bar-track">
-    <div class="bar"
-         [style.height.%]="yMax > 0 ? (b.value / yMax) * 100 : 0"
-         [style.background]="b.color">
-    </div>
-  </div>
-  <span class="bar-label" [style.color]="b.color">{{ b.label }}</span>
-</div>
-        </div>
-      </div>
-    </div>
-
   </ng-container>
+
 </div>
