@@ -5,10 +5,9 @@ import { DemotivationScore } from '../models/demotivation.model';
 @Component({
   selector: 'app-demotivation-dashboard',
   templateUrl: './demotivation-dashboard.component.html',
-  styleUrls: ['./demotivation-dashboard.component.scss']
+  styleUrls: ['./demotivation-dashboard.component.scss'],
 })
 export class DemotivationDashboardComponent implements OnInit {
-
   scores: DemotivationScore[] = [];
   loading = false;
   error = '';
@@ -32,28 +31,26 @@ export class DemotivationDashboardComponent implements OnInit {
     this.loading = true;
     this.error = '';
     this.demotivationService.getAllScores(this.month, this.year).subscribe({
-      next: (data) => {
+      next: data => {
         this.scores = data;
-        this.countEleve  = data.filter(s => s.level === 'ÉLEVÉ').length;
-        this.countMoyen  = data.filter(s => s.level === 'MOYEN').length;
+        this.countEleve = data.filter(s => s.level === 'ÉLEVÉ').length;
+        this.countMoyen = data.filter(s => s.level === 'MOYEN').length;
         this.countFaible = data.filter(s => s.level === 'FAIBLE').length;
         this.loading = false;
       },
-      error: (err) => {
+      error: err => {
         this.error = 'Erreur lors du chargement des scores.';
         this.loading = false;
         console.error(err);
-      }
+      },
     });
   }
 
   // Classe CSS du badge selon le niveau
   levelClass(level: string): string {
-    switch (level) {
-      case 'ÉLEVÉ': return 'badge-eleve';
-      case 'MOYEN': return 'badge-moyen';
-      default:      return 'badge-faible';
-    }
+    if (level === 'ÉLEVÉ') return 'badge-eleve';
+    if (level === 'MOYEN') return 'badge-moyen';
+    return 'badge-faible';
   }
 
   // Score affiché en pourcentage

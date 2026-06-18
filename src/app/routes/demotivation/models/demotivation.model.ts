@@ -1,7 +1,7 @@
 export interface DemotivationScore {
   userId: number;
   userFullName: string;
-  score: number;           // 0.0 à 1.0
+  score: number;
   level: 'FAIBLE' | 'MOYEN' | 'ÉLEVÉ';
   breakdown: {
     absence: number;
@@ -9,4 +9,7 @@ export interface DemotivationScore {
     demiJournee: number;
     departAnticipe: number;
   };
+  mlArisque: boolean | null;
+  mlProba: number | null;
+  verdictHybride: boolean | null;
 }

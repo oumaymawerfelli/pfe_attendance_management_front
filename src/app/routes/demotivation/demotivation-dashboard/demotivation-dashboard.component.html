@@ -28,17 +28,51 @@
   <!-- Tableau de classement -->
   <table *ngIf="!loading && !error" class="scores-table">
     <thead>
-      <tr>
-        <th>Employé</th>
-        <th>Niveau</th>
-        <th>Score</th>
-        <th>Absence</th>
-        <th>Retard</th>
-        <th>Demi-journées</th>
-        <th>Départs anticipés</th>
-      </tr>
-    </thead>
-    <tbody>
+  <tr>
+    <th>Employé</th>
+    <th>Niveau</th>
+    <th>Score</th>
+    <th>Absence</th>
+    <th>Retard</th>
+    <th>Demi-journées</th>
+    <th>Départs anticipés</th>
+    <th>IA — Probabilité</th>
+    <th>Verdict Final</th>
+  </tr>
+</thead>
+<tbody>
+  <tr *ngFor="let s of scores">
+    <td class="name-cell">{{ s.userFullName }}</td>
+    <td>
+      <span class="badge" [ngClass]="levelClass(s.level)">{{ s.level }}</span>
+    </td>
+    <td class="score-cell">
+      <div class="score-bar-bg">
+        <div class="score-bar-fill" [ngClass]="levelClass(s.level)"
+             [style.width.%]="asPercent(s.score)"></div>
+      </div>
+      <span class="score-value">{{ asPercent(s.score) }}%</span>
+    </td>
+    <td>{{ asPercent(s.breakdown.absence) }}%</td>
+    <td>{{ asPercent(s.breakdown.retard) }}%</td>
+    <td>{{ asPercent(s.breakdown.demiJournee) }}%</td>
+    <td>{{ asPercent(s.breakdown.departAnticipe) }}%</td>
+    <td class="ml-proba">
+      <span *ngIf="s.mlProba !== null; else naBlock">
+        {{ (s.mlProba! * 100).toFixed(1) }}%
+      </span>
+      <ng-template #naBlock>—</ng-template>
+    </td>
+    <td>
+      <span *ngIf="s.verdictHybride !== null; else naVerdict"
+            class="badge"
+            [ngClass]="s.verdictHybride ? 'badge-eleve' : 'badge-faible'">
+        {{ s.verdictHybride ? '⚠️ À risque' : '✅ Sain' }}
+      </span>
+      <ng-template #naVerdict>—</ng-template>
+    </td>
+  </tr>
+</tbody>
       <tr *ngFor="let s of scores">
         <td class="name-cell">{{ s.userFullName }}</td>
         <td>
@@ -55,8 +89,22 @@
         <td>{{ asPercent(s.breakdown.retard) }}%</td>
         <td>{{ asPercent(s.breakdown.demiJournee) }}%</td>
         <td>{{ asPercent(s.breakdown.departAnticipe) }}%</td>
+        <td class="ml-proba">
+          <span *ngIf="s.mlProba !== null; else naBlock">
+            {{ (s.mlProba! * 100).toFixed(1) }}%
+          </span>
+          <ng-template #naBlock>—</ng-template>
+        </td>
+        <td>
+          <span *ngIf="s.verdictHybride !== null; else naVerdict"
+                class="badge"
+                [ngClass]="s.verdictHybride ? 'badge-eleve' : 'badge-faible'">
+            {{ s.verdictHybride ? '⚠️ À risque' : '✅ Sain' }}
+          </span>
+          <ng-template #naVerdict>—</ng-template>
+        </td>
       </tr>
-    </tbody>
+
   </table>
 
 </div>
