@@ -5,10 +5,15 @@ pipeline {
         nodejs 'Node18'
     }
 
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '3'))
+        disableConcurrentBuilds()
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
     environment {
         IMAGE_NAME = 'mon-frontend'
     }
-
     stages {
 
         stage('1️ Checkout') {

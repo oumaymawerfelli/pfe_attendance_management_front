@@ -1,5 +1,4 @@
 node_modules/
-dist/
 .git/
 .gitignore
 .angular/
@@ -7,6 +6,12 @@ dist/
 .vscode/
 .idea/
 README.md
-Dockerfile
 .dockerignore
 .env
+src/
+e2e/
+coverage/
+angular.json
+tsconfig*.json
+package*.json
+yarn.lock
