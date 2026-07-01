@@ -1,78 +1,109 @@
 <div class="demotivation-container">
 
+  <!-- ===== HEADER WITH CONTROLS ===== -->
   <header class="page-header">
-    <h2>Analyse de la démotivation</h2>
-    <p class="subtitle">Scores calculés sur les indicateurs de présence — Mai {{ year }}</p>
+    <div class="header-left">
+      <h2>📊 Demotivation Analysis</h2>
+      <p class="subtitle">Scores calculated from attendance indicators — <strong>{{ monthName }} {{ year }}</strong></p>
+    </div>
+    <div class="header-right">
+      <div class="month-selector">
+        <button class="month-btn" (click)="previousMonth()">‹</button>
+        <span class="month-label">{{ monthName }} {{ year }}</span>
+        <button class="month-btn" (click)="nextMonth()">›</button>
+      </div>
+      <button class="btn-refresh" (click)="loadScores()" title="Refresh">
+        🔄
+      </button>
+    </div>
   </header>
 
-  <!-- Cartes de résumé -->
+  <!-- ===== SUMMARY CARDS WITH ICONS ===== -->
   <div class="summary-cards">
-    <div class="card card-eleve">
-      <span class="card-count">{{ countEleve }}</span>
-      <span class="card-label">Risque élevé</span>
+    <div class="card card-eleve" [style.--delay]="'0.1s'">
+      <div class="card-icon">🔴</div>
+      <div class="card-content">
+        <span class="card-count">{{ countEleve }}</span>
+        <span class="card-label">High Risk</span>
+        <span class="card-sub">Top priority</span>
+      </div>
+      <div class="card-trend" *ngIf="countEleve > 0">
+        <span class="trend-up">↑ {{ countEleve }} employees</span>
+      </div>
     </div>
-    <div class="card card-moyen">
-      <span class="card-count">{{ countMoyen }}</span>
-      <span class="card-label">À surveiller</span>
+
+    <div class="card card-moyen" [style.--delay]="'0.2s'">
+      <div class="card-icon">🟡</div>
+      <div class="card-content">
+        <span class="card-count">{{ countMoyen }}</span>
+        <span class="card-label">To Monitor</span>
+        <span class="card-sub">Attention needed</span>
+      </div>
+      <div class="card-trend" *ngIf="countMoyen > 0">
+        <span class="trend-neutral">~ {{ countMoyen }} employees</span>
+      </div>
     </div>
-    <div class="card card-faible">
-      <span class="card-count">{{ countFaible }}</span>
-      <span class="card-label">Sains</span>
+
+    <div class="card card-faible" [style.--delay]="'0.3s'">
+      <div class="card-icon">🟢</div>
+      <div class="card-content">
+        <span class="card-count">{{ countFaible }}</span>
+        <span class="card-label">Healthy</span>
+        <span class="card-sub">Stable motivation</span>
+      </div>
+      <div class="card-trend" *ngIf="countFaible > 0">
+        <span class="trend-down">↓ {{ countFaible }} employees</span>
+      </div>
     </div>
   </div>
 
-  <!-- États de chargement / erreur -->
-  <div *ngIf="loading" class="state-msg">Chargement…</div>
-  <div *ngIf="error" class="state-msg error">{{ error }}</div>
+  <!-- ===== LOADING STATES ===== -->
+  <div *ngIf="loading" class="state-msg">
+    <span class="spinner"></span> Loading data…
+  </div>
+  <div *ngIf="error" class="state-msg error">
+    ⚠️ {{ error }}
+  </div>
 
-  <!-- Tableau de classement -->
+  <!-- ===== TABLE CONTROLS ===== -->
+  <div *ngIf="!loading && !error" class="table-controls">
+    <div class="controls-left">
+      <button class="btn btn-primary" (click)="sortByMlProba()">
+        📊 {{ sortAscending ? '↑' : '↓' }} Sort by AI
+      </button>
+      <button class="btn btn-filter" [class.active]="filterActive" (click)="toggleFilterByMlRisk()">
+        {{ filterActive ? '🔍 View all' : '🎯 AI Risks' }}
+      </button>
+      <button class="btn btn-reset" (click)="resetFilters()">
+        🔄 Reset
+      </button>
+    </div>
+    <div class="controls-right">
+      <span class="filter-info" *ngIf="filterActive">
+        📌 <strong>{{ scores.length }}</strong> / {{ originalScores.length }} employees
+      </span>
+      <span class="filter-info" *ngIf="!filterActive">
+        👥 {{ scores.length }} employees
+      </span>
+    </div>
+  </div>
+
+  <!-- Ranking table -->
   <table *ngIf="!loading && !error" class="scores-table">
     <thead>
-  <tr>
-    <th>Employé</th>
-    <th>Niveau</th>
-    <th>Score</th>
-    <th>Absence</th>
-    <th>Retard</th>
-    <th>Demi-journées</th>
-    <th>Départs anticipés</th>
-    <th>IA — Probabilité</th>
-    <th>Verdict Final</th>
-  </tr>
-</thead>
-<tbody>
-  <tr *ngFor="let s of scores">
-    <td class="name-cell">{{ s.userFullName }}</td>
-    <td>
-      <span class="badge" [ngClass]="levelClass(s.level)">{{ s.level }}</span>
-    </td>
-    <td class="score-cell">
-      <div class="score-bar-bg">
-        <div class="score-bar-fill" [ngClass]="levelClass(s.level)"
-             [style.width.%]="asPercent(s.score)"></div>
-      </div>
-      <span class="score-value">{{ asPercent(s.score) }}%</span>
-    </td>
-    <td>{{ asPercent(s.breakdown.absence) }}%</td>
-    <td>{{ asPercent(s.breakdown.retard) }}%</td>
-    <td>{{ asPercent(s.breakdown.demiJournee) }}%</td>
-    <td>{{ asPercent(s.breakdown.departAnticipe) }}%</td>
-    <td class="ml-proba">
-      <span *ngIf="s.mlProba !== null; else naBlock">
-        {{ (s.mlProba! * 100).toFixed(1) }}%
-      </span>
-      <ng-template #naBlock>—</ng-template>
-    </td>
-    <td>
-      <span *ngIf="s.verdictHybride !== null; else naVerdict"
-            class="badge"
-            [ngClass]="s.verdictHybride ? 'badge-eleve' : 'badge-faible'">
-        {{ s.verdictHybride ? '⚠️ À risque' : '✅ Sain' }}
-      </span>
-      <ng-template #naVerdict>—</ng-template>
-    </td>
-  </tr>
-</tbody>
+      <tr>
+        <th>Employee</th>
+        <th>Level</th>
+        <th>Score</th>
+        <th>Absence</th>
+        <th>Lateness</th>
+        <th>Half-days</th>
+        <th>Early Departures</th>
+        <th>AI — Probability</th>
+        <th>Final Verdict</th>
+      </tr>
+    </thead>
+    <tbody>
       <tr *ngFor="let s of scores">
         <td class="name-cell">{{ s.userFullName }}</td>
         <td>
@@ -99,12 +130,12 @@
           <span *ngIf="s.verdictHybride !== null; else naVerdict"
                 class="badge"
                 [ngClass]="s.verdictHybride ? 'badge-eleve' : 'badge-faible'">
-            {{ s.verdictHybride ? '⚠️ À risque' : '✅ Sain' }}
+            {{ s.verdictHybride ? '⚠️ At risk' : '✅ Healthy' }}
           </span>
           <ng-template #naVerdict>—</ng-template>
         </td>
       </tr>
-
+    </tbody>
   </table>
 
 </div>

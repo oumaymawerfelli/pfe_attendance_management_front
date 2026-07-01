@@ -10,6 +10,8 @@ export enum LeaveType {
   ANNUAL = 'ANNUAL',
   SICK = 'SICK',
   UNPAID = 'UNPAID',
+    EXIT_AUTHORIZATION = 'EXIT_AUTHORIZATION',   // ← new
+
 }
 
 /**
@@ -89,7 +91,11 @@ export interface LeaveRequest {
   duration:  number;      // NEW — working days, calculated on the frontend
   reason:    string;
   attachmentType?: string;
+    // ── Exit Authorization only ──
+  exitTime?:   string;   // 'HH:mm'  — used when leaveType === EXIT_AUTHORIZATION
+  returnTime?: string;   // 'HH:mm'
 }
+
 
 
 // ─────────────────────────────────────────────
@@ -194,6 +200,10 @@ export const LEAVE_TYPE_OPTIONS: {
   { type: LeaveType.SICK,   label: 'Sick Leave',   description: '15 days / year', icon: 'thermostat'   },
   { type: LeaveType.UNPAID, label: 'Unpaid Leave', description: 'Unlimited',      icon: 'wallet'        },
 ];
+
+
+export const EXIT_AUTH_LABEL = 'Exit Authorization';
+
 
 /**
  * Maps WorkflowStep enum values to human-readable labels for the approval panel.

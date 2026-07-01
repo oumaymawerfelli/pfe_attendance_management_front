@@ -26,7 +26,7 @@ const routes: Routes = [
       { path: '',                  redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard',         component: DashboardComponent },
       { path: 'dashboard/presence-sheet', component: PresenceSheetComponent }, 
-      { path: 'demotivation',      component: DemotivationDashboardComponent },
+      
       { path: '403',               component: Error403Component },
       { path: '404',               component: Error404Component },
       { path: '500',               component: Error500Component },
@@ -47,6 +47,8 @@ const routes: Routes = [
         path: 'my-documents',
         loadChildren: () => import('./admin/employee-documents.module').then(m => m.EmployeeDocumentsModule),
       },
+      
+
       {
         path: 'notifications',
         loadChildren: () => import('./Notification/notifications.module').then(m => m.NotificationsModule),
@@ -67,6 +69,22 @@ const routes: Routes = [
         path: 'projects',
         loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule),
       },
+      {
+  path: 'ai',
+  children: [
+    {
+      path: 'rag',
+      loadComponent: () => import('./admin/rag-admin/rag-admin.component')
+        .then(m => m.RagAdminComponent),
+      canActivate: [authGuard]
+    },
+    {
+      path: 'demotivation',
+      component: DemotivationDashboardComponent,
+      canActivate: [authGuard]
+    },
+  ]
+}
     ],
   },
   {

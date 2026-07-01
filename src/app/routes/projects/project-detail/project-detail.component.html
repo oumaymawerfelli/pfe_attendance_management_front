@@ -13,7 +13,7 @@
       <span class="breadcrumb-current">Project Details</span>
     </div>
 
-    <div class="top-actions" *ngIf="isAdminOrGM">
+    <div class="top-actions" *ngIf="isGM ">
       <button class="action-btn-outline edit" (click)="editProject()">
         <mat-icon>edit</mat-icon> Edit Project
       </button>
@@ -96,7 +96,7 @@
       </div>
 
       <!-- Update Status -->
-      <div class="section-card" *ngIf="isAdminOrGM">
+      <div class="section-card" *ngIf="isGM ">
         <div class="section-header">
           <div class="section-icon-wrap"><mat-icon>flag</mat-icon></div>
           <div>

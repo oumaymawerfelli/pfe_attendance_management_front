@@ -10,6 +10,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatIconModule }  from '@angular/material/icon';
 import { Chart, registerables } from 'chart.js';
 import { environment } from '@env/environment';
+import { Router } from '@angular/router';
 
 Chart.register(...registerables);
 
@@ -79,7 +80,7 @@ export class AttendanceOverviewComponent
   private charts:   Chart[] = [];
   private viewReady = false;
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef,  private router: Router) {}
 
   ngOnInit(): void {
     this.activePeriod = toPeriod(this.period);
@@ -112,6 +113,9 @@ export class AttendanceOverviewComponent
     this.periodChange.emit(p);
     this.load();
   }
+  goToDemotivation(): void {
+  this.router.navigate(['/demotivation']);
+}
 
   // ── Derived getters ────────────────────────────────────────────────────────
 

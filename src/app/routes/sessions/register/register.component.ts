@@ -26,7 +26,17 @@ const CONTRACT_TYPES: ContractType[] = [
   'MISSION',
   'FREELANCE',
   'ESSAI'
-];const DEPARTMENTS = ['IT', 'HR', 'FINANCE', 'OPERATIONS', 'MARKETING', 'ADMIN'];
+];
+const DEPARTMENTS = [
+  'IT',
+  'HR', 
+  'FINANCE',
+  'MARKETING',
+  'SALES',
+  'OPERATIONS',
+  'RESEARCH_DEVELOPMENT',
+  'CUSTOMER_SERVICE'
+];
 
 @Component({
   selector: 'app-register',

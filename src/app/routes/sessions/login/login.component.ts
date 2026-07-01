@@ -50,56 +50,69 @@ export class LoginComponent {
     return this.loginForm.get('rememberMe')!;
   }
 
-  login() {
-    if (this.loginForm.invalid) {
-      this.markFormGroupTouched(this.loginForm);
-      return;
-    }
-
-    this.isSubmitting = true;
-    const email = this.username.value.trim();
-    const password = this.password.value.trim();
-
-    this.auth
-      .login(email, password, this.rememberMe.value)
-      .pipe(
-        filter((authenticated: any) => authenticated),
-
-        // 1. Trigger check-in (silent)
-        switchMap(() => this.attendanceService.checkIn().pipe(catchError(() => of(null)))),
-
-        // 2. Check for missed checkout yesterday
-        switchMap(() =>
-          this.attendanceService.hasMissedCheckout().pipe(catchError(() => of(false)))
-        )
-      )
-      .subscribe({
-        next: (hasMissed: boolean) => {
-          this.isSubmitting = false;
-          this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
-
-          // 3. Start overtime check
-          this.overtimeCheckService.startChecking();
-
-          if (hasMissed) {
-            const dialogRef = this.dialog.open(MissedCheckoutDialogComponent, {
-              width: '400px',
-              disableClose: true,
-            });
-            dialogRef.afterClosed().subscribe(() => {
-              this.router.navigateByUrl('/dashboard');
-            });
-          } else {
-            this.router.navigateByUrl('/dashboard');
-          }
-        },
-        error: (errorRes: HttpErrorResponse) => {
-          this.isSubmitting = false;
-          const errorMessage = errorRes.error?.message || 'Login failed';
-          this.snackBar.open(errorMessage, 'Close', { duration: 5000 });
-        },
-      });
+ login() {
+  if (this.loginForm.invalid) {
+    this.markFormGroupTouched(this.loginForm);
+    return;
   }
+
+  this.isSubmitting = true;
+  const email = this.username.value.trim();
+  const password = this.password.value.trim();
+
+  this.auth
+    .login(email, password, this.rememberMe.value)
+    .pipe(
+      // ✅ Real HTTP errors now propagate naturally — no need to throw manually
+      switchMap(() => this.attendanceService.checkIn().pipe(catchError(() => of(null)))),
+      switchMap(() =>
+        this.attendanceService.hasMissedCheckout().pipe(catchError(() => of(false)))
+      )
+    )
+    .subscribe({
+      next: (hasMissed: boolean) => {
+        this.isSubmitting = false;
+        this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
+        this.overtimeCheckService.startChecking();
+
+        if (hasMissed) {
+          const dialogRef = this.dialog.open(MissedCheckoutDialogComponent, {
+            width: '400px',
+            disableClose: true,
+          });
+          dialogRef.afterClosed().subscribe(() => {
+            this.router.navigateByUrl('/dashboard');
+          });
+        } else {
+          this.router.navigateByUrl('/dashboard');
+        }
+      },
+      error: (errorRes: HttpErrorResponse) => {
+        this.isSubmitting = false;
+
+        const message = errorRes.error?.message
+                     || errorRes.error?.error
+                     || this.getDefaultErrorMessage(errorRes.status);
+
+        this.snackBar.open(message, 'Close', {
+          duration: 5000,
+          panelClass: ['error-snackbar'],
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+        });
+      },
+    });
+}
+
+private getDefaultErrorMessage(status: number): string {
+  switch (status) {
+    case 0:   return 'Unable to reach the server. Check your connection.';
+    case 401: return 'Incorrect email or password.';
+    case 403: return 'Access denied. Your account may be disabled.';
+    case 500: return 'Server error. Please try again in a moment.';
+    default:  return 'Login failed. Please try again.';
+  }
+}
 
   private markFormGroupTouched(formGroup: any) {
     Object.values(formGroup.controls).forEach((control: any) => {

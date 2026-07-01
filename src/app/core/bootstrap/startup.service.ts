@@ -59,11 +59,19 @@ export class StartupService {
     }
 
     // ── Remove notifications from sidebar ─────────────
-    // Notifications are accessible via the topbar bell icon only.
     menu = menu.filter(item =>
       !['notifications', 'notification'].includes((item.route ?? '').toLowerCase())
     );
-    // ──────────────────────────────────────────────────
+
+    // ✅ FORCE icons on AI submenu children
+    menu.forEach(item => {
+      if (item.route === 'ai' && item.children) {
+        item.children.forEach(child => {
+          if (child.route === 'rag') child.icon = 'smart_toy';
+          if (child.route === 'demotivation') child.icon = 'insights';
+        });
+      }
+    });
 
     const userRoles: string[] = (this.currentUser?.roles ?? []).map((r: any) =>
       (typeof r === 'string' ? r : r.name?.name ?? r.name ?? '').replace(/^ROLE_/, '')

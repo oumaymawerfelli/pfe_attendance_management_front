@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-change-password',
+  host: { class: 'security-settings-page' },
   template: `
     <mat-card class="password-card">
       <mat-card-header>
@@ -110,14 +111,19 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     </mat-card>
   `,
   styles: [`
-   :host {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 80vh;
-  }
+    :host {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 64px);
+      background-image: url('/assets/images/background2.png');
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+    }
+
     .password-card {
-       width: 600px; 
+      width: 700px;
     }
 
     .form-container {

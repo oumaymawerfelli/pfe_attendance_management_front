@@ -50,31 +50,39 @@ export class ErrorInterceptor implements HttpInterceptor {
     return this.publicRoutes.some(route => url.includes(route));
   }
 
-  private handleError(error: HttpErrorResponse) {
-    // 🔥 Don't redirect or toast errors when on public pages (login, activate, register)
-    // Background calls (notifications, etc) shouldn't kick the user around
-    if (this.isOnPublicRoute()) {
-      console.warn(`Suppressed ${error.status} error on public route:`, error.url);
-      return throwError(() => error);
-    }
-
-    if (this.errorPages.includes(error.status)) {
-      this.router.navigateByUrl(`/${error.status}`, {
-        skipLocationChange: true,
-      });
-    } else {
-      console.error('ERROR', error);
-      this.toast.error(this.getMessage(error));
-
-      if (error.status === STATUS.UNAUTHORIZED) {
-        console.log('🔐 Token invalid - clearing and redirecting to login');
-        localStorage.removeItem('ng-matero-token');
-        localStorage.removeItem('currentUser');
-        this.tokenService.clear();
-        this.router.navigateByUrl('/auth/login');
-      }
-    }
-
+private handleError(error: HttpErrorResponse) {
+  // Don't redirect or toast errors when on public pages
+  if (this.isOnPublicRoute()) {
+    console.warn(`Suppressed ${error.status} error on public route:`, error.url);
     return throwError(() => error);
   }
+
+  if (this.errorPages.includes(error.status)) {
+    this.router.navigateByUrl(`/${error.status}`, {
+      skipLocationChange: true,
+    });
+  } else {
+    console.error('ERROR', error);
+    this.toast.error(this.getMessage(error));
+
+    // ✅ Only force logout on 401 from actual auth endpoints.
+    //    A 401 on /api/leaves/request etc. doesn't mean the token is bad.
+    if (error.status === STATUS.UNAUTHORIZED && this.isAuthEndpoint(error.url)) {
+      console.log('🔐 Token invalid - clearing and redirecting to login');
+      localStorage.removeItem('ng-matero-token');
+      localStorage.removeItem('currentUser');
+      this.tokenService.clear();
+      this.router.navigateByUrl('/auth/login');
+    }
+  }
+
+  return throwError(() => error);
+}
+
+private isAuthEndpoint(url: string | null): boolean {
+  if (!url) return false;
+  return url.includes('/api/auth/me')
+      || url.includes('/api/auth/refresh')
+      || url.includes('/api/auth/validate');
+}
 }

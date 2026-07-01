@@ -32,7 +32,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   isLoadingTeam    = true;
   isLoadingHistory = false;
 
-  isAdminOrGM   = false;
+  isGM    = false;
   canManageTeam = false;
 
   private destroy$ = new Subject<void>();
@@ -70,19 +70,19 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   // ── Role resolution ───────────────────────────────────────────────────────
 
-  private resolveRoles(): void {
-    this.authService.user()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (user: any) => {
-          if (!user) return;
-          const roles = this.extractRoleNames(user);
-          this.isAdminOrGM   = roles.some(r => r.includes('ADMIN') || r.includes('GENERAL_MANAGER'));
-          this.canManageTeam = roles.some(r =>
-            r.includes('ADMIN') || r.includes('GENERAL_MANAGER') || r.includes('PROJECT_MANAGER'),
-          );
-        },
-        error: () => { this.isAdminOrGM = false; this.canManageTeam = false; },
+ private resolveRoles(): void {
+  this.authService.user()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (user: any) => {
+        if (!user) return;
+        const roles = this.extractRoleNames(user);
+        this.isGM = roles.some(r => r.includes('GENERAL_MANAGER'));  // ← retire ADMIN
+        this.canManageTeam = roles.some(r =>
+          r.includes('GENERAL_MANAGER') || r.includes('PROJECT_MANAGER'),  // ← retire ADMIN
+        );
+      },
+      error: () => { this.isGM = false; this.canManageTeam = false; },
       });
   }
 

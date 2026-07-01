@@ -11,7 +11,7 @@ import { LeaveDocument }   from '../../../admin/models/leave-document.model';
 
 import { LeaveService } from '../../services/leave.service';
 import { AuthService } from '@core/authentication/auth.service';
-import { LeavePdfService, LeaveDocumentData } from '../../services/leave-pdf.service';
+
 import {
   LeaveRecord,
   LeaveStatus,
@@ -89,7 +89,7 @@ loadingDocs = false;
     private leaveService: LeaveService,
     private authService: AuthService,
     private documentService: DocumentService,
-    private pdfService: LeavePdfService,
+    
   ) {
     this.leave = data.leave;
     this.mode  = data.mode  ?? 'view';
@@ -181,56 +181,29 @@ confirmApprove(): void {
 
   const signatureBase64 = this.signaturePad.toDataURL('image/png');
 
+  // Step 1 — approve the leave (backend marks it as APPROVED)
   const approve$ = this.isPM
     ? this.leaveService.approveTeamLeave(this.leave.id)
     : this.leaveService.approveLeave(this.leave.id);
 
   approve$.pipe(
-    switchMap(updated => {
-      // Generate the PDF blob on the frontend
-      const pdfBlob = this.pdfService.generateBlob({
-        leaveId:            this.leave.id,
-        employeeFullName:   this.leave.userFullName,
-        employeeDepartment: this.leave.userDepartment ?? '—',
-        employeeJobTitle:   this.leave.userJobTitle,
-        leaveType:          this.leave.leaveType,
-        startDate:          updated.startDate ?? this.leave.startDate,
-        endDate:            updated.endDate   ?? this.leave.endDate,
-        daysCount:          this.leave.daysCount,
-        reason:             this.leave.reason ?? '—',
-        requestDate:        this.leave.startDate,
-        approverFullName:   this.approverFullName,
-        approverRole:       this.approverRole,
-        approvalDate:       new Date().toISOString().split('T')[0],
-        signatureDataUrl:   signatureBase64,
-        companyName:        'Arab Soft',   // ← your company name
-      });
-
-      // Upload to backend — saves to leave_documents table
-      return this.leaveService.uploadAuthorizationLetter(this.leave.id, pdfBlob).pipe(
-  map(() => updated)
-);
-    }),
+    // Step 2 — backend Jasper generates the official ArabSoft PDF
+    //          (auto-detects EXIT_AUTHORIZATION vs leave types)
+    switchMap(updated =>
+      this.leaveService.generateDocument(this.leave.id, {
+        startDate:       updated.startDate ?? this.leave.startDate,
+        endDate:         updated.endDate   ?? this.leave.endDate,
+        reason:          this.leave.reason ?? '',
+        signatureBase64: signatureBase64,
+        approvedBy:      this.approverFullName,
+        approvalDate:    new Date().toISOString().split('T')[0],
+      }).pipe(map(() => updated))
+    ),
     takeUntil(this.destroy$),
   ).subscribe({
     next: updated => {
-      // Also trigger browser download
-      this.pdfService.generateAndDownload({
-        leaveId:            this.leave.id,
-        employeeFullName:   this.leave.userFullName,
-        employeeDepartment: this.leave.userDepartment ?? '—',
-        leaveType:          this.leave.leaveType,
-        startDate:          updated.startDate ?? this.leave.startDate,
-        endDate:            updated.endDate   ?? this.leave.endDate,
-        daysCount:          this.leave.daysCount,
-        reason:             this.leave.reason ?? '—',
-        requestDate:        this.leave.startDate,
-        approverFullName:   this.approverFullName,
-        approverRole:       this.approverRole,
-        approvalDate:       new Date().toISOString().split('T')[0],
-        signatureDataUrl:   signatureBase64,
-        companyName:        'Arab Soft',
-      });
+      // Step 3 — open the freshly generated PDF in a new tab
+      this.leaveService.openDocument(this.leave.id);
       this.dialogRef.close({ action: 'approved', leave: updated });
     },
     error: err => {
@@ -239,7 +212,6 @@ confirmApprove(): void {
     },
   });
 }
-
   // ── Reject flow ───────────────────────────────────────────────────────────
 
   showRejectForm(): void { this.rejecting = true; }

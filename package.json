@@ -51,7 +51,6 @@
     "angular-in-memory-web-api": "~0.16.0",
     "apexcharts": "^3.43.0",
     "chart.js": "^4.5.1",
-    "jspdf": "^4.2.1",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.41",
     "ngx-permissions": "^16.0.1",

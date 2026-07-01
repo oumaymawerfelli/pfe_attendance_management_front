@@ -1,48 +1,34 @@
-<!-- ── Page header ──────────────────────────────────────────────────────────── -->
 <div class="page-header">
-
   <div class="page-header__left">
     <div class="page-header__breadcrumb">
       <span>Home</span>
       <mat-icon>chevron_right</mat-icon>
       <span>My Space</span>
       <mat-icon>chevron_right</mat-icon>
-      <span class="active">Leave Request</span>
+      <span class="active">{{ activeTabLabel }}</span>
     </div>
-
     <div class="page-header__title">
-      <h1>{{ activeTab === 0 ? 'Request Leave' : 'My Requests' }}</h1>
-      <p>{{ activeTab === 0 ? 'Submit and track your time off requests' : 'Your leave history and request status' }}</p>
+      <h1>{{ activeTabLabel }}</h1>
+      <p>{{ activeTabSubtitle }}</p>
     </div>
   </div>
 
-  <!-- Context-aware action button -->
   <div class="page-header__actions">
-    <button mat-stroked-button
-            *ngIf="activeTab === 0"
-            (click)="goToRequests()">
+    <button mat-stroked-button *ngIf="activeTab !== 2" (click)="activeTab = 2">
       <mat-icon>list_alt</mat-icon>
       View My Requests
     </button>
-
-    <button mat-stroked-button
-            *ngIf="activeTab === 1"
-            (click)="goToForm()">
+    <button mat-stroked-button *ngIf="activeTab === 2" (click)="activeTab = 0">
       <mat-icon>add</mat-icon>
       New Request
     </button>
   </div>
-
 </div>
 
-<!-- ── Tab group ────────────────────────────────────────────────────────────── -->
 <mat-card class="page-card">
-  <mat-tab-group
-    animationDuration="200ms"
-    color="primary"
-    [(selectedIndex)]="activeTab">
+  <mat-tab-group animationDuration="200ms" color="primary" [(selectedIndex)]="activeTab">
 
-    <!-- Tab 0: Request Leave ──────────────────────────────────────────────── -->
+    <!-- Tab 0: Request Leave -->
     <mat-tab label="Request Leave">
       <div class="tab-body">
         <app-leave-request-form
@@ -52,14 +38,18 @@
       </div>
     </mat-tab>
 
-    <!-- Tab 1: My Requests ───────────────────────────────────────────────── -->
+    <!-- Tab 1: Exit Authorization ← NEW -->
+    <mat-tab label="Exit Authorization">
+      <div class="tab-body">
+        <app-exit-authorization-form
+          (submitted)="onExitSubmitted()">
+        </app-exit-authorization-form>
+      </div>
+    </mat-tab>
+
+    <!-- Tab 2: My Requests -->
     <mat-tab label="My Requests">
       <div class="tab-body">
-        <!--
-          Balance cards are shown here (not above the tabs) because the
-          request form already has a live balance sidebar.
-          Seeing them on the history tab gives context without duplication.
-        -->
         <app-leave-balance-cards class="m-b-20"></app-leave-balance-cards>
         <app-leave-history></app-leave-history>
       </div>

@@ -11,16 +11,17 @@
       <div class="brand-dots"></div>
       <img src="assets/images/logo1.webp" alt="Arab Soft" class="brand-logo">
       <div class="brand-tagline">
-        <span class="tagline-strong">Smart Solutions.</span>
-        <span class="tagline-strong">Stronger Teams.</span>
+        <span class="tagline-strong">Respecting Time.</span>
+        <span class="tagline-strong"> Rewarding Teams.</span>
         <div class="tagline-underline"></div>
       </div>
     </div>
 
     <!-- Right half: form panel -->
     <div class="form-panel">
-      <h2 class="form-title">{{ 'WELCOME_BACK' | translate }}</h2>
-      <p class="form-subtitle">{{ 'SIGN_IN_SUBTITLE' | translate }}</p>
+      <h2 class="form-title">{{ 'WELCOME ' | translate }}</h2>
+      
+      <p class="form-subtitle">{{ 'Enter your email and password to continue' | translate }}</p>
 
       <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate class="login-form">
 
@@ -66,9 +67,9 @@
           <mat-checkbox formControlName="rememberMe" color="primary">
             {{ 'remember_me' | translate }}
           </mat-checkbox>
-          <a routerLink="/auth/forgot-password" class="forgot-link">
+         <!-- <a routerLink="/auth/forgot-password" class="forgot-link">
             {{ 'FORGOT_PASSWORD' | translate }}
-          </a>
+          </a> -->
         </div>
 
         <!-- Submit -->

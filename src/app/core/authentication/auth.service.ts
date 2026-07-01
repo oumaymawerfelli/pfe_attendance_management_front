@@ -47,13 +47,13 @@ export class AuthService {
     return this.tokenService.valid();
   }
 
-  login(username: string, password: string, rememberMe = false) {
-    return this.loginService.login(username, password, rememberMe).pipe(
-      tap(token => this.tokenService.set(token)),
-      map(() => this.check()),
-      catchError(() => of(false))
-    );
-  }
+ login(username: string, password: string, rememberMe = false) {
+  return this.loginService.login(username, password, rememberMe).pipe(
+    tap(token => this.tokenService.set(token)),
+    map(() => this.check())
+    // ✅ catchError REMOVED — let the HttpErrorResponse propagate to the component
+  );
+}
 
   refresh() {
     return this.loginService

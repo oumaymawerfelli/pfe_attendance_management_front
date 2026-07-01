@@ -31,20 +31,34 @@
             <p class="wf-subtitle">Real-time overview of your organization</p>
           </div>
           <div class="wf-header-spacer"></div>
+
+          <!-- ✅ Pill now shows the current selection -->
           <div class="wf-type-pill" [matMenuTriggerFor]="typeMenu">
-            Employee type <mat-icon>expand_more</mat-icon>
+            {{ contractTypeLabel }} <mat-icon>expand_more</mat-icon>
           </div>
           <mat-menu #typeMenu="matMenu">
-            <button mat-menu-item *ngFor="let t of contractTypes" (click)="onContractTypeChange(t.key)">
+            <!-- ✅ "All types" option lets user reset the filter -->
+            <button mat-menu-item (click)="onContractTypeChange('ALL')">
+              <span [class.fw-bold]="selectedContractType === 'ALL'">All types</span>
+            </button>
+            <button mat-menu-item
+                    *ngFor="let t of contractTypes"
+                    (click)="onContractTypeChange(t.key)">
               <span [class.fw-bold]="selectedContractType === t.key">{{ t.label }}</span>
             </button>
           </mat-menu>
         </div>
 
         <div class="wf-total-section">
-          <span class="wf-total-label">Total Employees</span>
+          <span class="wf-total-label">
+            Total Employees
+            <small *ngIf="selectedContractType !== 'ALL'" style="opacity:.7; font-weight:500;">
+              · {{ contractTypeLabel }} only
+            </small>
+          </span>
           <div class="wf-total-row">
-            <span class="wf-total-num">{{ deptTotal }}</span>
+            <!-- ✅ Show filtered total when a type is selected -->
+            <span class="wf-total-num">{{ displayedTotal }}</span>
             <div class="wf-trend-badge">
               <mat-icon>arrow_upward</mat-icon>
               <span class="wf-trend-pct">{{ employeeTrend }}</span>
@@ -53,54 +67,64 @@
           <span class="wf-trend-sub">vs last month</span>
         </div>
 
+        <!-- ✅ Bars use ng-container so original index (i) stays stable for icons/sparklines -->
         <div class="wf-bars-row">
-          <div
-            *ngFor="let t of contractTypes; let i = index"
-            class="wf-bar-seg"
-            [class]="'wf-bar-' + i"
-            [style.flex]="t.count"
-            [style.background]="t.color"
-            [matTooltip]="t.label + ': ' + t.count + ' (' + contractPct(t.count) + ')'"
-            matTooltipPosition="above">
-            <mat-icon>group</mat-icon>
-            <span>{{ contractPct(t.count) }}</span>
-          </div>
+          <ng-container *ngFor="let t of contractTypes; let i = index">
+            <div
+              *ngIf="isTypeVisible(t.key)"
+              class="wf-bar-seg"
+              [class]="'wf-bar-' + i"
+              [style.flex]="t.count"
+              [style.background]="t.color"
+              [matTooltip]="t.label + ': ' + t.count + ' (' + contractPct(t.count) + ')'"
+              matTooltipPosition="above">
+              <mat-icon>group</mat-icon>
+              <span>{{ contractPct(t.count) }}</span>
+            </div>
+          </ng-container>
         </div>
 
+        <!-- ✅ Legend filtered too -->
         <div class="wf-legend-row">
-          <span *ngFor="let t of contractTypes" class="wf-legend-pill">
-            <span class="wf-legend-dot" [style.background]="t.color"></span>
-            {{ t.label }}
-          </span>
+          <ng-container *ngFor="let t of contractTypes">
+            <span *ngIf="isTypeVisible(t.key)" class="wf-legend-pill">
+              <span class="wf-legend-dot" [style.background]="t.color"></span>
+              {{ t.label }}
+            </span>
+          </ng-container>
         </div>
 
+        <!-- ✅ Count cards filtered too. ng-container preserves index for icons/sparklines -->
         <div class="wf-counts-row">
-          <div class="wf-count-card" *ngFor="let t of contractTypes; let i = index"
-               [style.--accent]="t.color">
-            <div class="wf-count-top">
-              <div class="wf-count-icon-wrap" [style.background]="t.color + '18'">
-                <mat-icon [style.color]="t.color">{{ contractIcons[i] }}</mat-icon>
+          <ng-container *ngFor="let t of contractTypes; let i = index">
+            <div *ngIf="isTypeVisible(t.key)"
+                 class="wf-count-card"
+                 [style.--accent]="t.color">
+              <div class="wf-count-top">
+                <div class="wf-count-icon-wrap" [style.background]="t.color + '18'">
+                  <mat-icon [style.color]="t.color">{{ contractIcons[i] }}</mat-icon>
+                </div>
+                <span class="wf-count-type">{{ t.label }} Employees</span>
               </div>
-              <span class="wf-count-type">{{ t.label }} Employees</span>
+              <div class="wf-count-num">{{ t.count }}</div>
+              <div class="wf-count-footer">
+                <span class="wf-count-pct" [style.color]="t.color">
+                  {{ contractPct(t.count) }} of total
+                </span>
+                <svg class="wf-count-spark" viewBox="0 0 60 24" fill="none">
+                  <polyline
+                    [attr.points]="contractSparklines[i]"
+                    [attr.stroke]="t.color"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    fill="none"/>
+                  <circle [attr.cx]="sparkEndX[i]" [attr.cy]="sparkEndY[i]"
+                          r="3" [attr.fill]="t.color"/>
+                </svg>
+              </div>
             </div>
-            <div class="wf-count-num">{{ t.count }}</div>
-            <div class="wf-count-footer">
-              <span class="wf-count-pct" [style.color]="t.color">
-                {{ contractPct(t.count) }} of total
-              </span>
-              <svg class="wf-count-spark" viewBox="0 0 60 24" fill="none">
-                <polyline
-                  [attr.points]="contractSparklines[i]"
-                  [attr.stroke]="t.color"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  fill="none"/>
-                <circle [attr.cx]="sparkEndX[i]" [attr.cy]="sparkEndY[i]"
-                        r="3" [attr.fill]="t.color"/>
-              </svg>
-            </div>
-          </div>
+          </ng-container>
         </div>
 
       </div>
@@ -170,8 +194,6 @@
   <ng-container *ngIf="!isAdmin">
     <app-employee-dashboard></app-employee-dashboard>
   </ng-container>
-
- 
 
   <app-chatbot></app-chatbot>
 

@@ -7,7 +7,7 @@
       <p class="page-description">Manage and track all company projects in one place.</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-primary" *ngIf="isAdminOrGM" (click)="createProject()">
+      <button class="btn btn-primary" *ngIf="isGM" (click)="createProject()">
         <mat-icon>add</mat-icon>
         <span>New Project</span>
       </button>
@@ -150,7 +150,7 @@
     <button class="action-btn view-btn" (click)="viewProject(p)" matTooltip="View Details">
       <mat-icon>visibility</mat-icon>
     </button>
-    <ng-container *ngIf="isAdminOrGM">
+    <ng-container *ngIf="isGM">
       <button class="action-btn edit-btn" (click)="editProject(p)" matTooltip="Edit">
         <mat-icon>edit</mat-icon>
       </button>

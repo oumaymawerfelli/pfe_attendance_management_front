@@ -25,3 +25,81 @@ html, body {
     display: block !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   ARABSOFT — Custom Sidemenu Theme Override
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --arabsoft-navy: #1B2845;
+  --arabsoft-navy-light: #2C3E63;
+  --arabsoft-orange: #F39C12;
+  --arabsoft-orange-light: #FFB953;
+
+  --sidemenu-active-heading-text-color: var(--arabsoft-orange) !important;
+  --sidemenu-active-heading-background-color: rgba(243, 156, 18, 0.10) !important;
+  --sidemenu-active-heading-hover-background-color: rgba(243, 156, 18, 0.15) !important;
+  --sidemenu-heading-hover-background-color: rgba(27, 40, 69, 0.04) !important;
+  --sidemenu-expanded-background-color: rgba(27, 40, 69, 0.03) !important;
+}
+
+.matero-sidemenu {
+
+  .menu-item > .menu-heading {
+    border-radius: 10px;
+    margin: 2px 12px;
+    padding: 11px 14px !important;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    color: #4A5568;
+  }
+
+  .menu-item > .menu-heading:hover {
+    color: var(--arabsoft-navy);
+  }
+
+  .mat-icon.menu-icon {
+    color: #94A3B8;
+    transition: color 0.2s ease;
+  }
+
+  .menu-item.active > .menu-heading {
+    color: var(--arabsoft-orange) !important;
+    background: linear-gradient(
+      90deg,
+      rgba(243, 156, 18, 0.12) 0%,
+      rgba(243, 156, 18, 0.04) 100%
+    ) !important;
+    font-weight: 600;
+    position: relative;
+  }
+
+.menu-item.active > .menu-heading::before {
+  content: '';
+  position: absolute;
+  left: 0;                    /* ← Au lieu de -12px */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background: var(--arabsoft-orange);
+  border-radius: 0 4px 4px 0;
+}
+  .menu-item.active > .menu-heading .mat-icon.menu-icon {
+    color: var(--arabsoft-orange) !important;
+  }
+
+  .menu-label {
+    background: var(--arabsoft-navy) !important;
+    color: white !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    padding: 3px 7px !important;
+    border-radius: 6px !important;
+    letter-spacing: 0.5px;
+  }
+}
+
+.matero-sidebar-main {
+  background: #FAFBFC;
+}

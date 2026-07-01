@@ -157,5 +157,31 @@
     }
   }
 }
+
+// sidemenu.component.scss
+.matero-sidemenu.submenu .menu-icon {
+  font-size: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+// ─── Icons for AI submenu items ───
+.matero-sidemenu.submenu .menu-item {
+  &[route="rag"] .menu-name::before {
+    content: 'smart_toy';
+    font-family: 'Material Icons';
+    font-size: 18px;
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+
+  &[route="demotivation"] .menu-name::before {
+    content: 'insights';
+    font-family: 'Material Icons';
+    font-size: 18px;
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+}
   
 }

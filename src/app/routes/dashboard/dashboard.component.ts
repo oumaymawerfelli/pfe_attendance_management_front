@@ -2,6 +2,7 @@ import {
   Component, OnInit, AfterViewInit,
   OnDestroy, ChangeDetectorRef,
 } from '@angular/core';
+import { Subject, take, takeUntil } from 'rxjs';
 import { Chart, registerables } from 'chart.js';
 import { AuthService } from '@core/authentication';
 import { DashboardApiService, DashboardStats } from './dashboard.service';
@@ -37,28 +38,22 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedDate: Date | null = null;
 
   selectedContractType = 'ALL';
-
-  // ── Employee trend (from API or default) ──────────────────
   employeeTrend = '+8.3%';
 
-  // ── Contract types — updated colors to match design ──────
   contractTypes: ContractTypeStat[] = [
     { key: 'CDI', label: 'Full-Time', count: 0, color: '#1a2e5a' },
     { key: 'CTP', label: 'Part-Time', count: 0, color: '#f59e0b' },
     { key: 'CDD', label: 'Contract',  count: 0, color: '#94a3b8' },
   ];
 
-  // ── Icons for each contract type card ────────────────────
   contractIcons = ['work', 'schedule', 'person_outline'];
 
-  // ── Sparklines: [x,y] polyline points for SVG (60×24 viewport) ──
   contractSparklines = [
-    '0,20 10,17 20,15 30,13 40,10 50,7 60,4',   // Full-Time: upward
-    '0,18 10,17 20,19 30,15 40,16 50,13 60,10',  // Part-Time: slight up
-    '0,14 10,16 20,18 30,15 40,17 50,15 60,13',  // Contract: flat/slight
+    '0,20 10,17 20,15 30,13 40,10 50,7 60,4',
+    '0,18 10,17 20,19 30,15 40,16 50,13 60,10',
+    '0,14 10,16 20,18 30,15 40,17 50,15 60,13',
   ];
 
-  // End points of each sparkline (for the dot)
   sparkEndX = [60, 60, 60];
   sparkEndY = [4, 10, 13];
 
@@ -71,20 +66,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   deptLabels: string[] = [];
   deptData:   number[] = [];
 
-  // ── Department colors — matching the design screenshot ───
   deptColors = [
-    '#1a2e5a',  // IT          — dark navy
-    '#f59e0b',  // Marketing   — amber
-    '#3b82f6',  // Operations  — blue
-    '#60a5fa',  // Finance     — light blue
-    '#6b7280',  // HR          — gray
-    '#9ca3af',  // Cust. Svc   — light gray
-    '#d97706',  // Sales       — dark amber
-    '#374151',  // R&D         — dark gray
-    '#0F6E56',  // extra
+    '#1a2e5a', '#f59e0b', '#3b82f6', '#60a5fa', '#6b7280',
+    '#9ca3af', '#d97706', '#374151', '#0F6E56',
   ];
 
   private charts: Chart[] = [];
+  private destroy$ = new Subject<void>();
+  private statsLoaded = false;   // ← guard so loadStats only runs ONCE
 
   constructor(
     private auth:    AuthService,
@@ -106,24 +95,49 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   // ── Event handlers ────────────────────────────────────────
 
   onPeriodChange(value: string): void {
+    console.log('[Dashboard] period →', value);   // ← debug
     this.period       = value;
     this.selectedDate = null;
     this.cdr.markForCheck();
   }
 
   onDepartmentChange(value: string): void {
+    console.log('[Dashboard] department →', value);   // ← debug
     this.selectedDepartment = value;
     this.cdr.markForCheck();
   }
 
   onDateChange(date: Date | null): void {
+    console.log('[Dashboard] date →', date);   // ← debug
     this.selectedDate = date;
     this.cdr.markForCheck();
   }
 
   onContractTypeChange(key: string): void {
+    console.log('[Dashboard] contractType →', key);   // ← debug
     this.selectedContractType = key;
     this.cdr.markForCheck();
+  }
+
+  // ── Employee-type filter helpers ──────────────────────────
+
+  /** Whether a given contract type should be shown given the current filter. */
+  isTypeVisible(key: string): boolean {
+    return this.selectedContractType === 'ALL'
+        || this.selectedContractType === key;
+  }
+
+  /** Total to display: full total when ALL, else just the selected type's count. */
+  get displayedTotal(): number {
+    if (this.selectedContractType === 'ALL') return this.deptTotal;
+    return this.contractTypes.find(t => t.key === this.selectedContractType)?.count ?? 0;
+  }
+
+  /** Label shown on the "Employee type" pill. */
+  get contractTypeLabel(): string {
+    if (this.selectedContractType === 'ALL') return 'All types';
+    return this.contractTypes.find(t => t.key === this.selectedContractType)?.label
+        ?? 'Employee type';
   }
 
   // ── Helpers ───────────────────────────────────────────────
@@ -140,7 +154,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return Math.round((count / total) * 100) + '%';
   }
 
-  /** Returns a Material icon name for a given department label */
   getDeptIcon(name: string): string {
     const n = (name || '').toLowerCase();
     if (n.includes('it') || n.includes('tech'))         return 'computer';
@@ -160,22 +173,32 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   // ── Lifecycle ─────────────────────────────────────────────
 
   ngOnInit(): void {
-    this.auth.user().subscribe((user: any) => {
-      const roles: string[] = Array.isArray(user?.roles)
-        ? user.roles.map((r: any) => (typeof r === 'string' ? r : r?.name ?? ''))
-        : [];
-      this.isAdmin = roles.some((r: string) =>
-        ['ADMIN', 'GENERAL_MANAGER', 'ROLE_ADMIN', 'ROLE_GENERAL_MANAGER'].includes(r),
-      );
-      if (this.isAdmin) this.loadStats();
-      else this.loading = false;
-      this.cdr.markForCheck();
-    });
+    // ✅ Use take(1) so auth.user() re-emits don't re-trigger loadStats
+    // (Previously, every emit destroyed/remounted attendance-overview via *ngIf="!loading")
+    this.auth.user()
+      .pipe(take(1), takeUntil(this.destroy$))
+      .subscribe((user: any) => {
+        const roles: string[] = Array.isArray(user?.roles)
+          ? user.roles.map((r: any) => (typeof r === 'string' ? r : r?.name ?? ''))
+          : [];
+        this.isAdmin = roles.some((r: string) =>
+          ['ADMIN', 'GENERAL_MANAGER', 'ROLE_ADMIN', 'ROLE_GENERAL_MANAGER'].includes(r),
+        );
+
+        if (this.isAdmin && !this.statsLoaded) {
+          this.loadStats();
+        } else if (!this.isAdmin) {
+          this.loading = false;
+        }
+        this.cdr.markForCheck();
+      });
   }
 
   ngAfterViewInit(): void {}
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.charts.forEach(c => c.destroy());
   }
 
@@ -197,14 +220,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.deptLabels = stats.byDepartment.map(d => d.department);
         this.deptData   = stats.byDepartment.map(d => d.count);
 
-        // Optionally read trend from API if available
         if ((stats as any).employeeTrend) {
           this.employeeTrend = (stats as any).employeeTrend;
         }
 
         this.populateContractTypes(stats);
 
-        this.loading = false;
+        this.statsLoaded = true;     // ← guard set
+        this.loading     = false;
         this.cdr.markForCheck();
         setTimeout(() => this.buildDonutChart(), 0);
       },

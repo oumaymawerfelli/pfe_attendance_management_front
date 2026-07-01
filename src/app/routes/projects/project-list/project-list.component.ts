@@ -22,7 +22,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   isLoading     = false;
 
   // Resolved to a plain boolean — used directly in template (no async pipe needed)
-  isAdminOrGM = false;
+  isGM  = false;
 
   searchKeyword   = '';
   selectedManager = '';
@@ -38,21 +38,20 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     private authService:    AuthService,
   ) {}
 
-  ngOnInit(): void {
-    // Resolve role to boolean once
-    this.authService.user()
-      .pipe(
-        takeUntil(this.destroy$),
-        map((user: any) => {
-          if (!user?.roles) return false;
-          const roles = Array.isArray(user.roles) ? user.roles : [user.roles];
-          return roles.some((r: any) => {
-            const name = typeof r === 'string' ? r : (r?.name ?? r?.authority ?? '');
-            return name.includes('ADMIN') || name.includes('GENERAL_MANAGER');
-          });
-        })
-      )
-      .subscribe(val => this.isAdminOrGM = val);
+ngOnInit(): void {
+  this.authService.user()
+    .pipe(
+      takeUntil(this.destroy$),
+      map((user: any) => {
+        if (!user?.roles) return false;
+        const roles = Array.isArray(user.roles) ? user.roles : [user.roles];
+        return roles.some((r: any) => {
+          const name = typeof r === 'string' ? r : (r?.name ?? r?.authority ?? '');
+          return name.includes('GENERAL_MANAGER');  // ← retire ADMIN
+        });
+      })
+    )
+    .subscribe(val => this.isGM = val);
 
     this.loadProjects();
 

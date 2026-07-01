@@ -7,6 +7,7 @@ import { LeaveRequestFormComponent } from './components/request-form/leave-reque
 import { LeaveHistoryComponent } from './components/history/leave-history.component';
 import { AdminLeavesComponent } from './components/admin-leaves/admin-leaves.component';
 import { LeaveDetailDialogComponent } from './components/leave-detail-dialog/leave-detail-dialog.component';
+import { ExitAuthorizationFormComponent } from './components/exit-authorization-form/exit-authorization-form.component';
 
 @NgModule({
   imports: [SharedModule, LeaveRoutingModule],
@@ -17,6 +18,7 @@ import { LeaveDetailDialogComponent } from './components/leave-detail-dialog/lea
     LeaveHistoryComponent,
     AdminLeavesComponent,
     LeaveDetailDialogComponent,
+    ExitAuthorizationFormComponent,
   ],
 })
 export class LeaveModule {}

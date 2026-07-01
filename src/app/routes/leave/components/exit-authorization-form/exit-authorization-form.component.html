@@ -1,0 +1,142 @@
+<!-- Success banner -->
+<div class="status-banner success-banner" *ngIf="success">
+  <mat-icon>check_circle</mat-icon>
+  <span>Exit authorization request submitted successfully.</span>
+  <button mat-button (click)="success = false">Submit another</button>
+</div>
+
+<!-- Error banner -->
+<div class="status-banner error-banner" *ngIf="error">
+  <mat-icon>error_outline</mat-icon>
+  <span>{{ error }}</span>
+  <button mat-icon-button (click)="error = ''">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!success" autocomplete="off">
+  <div class="exit-form-layout">
+
+    <main class="exit-form-main">
+
+      <!-- Header card -->
+      <section class="form-section intro-card">
+        <mat-icon class="intro-icon">logout</mat-icon>
+        <div>
+          <h3>Exit Authorization Request</h3>
+          <p>Request a short-duration exit during working hours. Maximum 1h30 per request.</p>
+        </div>
+      </section>
+
+      <!-- Step 1: Date -->
+      <section class="form-section">
+        <div class="step-header">
+          <span class="step-num">1</span>
+          <h3 class="step-title">Date of Exit</h3>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Exit date</mat-label>
+          <input matInput
+                 [matDatepicker]="exitPicker"
+                 formControlName="exitDate"
+                 [min]="today">
+          <mat-datepicker-toggle matSuffix [for]="exitPicker"></mat-datepicker-toggle>
+          <mat-datepicker #exitPicker></mat-datepicker>
+          <mat-error>Date is required</mat-error>
+        </mat-form-field>
+      </section>
+
+      <!-- Step 2: Times -->
+      <section class="form-section">
+        <div class="step-header">
+          <span class="step-num">2</span>
+          <h3 class="step-title">Time Range</h3>
+        </div>
+
+        <div class="time-row">
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>Exit time</mat-label>
+            <input matInput type="time" formControlName="exitTime">
+            <mat-icon matSuffix>schedule</mat-icon>
+            <mat-error>Exit time is required</mat-error>
+          </mat-form-field>
+
+          <div class="duration-badge" [class.exceeds]="exceedsMaxDuration"
+                                      [class.has-value]="durationMinutes > 0">
+            <span class="duration-num">{{ durationLabel }}</span>
+            <span class="duration-lbl" *ngIf="durationMinutes > 0">Duration</span>
+          </div>
+
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>Return time</mat-label>
+            <input matInput type="time" formControlName="returnTime">
+            <mat-icon matSuffix>schedule</mat-icon>
+            <mat-error>Return time is required</mat-error>
+          </mat-form-field>
+        </div>
+
+       <!-- Warning: invalid time range (return before exit) -->
+<div class="duration-warning duration-error"
+     *ngIf="form.get('exitTime')?.value && form.get('returnTime')?.value && durationMinutes <= 0">
+  <mat-icon>error_outline</mat-icon>
+  <span>Return time must be after exit time.</span>
+</div>
+
+<!-- Warning: exceeds max duration -->
+<div class="duration-warning"
+     *ngIf="exceedsMaxDuration">
+  <mat-icon>warning</mat-icon>
+  <span>The duration exceeds the 1h30 limit set by company policy.</span>
+</div>
+      </section>
+
+      <!-- Step 3: Reason -->
+      <section class="form-section">
+        <div class="step-header">
+          <span class="step-num">3</span>
+          <h3 class="step-title">Reason</h3>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <textarea matInput
+                    formControlName="reason"
+                    rows="3"
+                    maxlength="200"
+                    placeholder="Briefly describe the reason for your exit...">
+          </textarea>
+          <mat-hint align="end">{{ form.get('reason')?.value?.length ?? 0 }} / 200</mat-hint>
+          <mat-error *ngIf="form.get('reason')?.hasError('required')">Reason is required</mat-error>
+          <mat-error *ngIf="form.get('reason')?.hasError('minlength')">Minimum 5 characters</mat-error>
+        </mat-form-field>
+      </section>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="form.invalid || submitting || durationMinutes <= 0">
+          <mat-icon>send</mat-icon>
+          {{ submitting ? 'Submitting…' : 'Submit Request' }}
+        </button>
+      </div>
+
+    </main>
+
+    <!-- Side info card -->
+    <aside class="exit-form-side">
+      <div class="info-card">
+        <div class="info-header">
+          <mat-icon>info</mat-icon>
+          <span>Company Policy</span>
+        </div>
+        <ul>
+          <li>Maximum duration: <strong>1h 30 min</strong> per request.</li>
+          <li>More than 2 exits per month = <strong>0.5 day</strong> absence.</li>
+          <li>More than 3 exits per month = <strong>1 day</strong> absence.</li>
+          <li>Approval required from your project manager or General Manager.</li>
+        </ul>
+      </div>
+    </aside>
+
+  </div>
+</form>
